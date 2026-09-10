@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByDisponivelTrue();
-    List<Produto> findByCategoriaId(int categoriaId);
+    List<Produto> findByCategoriaId(Long categoriaId);
 }

@@ -9,3 +9,4 @@ public class GerenciadorLanchoneteBackendApplication {
         SpringApplication.run(GerenciadorLanchoneteBackendApplication.class, args);
     }
 }
+
