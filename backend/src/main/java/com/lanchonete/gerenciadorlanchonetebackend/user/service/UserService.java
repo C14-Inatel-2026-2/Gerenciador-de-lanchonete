@@ -1,8 +1,8 @@
-package com.lanchonete.user.service;
+package com.lanchonete.gerenciadorlanchonetebackend.user.service;
 
-import com.lanchonete.user.exception.UserValidationException;
-import com.lanchonete.user.model.UserProfile;
-import com.lanchonete.user.model.UserRole;
+import com.lanchonete.gerenciadorlanchonetebackend.user.exception.UserValidationException;
+import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
+import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
 
 public class UserService {
 

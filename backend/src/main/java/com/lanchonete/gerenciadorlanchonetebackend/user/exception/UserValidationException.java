@@ -1,4 +1,4 @@
-package com.lanchonete.user.exception;
+package com.lanchonete.gerenciadorlanchonetebackend.user.exception;
 
 public class UserValidationException extends RuntimeException {
 

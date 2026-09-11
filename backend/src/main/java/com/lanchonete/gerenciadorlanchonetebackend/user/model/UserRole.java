@@ -1,4 +1,4 @@
-package com.lanchonete.user.model;
+package com.lanchonete.gerenciadorlanchonetebackend.user.model;
 
 public enum UserRole {
     CLIENTE,
