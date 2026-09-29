@@ -1,4 +1,4 @@
-package Compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras;
 
 import java.math.BigDecimal;
 

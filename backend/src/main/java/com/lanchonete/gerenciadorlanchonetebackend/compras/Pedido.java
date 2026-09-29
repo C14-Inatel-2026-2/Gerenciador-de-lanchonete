@@ -1,15 +1,17 @@
-package Compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class Pedido {
+
+    private Long id;
     private final Long clienteId;
     private final List<ItemPedido> itens;
     private final BigDecimal total;
     private final LocalDateTime criadoEm;
-    private final StatusPedido status;
+    private StatusPedido status;
 
     public Pedido(Long clienteId, List<ItemPedido> itens) {
         validarClienteId(clienteId);
@@ -75,4 +77,8 @@ public class Pedido {
             throw new IllegalArgumentException("O pedido deve possuir pelo menos um item.");
         }
     }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public void setStatus(StatusPedido status) { this.status = status; }
 }
