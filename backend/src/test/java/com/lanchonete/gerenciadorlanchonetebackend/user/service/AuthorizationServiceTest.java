@@ -1,6 +1,7 @@
 package com.lanchonete.gerenciadorlanchonetebackend.user.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
+import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,101 +10,61 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AuthorizationServiceTest {
 
     @Test
-    void adminDevePoderGerenciarUsuarios() {
-
+    void usuarioAdminAtivoDevePoderGerenciarUsuarios() {
         AuthorizationService authorizationService = new AuthorizationService();
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Admin", "admin@email.com", UserRole.ADMIN
+        );
 
-        boolean resultado = authorizationService
-                .podeGerenciarUsuarios(UserRole.ADMIN);
-
-        assertTrue(resultado);
+        assertTrue(authorizationService.podeGerenciarUsuarios(userProfile));
     }
 
     @Test
-    void clienteNaoDevePoderGerenciarUsuarios() {
-
+    void usuarioAdminInativoNaoDeveAcessarRecursosProtegidos() {
         AuthorizationService authorizationService = new AuthorizationService();
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Admin", "admin@email.com", UserRole.ADMIN
+        );
+        userProfile.desativar();
 
-        boolean resultado = authorizationService
-                .podeGerenciarUsuarios(UserRole.CLIENTE);
-
-        assertFalse(resultado);
+        assertFalse(authorizationService.podeGerenciarUsuarios(userProfile));
     }
 
     @Test
-    void funcionarioNaoDevePoderGerenciarUsuarios() {
-
+    void usuarioClienteAtivoNaoDeveGerenciarUsuarios() {
         AuthorizationService authorizationService = new AuthorizationService();
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Cliente", "cliente@email.com", UserRole.CLIENTE
+        );
 
-        boolean resultado = authorizationService
-                .podeGerenciarUsuarios(UserRole.FUNCIONARIO);
-
-        assertFalse(resultado);
+        assertFalse(authorizationService.podeGerenciarUsuarios(userProfile));
     }
 
     @Test
-    void adminDevePoderAlterarRole() {
-
+    void usuarioFuncionarioAtivoNaoDeveAlterarRole() {
         AuthorizationService authorizationService = new AuthorizationService();
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Funcionario", "funcionario@email.com",
+                UserRole.FUNCIONARIO
+        );
 
-        boolean resultado = authorizationService
-                .podeAlterarRole(UserRole.ADMIN);
-
-        assertTrue(resultado);
+        assertFalse(authorizationService.podeAlterarRole(userProfile));
     }
 
     @Test
-    void clienteNaoDevePoderAlterarRole() {
-
+    void usuarioClienteAtivoNaoDeveDesativarUsuario() {
         AuthorizationService authorizationService = new AuthorizationService();
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Cliente", "cliente@email.com", UserRole.CLIENTE
+        );
 
-        boolean resultado = authorizationService
-                .podeAlterarRole(UserRole.CLIENTE);
-
-        assertFalse(resultado);
+        assertFalse(authorizationService.podeDesativarUsuario(userProfile));
     }
 
     @Test
-    void funcionarioNaoDevePoderAlterarRole() {
-
+    void usuarioNuloNaoDeveSerAutorizado() {
         AuthorizationService authorizationService = new AuthorizationService();
 
-        boolean resultado = authorizationService
-                .podeAlterarRole(UserRole.FUNCIONARIO);
-
-        assertFalse(resultado);
-    }
-
-    @Test
-    void adminDevePoderDesativarUsuario() {
-
-        AuthorizationService authorizationService = new AuthorizationService();
-
-        boolean resultado = authorizationService
-                .podeDesativarUsuario(UserRole.ADMIN);
-
-        assertTrue(resultado);
-    }
-
-    @Test
-    void clienteNaoDevePoderDesativarUsuario() {
-
-        AuthorizationService authorizationService = new AuthorizationService();
-
-        boolean resultado = authorizationService
-                .podeDesativarUsuario(UserRole.CLIENTE);
-
-        assertFalse(resultado);
-    }
-
-    @Test
-    void funcionarioNaoDevePoderDesativarUsuario() {
-
-        AuthorizationService authorizationService = new AuthorizationService();
-
-        boolean resultado = authorizationService
-                .podeDesativarUsuario(UserRole.FUNCIONARIO);
-
-        assertFalse(resultado);
+        assertFalse(authorizationService.podeGerenciarUsuarios(null));
     }
 }

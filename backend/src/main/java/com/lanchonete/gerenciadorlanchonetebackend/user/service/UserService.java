@@ -3,8 +3,17 @@ package com.lanchonete.gerenciadorlanchonetebackend.user.service;
 import com.lanchonete.gerenciadorlanchonetebackend.user.exception.UserValidationException;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
+import com.lanchonete.gerenciadorlanchonetebackend.user.repository.UserProfileRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserService {
+
+    private final UserProfileRepository userProfileRepository;
+
+    public UserService(UserProfileRepository userProfileRepository) {
+        this.userProfileRepository = userProfileRepository;
+    }
 
     public UserProfile criarPerfil(
             String supabaseUserId,
@@ -16,12 +25,17 @@ public class UserService {
         validarNome(nome);
         validarEmail(email);
 
-        return new UserProfile(
+        if (userProfileRepository.existsByEmail(email)) {
+            throw new UserValidationException("E-mail já cadastrado");
+        }
+
+        UserProfile userProfile = new UserProfile(
                 supabaseUserId,
                 nome,
                 email,
                 UserRole.CLIENTE
         );
+        return userProfileRepository.save(userProfile);
     }
 
     private void validarSupabaseUserId(String supabaseUserId) {
@@ -47,7 +61,7 @@ public class UserService {
             );
         }
 
-        if (!email.contains("@")) {
+        if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
             throw new UserValidationException(
                     "E-mail inválido"
             );
