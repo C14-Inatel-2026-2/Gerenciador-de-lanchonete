@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByDisponivelTrue();
+    boolean existsByNome(String nome);
     List<Produto> findByCategoriaId(Long categoriaId);
 }
