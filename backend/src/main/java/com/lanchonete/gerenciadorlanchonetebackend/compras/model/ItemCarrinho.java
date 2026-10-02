@@ -1,36 +1,36 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ItemCarrinho {
-    private final Long produtoId;
-    private final String nome;
-    private final BigDecimal precoUnitario;
+    private final Produto produto;
     private int quantidade;
 
-    public ItemCarrinho(Long produtoId, String nome, BigDecimal precoUnitario, int quantidade) {
-        validarProdutoId(produtoId);
-        validarNome(nome);
-        validarPrecoUnitario(precoUnitario);
+    public ItemCarrinho(Produto produto, int quantidade) {
+        validarProduto(produto);
         validarQuantidade(quantidade);
 
-        this.produtoId = produtoId;
-        this.nome = nome;
-        this.precoUnitario = precoUnitario;
+        this.produto = produto;
         this.quantidade = quantidade;
     }
 
+    public Produto getProduto() {
+        return produto;
+    }
+
     public Long getProdutoId() {
-        return produtoId;
+        return produto.getId();
     }
 
     public String getNome() {
-        return nome;
+        return produto.getNome();
     }
 
     public BigDecimal getPrecoUnitario() {
-        return precoUnitario;
+        return produto.getPreco();
     }
 
     public int getQuantidade() {
@@ -60,7 +60,7 @@ public class ItemCarrinho {
     }
 
     public BigDecimal calcularSubtotal() {
-        return precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+        return produto.getPreco().multiply(BigDecimal.valueOf(quantidade));
     }
 
     @Override
@@ -73,28 +73,28 @@ public class ItemCarrinho {
             return false;
         }
 
-        return produtoId.equals(outroItem.produtoId);
+        return produto.getId().equals(outroItem.produto.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(produtoId);
+        return Objects.hash(produto.getId());
     }
 
-    private void validarProdutoId(Long produtoId) {
-        if (produtoId == null || produtoId <= 0) {
-            throw new IllegalArgumentException("O identificador do produto deve ser positivo.");
+    private void validarProduto(Produto produto) {
+        if (produto == null) {
+            throw new IllegalArgumentException("O produto não pode ser nulo.");
         }
-    }
 
-    private void validarNome(String nome) {
-        if (nome == null || nome.isBlank()) {
+        if (produto.getId() == null || produto.getId() <= 0) {
+            throw new IllegalArgumentException("O produto deve possuir um identificador válido.");
+        }
+
+        if (produto.getNome() == null || produto.getNome().isBlank()) {
             throw new IllegalArgumentException("O nome do produto não pode ser vazio.");
         }
-    }
 
-    private void validarPrecoUnitario(BigDecimal precoUnitario) {
-        if (precoUnitario == null || precoUnitario.signum() < 0) {
+        if (produto.getPreco() == null || produto.getPreco().signum() < 0) {
             throw new IllegalArgumentException("O preco unitario não pode ser negativo.");
         }
     }

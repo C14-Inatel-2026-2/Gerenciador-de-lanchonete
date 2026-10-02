@@ -1,5 +1,7 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
+
 import java.math.BigDecimal;
 
 public class ItemPedido {
@@ -25,12 +27,8 @@ public class ItemPedido {
             throw new IllegalArgumentException("O item do carrinho não pode ser nulo.");
         }
 
-        return new ItemPedido(
-            itemCarrinho.getProdutoId(),
-            itemCarrinho.getNome(),
-            itemCarrinho.getPrecoUnitario(),
-            itemCarrinho.getQuantidade()
-        );
+        Produto produto = itemCarrinho.getProduto();
+        return new ItemPedido(produto.getId(), produto.getNome(), produto.getPreco(), itemCarrinho.getQuantidade());
     }
 
     public Long getProdutoId() {
