@@ -11,23 +11,37 @@ public class PedidoLifecycleService {
         this.pedidoRepository = pedidoRepository;
     }
 
-    public void avancarParaPreparo(Pedido pedido) {
-        if (pedido.getStatus() != StatusPedido.CRIADO) {
-            throw new IllegalStateException("Apenas pedidos CRIADOS podem ir para preparo.");
-        }
-        pedido.setStatus(StatusPedido.EM_PREPARO);
+    public Pedido avancarParaPreparo(Pedido pedido) {
+        return atualizarStatus(pedido, StatusPedido.EM_PREPARO);
     }
 
-    public Pedido atualizarStatusNoBanco(Pedido pedido, StatusPedido novoStatus) {
-        pedido.setStatus(novoStatus);
-        return pedidoRepository.save(pedido);
+    public Pedido marcarComoPronto(Pedido pedido) {
+        return atualizarStatus(pedido, StatusPedido.PRONTO);
+    }
+
+    public Pedido entregar(Pedido pedido) {
+        return atualizarStatus(pedido, StatusPedido.ENTREGUE);
     }
 
     public Pedido cancelarPedido(Pedido pedido) {
-        if (pedido.getStatus() == StatusPedido.PRONTO || pedido.getStatus() == StatusPedido.ENTREGUE) {
-            throw new IllegalStateException("Não é possível cancelar um pedido que já está PRONTO ou ENTREGUE.");
+        return atualizarStatus(pedido, StatusPedido.CANCELADO);
+    }
+
+    // Único ponto que altera status: valida a transição, altera e persiste.
+    public Pedido atualizarStatus(Pedido pedido, StatusPedido novoStatus) {
+        if (pedido == null) {
+            throw new IllegalArgumentException("O pedido não pode ser nulo.");
         }
-        pedido.setStatus(StatusPedido.CANCELADO);
+        if (novoStatus == null) {
+            throw new IllegalArgumentException("O novo status não pode ser nulo.");
+        }
+
+        StatusPedido atual = pedido.getStatus();
+        if (!atual.podeTransitarPara(novoStatus)) {
+            throw new TransicaoStatusInvalidaException(atual, novoStatus);
+        }
+
+        pedido.setStatus(novoStatus);
         return pedidoRepository.save(pedido);
     }
 }
