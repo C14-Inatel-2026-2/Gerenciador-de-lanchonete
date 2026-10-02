@@ -1,15 +1,39 @@
-package Compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Entity
+@Table(name = "pedido")
 public class Pedido {
-    private final Long clienteId;
-    private final List<ItemPedido> itens;
-    private final BigDecimal total;
-    private final LocalDateTime criadoEm;
-    private final StatusPedido status;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "cliente_id", nullable = false)
+    private Long clienteId;
+
+    // EAGER para evitar LazyInitializationException fora de transação
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "item_pedido", joinColumns = @JoinColumn(name = "pedido_id"))
+    private List<ItemPedido> itens;
+
+    @Column(nullable = false)
+    private BigDecimal total;
+
+    @Column(name = "criado_em", nullable = false)
+    private LocalDateTime criadoEm;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusPedido status;
+
+    // Exigido pelo JPA; não use diretamente
+    protected Pedido() {
+    }
 
     public Pedido(Long clienteId, List<ItemPedido> itens) {
         validarClienteId(clienteId);
@@ -38,6 +62,14 @@ public class Pedido {
         return new Pedido(clienteId, itensPedido);
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getClienteId() {
         return clienteId;
     }
@@ -56,6 +88,12 @@ public class Pedido {
 
     public StatusPedido getStatus() {
         return status;
+    }
+
+    // Visibilidade de pacote: só o PedidoLifecycleService (mesmo pacote) altera o status,
+    // então ninguém contorna a máquina de estados.
+    void setStatus(StatusPedido status) {
+        this.status = status;
     }
 
     private BigDecimal calcularTotalDosItens(List<ItemPedido> itens) {
