@@ -1,7 +1,7 @@
 package com.lanchonete.gerenciadorlanchonetebackend.user.service;
 
-import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
+import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,60 +11,62 @@ class AuthorizationServiceTest {
 
     @Test
     void usuarioAdminAtivoDevePoderGerenciarUsuarios() {
-        AuthorizationService authorizationService = new AuthorizationService();
-        UserProfile userProfile = new UserProfile(
-                "supabase-123", "Admin", "admin@email.com", UserRole.ADMIN
-        );
+        UserProfile userProfile = perfil(UserRole.ADMIN);
 
-        assertTrue(authorizationService.podeGerenciarUsuarios(userProfile));
+        assertTrue(new AuthorizationService().podeGerenciarUsuarios(userProfile));
     }
 
     @Test
-    void usuarioAdminInativoNaoDeveAcessarRecursosProtegidos() {
-        AuthorizationService authorizationService = new AuthorizationService();
-        UserProfile userProfile = new UserProfile(
-                "supabase-123", "Admin", "admin@email.com", UserRole.ADMIN
-        );
-        userProfile.desativar();
+    void usuarioAdminAtivoDevePoderAlterarRole() {
+        UserProfile userProfile = perfil(UserRole.ADMIN);
 
-        assertFalse(authorizationService.podeGerenciarUsuarios(userProfile));
+        assertTrue(new AuthorizationService().podeAlterarRole(userProfile));
+    }
+
+    @Test
+    void usuarioAdminAtivoDevePoderDesativarUsuario() {
+        UserProfile userProfile = perfil(UserRole.ADMIN);
+
+        assertTrue(new AuthorizationService().podeDesativarUsuario(userProfile));
     }
 
     @Test
     void usuarioClienteAtivoNaoDeveGerenciarUsuarios() {
-        AuthorizationService authorizationService = new AuthorizationService();
-        UserProfile userProfile = new UserProfile(
-                "supabase-123", "Cliente", "cliente@email.com", UserRole.CLIENTE
-        );
-
-        assertFalse(authorizationService.podeGerenciarUsuarios(userProfile));
+        assertFalse(new AuthorizationService().podeGerenciarUsuarios(perfil(UserRole.CLIENTE)));
     }
 
     @Test
     void usuarioFuncionarioAtivoNaoDeveAlterarRole() {
-        AuthorizationService authorizationService = new AuthorizationService();
-        UserProfile userProfile = new UserProfile(
-                "supabase-123", "Funcionario", "funcionario@email.com",
-                UserRole.FUNCIONARIO
-        );
-
-        assertFalse(authorizationService.podeAlterarRole(userProfile));
+        assertFalse(new AuthorizationService().podeAlterarRole(perfil(UserRole.FUNCIONARIO)));
     }
 
     @Test
     void usuarioClienteAtivoNaoDeveDesativarUsuario() {
-        AuthorizationService authorizationService = new AuthorizationService();
-        UserProfile userProfile = new UserProfile(
-                "supabase-123", "Cliente", "cliente@email.com", UserRole.CLIENTE
-        );
+        assertFalse(new AuthorizationService().podeDesativarUsuario(perfil(UserRole.CLIENTE)));
+    }
 
-        assertFalse(authorizationService.podeDesativarUsuario(userProfile));
+    @Test
+    void usuarioClienteInativoNaoDeveAcessarRecursosProtegidos() {
+        UserProfile userProfile = perfil(UserRole.CLIENTE);
+        userProfile.desativar();
+
+        assertFalse(new AuthorizationService().podeAcessarRecursosProtegidos(userProfile));
+    }
+
+    @Test
+    void usuarioAdminInativoNaoDeveAcessarRecursosProtegidos() {
+        UserProfile userProfile = perfil(UserRole.ADMIN);
+        userProfile.desativar();
+
+        assertFalse(new AuthorizationService().podeAcessarRecursosProtegidos(userProfile));
     }
 
     @Test
     void usuarioNuloNaoDeveSerAutorizado() {
-        AuthorizationService authorizationService = new AuthorizationService();
+        assertFalse(new AuthorizationService().podeAcessarRecursosProtegidos(null));
+    }
 
-        assertFalse(authorizationService.podeGerenciarUsuarios(null));
+    private UserProfile perfil(UserRole role) {
+        return new UserProfile("supabase-123", "Usuário", "usuario@email.com", role);
     }
 }

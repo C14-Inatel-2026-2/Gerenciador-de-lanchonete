@@ -8,23 +8,21 @@ import org.springframework.stereotype.Service;
 public class AuthorizationService {
 
     public boolean podeGerenciarUsuarios(UserProfile userProfile) {
-        return usuarioAtivoComRole(userProfile, UserRole.ADMIN);
+        return podeAcessarRecursosProtegidos(userProfile)
+                && userProfile.getRole() == UserRole.ADMIN;
     }
 
     public boolean podeAlterarRole(UserProfile userProfile) {
-        return usuarioAtivoComRole(userProfile, UserRole.ADMIN);
+        return podeAcessarRecursosProtegidos(userProfile)
+                && userProfile.getRole() == UserRole.ADMIN;
     }
 
     public boolean podeDesativarUsuario(UserProfile userProfile) {
-        return usuarioAtivoComRole(userProfile, UserRole.ADMIN);
+        return podeAcessarRecursosProtegidos(userProfile)
+                && userProfile.getRole() == UserRole.ADMIN;
     }
 
-    private boolean usuarioAtivoComRole(
-            UserProfile userProfile,
-            UserRole role
-    ) {
-        return userProfile != null
-                && userProfile.isAtivo()
-                && userProfile.getRole() == role;
+    public boolean podeAcessarRecursosProtegidos(UserProfile userProfile) {
+        return userProfile != null && userProfile.isAtivo();
     }
 }
