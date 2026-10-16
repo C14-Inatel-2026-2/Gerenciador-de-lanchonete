@@ -4,31 +4,16 @@ import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.CarrinhoCompras;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemCarrinho;
-import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
-import com.lanchonete.gerenciadorlanchonetebackend.compras.repository.PedidoRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 class CarrinhoComprasServiceTest {
 
-    @Mock
-    private PedidoRepository pedidoRepository;
-
-    @InjectMocks
-    private CarrinhoComprasService carrinhoComprasService;
+    private final CarrinhoComprasService carrinhoComprasService = new CarrinhoComprasService();
 
     @Test
     void adicionarItemNoCarrinhoDeveAtualizarQuantidade() {
