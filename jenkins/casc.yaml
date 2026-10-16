@@ -1,0 +1,56 @@
+# Configuração do Jenkins como código (JCasC).
+# Lida automaticamente quando o container sobe. Segredos vêm do .env.
+jenkins:
+  systemMessage: "Jenkins do Gerenciador de Lanchonete - configurado por jenkins/casc.yaml"
+
+  # Usuário admin criado a partir do .env (sem tela de cadastro)
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+# Credenciais dos stages entram aqui (ex.: deploy), sempre lendo do .env:
+# credentials:
+#   system:
+#     domainCredentials:
+#       - credentials:
+#           - string:
+#               scope: GLOBAL
+#               id: "render-deploy-hook"
+#               secret: "${RENDER_DEPLOY_HOOK}"
+
+# Job multibranch: descobre sozinho toda branch que tiver Jenkinsfile
+jobs:
+  - script: >
+      multibranchPipelineJob('gerenciador-lanchonete') {
+        displayName('Gerenciador de Lanchonete')
+        description('Pipeline de CI/CD do projeto C14')
+        branchSources {
+          branchSource {
+            source {
+              git {
+                id('gerenciador-lanchonete')
+                remote('https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete.git')
+                traits {
+                  gitBranchDiscovery()
+                }
+              }
+            }
+          }
+        }
+        triggers {
+          periodicFolderTrigger {
+            interval('1m')
+          }
+        }
+        orphanedItemStrategy {
+          discardOldItems {
+            numToKeep(5)
+          }
+        }
+      }
