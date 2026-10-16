@@ -1,7 +1,9 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.repository;
 
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface PedidoRepository {
-    Pedido salvar(Pedido pedido);
+@Repository
+public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 }

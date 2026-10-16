@@ -50,4 +50,16 @@ public class ProdutoServiceTest {
         assertEquals(produto, salvo);
         verify(produtoRepository).save(produto);
     }
+
+    @Test
+    void excecaoParaProdutoComNomeDuplicado(){
+        Categoria categoria = new Categoria("Lanches");
+        Produto produto = new Produto("X-Burguer", "Delicioso", BigDecimal.valueOf(15), categoria);
+
+        when(produtoRepository.existsByNome("X-Burguer")).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> produtoService.salvar(produto));
+
+        verify(produtoRepository, never()).save(any());
+    }
 }

@@ -23,6 +23,6 @@ public class PedidoService {
         }
 
         Pedido pedido = carrinho.gerarPedido(clienteId);
-        return pedidoRepository.salvar(pedido);
+        return pedidoRepository.save(pedido);
     }
 }

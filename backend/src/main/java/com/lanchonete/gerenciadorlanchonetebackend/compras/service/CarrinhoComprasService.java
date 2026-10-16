@@ -32,6 +32,8 @@ public class CarrinhoComprasService {
         }
 
         Pedido pedido = carrinho.gerarPedido(clienteId);
-        return pedidoRepository.salvar(pedido);
+        Pedido pedidoSalvo = pedidoRepository.save(pedido);
+        carrinho.limparCarrinho();
+        return pedidoSalvo;
     }
 }

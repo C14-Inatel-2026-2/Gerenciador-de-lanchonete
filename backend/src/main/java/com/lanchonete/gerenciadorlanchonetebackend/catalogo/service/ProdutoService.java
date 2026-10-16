@@ -27,6 +27,9 @@ public class ProdutoService {
         if(produto.getCategoria() == null) {
             throw new IllegalArgumentException("Produto deve ter uma categoria");
         }
+        if(produtoRepository.existsByNome(produto.getNome())){
+            throw new IllegalArgumentException("Já existe um produto cadastrado com este nome");
+        }
     }
 
     public List<Produto> listarDisponiveis(){
