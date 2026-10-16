@@ -1,0 +1,8 @@
+workflow-aggregator
+pipeline-graph-view
+git
+credentials-binding
+junit
+coverage
+configuration-as-code
+job-dsl

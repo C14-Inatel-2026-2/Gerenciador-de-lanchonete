@@ -1,0 +1,21 @@
+services:
+  jenkins:
+    build: ./jenkins                   
+    container_name: jenkins-lanchonete
+    ports:
+      # Porta padrão 8081 (não conflita com o Spring Boot na 8080).
+      # Para usar outra: definir JENKINS_PORT no .env
+      - "${JENKINS_PORT:-8081}:8080"
+    env_file: .env                     # usuário/senha e futuros segredos
+    environment:
+      # pula o assistente de instalação (plugins e usuário já vêm prontos)
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      # onde está a configuração como código
+      CASC_JENKINS_CONFIG: /var/jenkins_config/casc.yaml
+    volumes:
+      - jenkins_home:/var/jenkins_home # mantém histórico de builds entre reinícios
+      - ./jenkins/casc.yaml:/var/jenkins_config/casc.yaml:ro
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
