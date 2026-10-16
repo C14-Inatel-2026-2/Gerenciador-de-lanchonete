@@ -1,6 +1,17 @@
-target/
-node_modules/
+# Sistema / IDEs
 .DS_Store
 .idea/
 *.iml
 .vscode/
+
+# Segredos locais
+.env
+
+# Artefatos de build (em qualquer pasta)
+target/
+node_modules/
+
+# Frontend (Vite / Vitest)
+frontend/dist/
+frontend/coverage/
+frontend/reports/
