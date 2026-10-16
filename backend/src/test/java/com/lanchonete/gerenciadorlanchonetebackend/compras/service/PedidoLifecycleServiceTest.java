@@ -4,7 +4,6 @@ import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
-import com.lanchonete.gerenciadorlanchonetebackend.compras.service.PedidoLifecycleService;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.repository.PedidoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +74,7 @@ class PedidoLifecycleServiceTest {
     @ParameterizedTest(name = "não pode cancelar pedido {0}")
     @EnumSource(value = StatusPedido.class, names = {"PRONTO", "ENTREGUE", "CANCELADO"})
     void naoDeveCancelarPedidoEmEstadoQueNaoPermite(StatusPedido statusAtual) {
-        pedidoBase.alterarStatus(statusAtual);
+        levarPedidoAte(statusAtual);
 
         assertThrows(TransicaoStatusInvalidaException.class,
             () -> lifecycleService.cancelarPedido(pedidoBase));
@@ -95,5 +95,18 @@ class PedidoLifecycleServiceTest {
         assertThrows(IllegalArgumentException.class,
             () -> lifecycleService.atualizarStatus(pedidoBase, null));
         verifyNoInteractions(pedidoRepository);
+    }
+
+    // Leva o pedido até o status desejado usando só transições válidas,
+    // já que alterarStatus não permite pular etapas.
+    private void levarPedidoAte(StatusPedido alvo) {
+        List<StatusPedido> caminho = switch (alvo) {
+            case CRIADO -> List.of();
+            case EM_PREPARO -> List.of(StatusPedido.EM_PREPARO);
+            case PRONTO -> List.of(StatusPedido.EM_PREPARO, StatusPedido.PRONTO);
+            case ENTREGUE -> List.of(StatusPedido.EM_PREPARO, StatusPedido.PRONTO, StatusPedido.ENTREGUE);
+            case CANCELADO -> List.of(StatusPedido.CANCELADO);
+        };
+        caminho.forEach(pedidoBase::alterarStatus);
     }
 }
