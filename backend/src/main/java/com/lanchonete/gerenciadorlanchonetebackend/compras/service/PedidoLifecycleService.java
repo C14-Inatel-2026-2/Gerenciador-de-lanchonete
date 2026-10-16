@@ -1,5 +1,9 @@
-package com.lanchonete.gerenciadorlanchonetebackend.compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras.service;
 
+import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.repository.PedidoRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,7 +45,7 @@ public class PedidoLifecycleService {
             throw new TransicaoStatusInvalidaException(atual, novoStatus);
         }
 
-        pedido.setStatus(novoStatus);
+        pedido.alterarStatus(novoStatus);
         return pedidoRepository.save(pedido);
     }
 }

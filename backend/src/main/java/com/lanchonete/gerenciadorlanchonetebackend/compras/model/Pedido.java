@@ -1,4 +1,4 @@
-package com.lanchonete.gerenciadorlanchonetebackend.compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -94,6 +94,12 @@ public class Pedido {
     // então ninguém contorna a máquina de estados.
     void setStatus(StatusPedido status) {
         this.status = status;
+    }
+
+    public void alterarStatus(StatusPedido novo) {
+        if (novo == null) throw new IllegalArgumentException("O novo status não pode ser nulo.");
+        if (!status.podeTransitarPara(novo)) throw new TransicaoStatusInvalidaException(status, novo);
+        this.status = novo;
     }
 
     private BigDecimal calcularTotalDosItens(List<ItemPedido> itens) {

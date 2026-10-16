@@ -1,4 +1,4 @@
-package com.lanchonete.gerenciadorlanchonetebackend.compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,10 +12,10 @@ public class CarrinhoCompras {
         validarItem(item);
 
         buscarItemPorProdutoId(item.getProdutoId())
-            .ifPresentOrElse(
-                itemExistente -> itemExistente.aumentarQuantidade(item.getQuantidade()),
-                () -> itens.add(item)
-            );
+                .ifPresentOrElse(
+                        itemExistente -> itemExistente.aumentarQuantidade(item.getQuantidade()),
+                        () -> itens.add(item)
+                );
     }
 
     public boolean removerItem(ItemCarrinho item) {
@@ -37,7 +37,7 @@ public class CarrinhoCompras {
         }
 
         ItemCarrinho item = buscarItemPorProdutoId(produtoId)
-            .orElseThrow(() -> new IllegalArgumentException("Item não encontrado no carrinho."));
+                .orElseThrow(() -> new IllegalArgumentException("Item não encontrado no carrinho."));
 
         item.alterarQuantidade(novaQuantidade);
     }
@@ -52,12 +52,8 @@ public class CarrinhoCompras {
 
     public int obterQuantidadeTotalDeItens() {
         return itens.stream()
-            .mapToInt(ItemCarrinho::getQuantidade)
-            .sum();
-    }
-
-    public int obterNumeroDeItens() {
-        return obterQuantidadeDeProdutosDiferentes();
+                .mapToInt(ItemCarrinho::getQuantidade)
+                .sum();
     }
 
     public boolean contemItem(ItemCarrinho item) {
@@ -73,14 +69,14 @@ public class CarrinhoCompras {
         validarProdutoId(produtoId);
 
         return itens.stream()
-            .filter(item -> item.getProdutoId().equals(produtoId))
-            .findFirst();
+                .filter(item -> item.getProdutoId().equals(produtoId))
+                .findFirst();
     }
 
     public BigDecimal calcularTotal() {
         return itens.stream()
-            .map(ItemCarrinho::calcularSubtotal)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(ItemCarrinho::calcularSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public Pedido gerarPedido(Long clienteId) {

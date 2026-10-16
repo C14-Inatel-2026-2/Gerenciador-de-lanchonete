@@ -1,4 +1,4 @@
-package com.lanchonete.gerenciadorlanchonetebackend.compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
 public class TransicaoStatusInvalidaException extends IllegalStateException {
 

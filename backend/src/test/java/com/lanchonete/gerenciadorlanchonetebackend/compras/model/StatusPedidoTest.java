@@ -1,4 +1,4 @@
-package com.lanchonete.gerenciadorlanchonetebackend.compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
