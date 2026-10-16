@@ -21,19 +21,4 @@ public class CarrinhoComprasService {
 
         carrinho.adicionarItem(item);
     }
-
-    public Pedido finalizarPedido(Long clienteId, CarrinhoCompras carrinho) {
-        if (clienteId == null || clienteId <= 0) {
-            throw new IllegalArgumentException("O identificador do cliente deve ser positivo.");
-        }
-
-        if (carrinho == null || carrinho.estaVazio()) {
-            throw new IllegalArgumentException("Não é possível criar um pedido com carrinho vazio.");
-        }
-
-        Pedido pedido = carrinho.gerarPedido(clienteId);
-        Pedido pedidoSalvo = pedidoRepository.save(pedido);
-        carrinho.limparCarrinho();
-        return pedidoSalvo;
-    }
 }

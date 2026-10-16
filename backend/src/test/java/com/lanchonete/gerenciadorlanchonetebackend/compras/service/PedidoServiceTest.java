@@ -34,14 +34,16 @@ class PedidoServiceTest {
     void criarPedidoComCarrinhoValidoDeveSalvarPedido() {
         CarrinhoCompras carrinho = new CarrinhoCompras();
         carrinho.adicionarItem(novoItem(1L, "Hamburguer", "12.50", 2));
-        Pedido pedidoEsperado = carrinho.gerarPedido(10L);
-        when(pedidoRepository.salvar(any(Pedido.class))).thenReturn(pedidoEsperado);
+
+        when(pedidoRepository.save(any(Pedido.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         Pedido pedido = pedidoService.criarPedido(10L, carrinho);
 
         assertEquals(10L, pedido.getClienteId());
         assertEquals(new BigDecimal("25.00"), pedido.getTotal());
-        verify(pedidoRepository).salvar(any(Pedido.class));
+
+        verify(pedidoRepository).save(any(Pedido.class));
     }
 
     @Test

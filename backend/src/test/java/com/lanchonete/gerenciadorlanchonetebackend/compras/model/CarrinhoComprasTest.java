@@ -152,15 +152,6 @@ class CarrinhoComprasTest {
 	}
 
 	@Test
-	void obterNumeroDeItensRetornaQuantidadeDeProdutosDiferentes() {
-		CarrinhoCompras carrinho = new CarrinhoCompras();
-		carrinho.adicionarItem(novoItem(1, "Hamburguer", "12.50", 4));
-		carrinho.adicionarItem(novoItem(2, "Batata", "6.00", 3));
-
-		assertEquals(2, carrinho.obterNumeroDeItens());
-	}
-
-	@Test
 	void contemItemIdentificaProdutoPeloIdentificador() {
 		CarrinhoCompras carrinho = new CarrinhoCompras();
 		carrinho.adicionarItem(novoItem(1, "Hamburguer", "12.50", 1));

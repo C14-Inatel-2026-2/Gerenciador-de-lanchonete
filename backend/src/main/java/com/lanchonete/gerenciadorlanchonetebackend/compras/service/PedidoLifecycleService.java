@@ -45,7 +45,7 @@ public class PedidoLifecycleService {
             throw new TransicaoStatusInvalidaException(atual, novoStatus);
         }
 
-        pedido.setStatus(novoStatus);
+        pedido.alterarStatus(novoStatus);
         return pedidoRepository.save(pedido);
     }
 }

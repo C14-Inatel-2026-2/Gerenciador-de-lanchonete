@@ -92,8 +92,14 @@ public class Pedido {
 
     // Visibilidade de pacote: só o PedidoLifecycleService (mesmo pacote) altera o status,
     // então ninguém contorna a máquina de estados.
-    public void setStatus(StatusPedido status) {
+    void setStatus(StatusPedido status) {
         this.status = status;
+    }
+
+    public void alterarStatus(StatusPedido novo) {
+        if (novo == null) throw new IllegalArgumentException("O novo status não pode ser nulo.");
+        if (!status.podeTransitarPara(novo)) throw new TransicaoStatusInvalidaException(status, novo);
+        this.status = novo;
     }
 
     private BigDecimal calcularTotalDosItens(List<ItemPedido> itens) {

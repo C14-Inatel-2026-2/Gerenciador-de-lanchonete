@@ -74,7 +74,7 @@ class PedidoLifecycleServiceTest {
     @ParameterizedTest(name = "não pode cancelar pedido {0}")
     @EnumSource(value = StatusPedido.class, names = {"PRONTO", "ENTREGUE", "CANCELADO"})
     void naoDeveCancelarPedidoEmEstadoQueNaoPermite(StatusPedido statusAtual) {
-        pedidoBase.setStatus(statusAtual);
+        pedidoBase.alterarStatus(statusAtual);
 
         assertThrows(TransicaoStatusInvalidaException.class,
             () -> lifecycleService.cancelarPedido(pedidoBase));

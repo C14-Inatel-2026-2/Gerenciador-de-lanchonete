@@ -49,31 +49,6 @@ class CarrinhoComprasServiceTest {
         assertEquals("O carrinho não pode ser nulo.", exception.getMessage());
     }
 
-    @Test
-    void finalizarPedidoValidoDeveSalvarPedidoNoRepositorio() {
-        CarrinhoCompras carrinho = new CarrinhoCompras();
-        carrinho.adicionarItem(novoItem(1L, "Hamburguer", "12.50", 2));
-        Pedido pedidoEsperado = carrinho.gerarPedido(10L);
-        when(pedidoRepository.salvar(any(Pedido.class))).thenReturn(pedidoEsperado);
-
-        Pedido pedido = carrinhoComprasService.finalizarPedido(10L, carrinho);
-
-        assertEquals(10L, pedido.getClienteId());
-        assertEquals(new BigDecimal("25.00"), pedido.getTotal());
-        verify(pedidoRepository).salvar(any(Pedido.class));
-    }
-
-    @Test
-    void finalizarPedidoComCarrinhoVazioNaoDeveChamarRepositorio() {
-        CarrinhoCompras carrinho = new CarrinhoCompras();
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> carrinhoComprasService.finalizarPedido(10L, carrinho));
-
-        assertEquals("Não é possível criar um pedido com carrinho vazio.", exception.getMessage());
-        verifyNoInteractions(pedidoRepository);
-    }
-
     private ItemCarrinho novoItem(Long produtoId, String nome, String preco, int quantidade) {
         Produto produto = new Produto(nome, "Produto de teste", new BigDecimal(preco), new Categoria("Lanches"));
         produto.setId(produtoId);

@@ -94,8 +94,12 @@ public class ItemCarrinho {
             throw new IllegalArgumentException("O nome do produto não pode ser vazio.");
         }
 
-        if (produto.getPreco() == null || produto.getPreco().signum() < 0) {
-            throw new IllegalArgumentException("O preco unitario não pode ser negativo.");
+        if (produto.getPreco() == null || produto.getPreco().signum() <= 0) {
+            throw new IllegalArgumentException("O preco unitario não pode ser negativo nem zero.");
+        }
+
+        if(!produto.isDisponivel()) {
+            throw new IllegalArgumentException("O produto deve estar disponível.");
         }
     }
 

@@ -56,10 +56,6 @@ public class CarrinhoCompras {
                 .sum();
     }
 
-    public int obterNumeroDeItens() {
-        return obterQuantidadeDeProdutosDiferentes();
-    }
-
     public boolean contemItem(ItemCarrinho item) {
         validarItem(item);
         return itens.contains(item);
