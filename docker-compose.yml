@@ -3,10 +3,12 @@ services:
     image: jenkins/jenkins:lts-jdk17   # já vem com Java 17
     container_name: jenkins-lanchonete
     ports:
-      - "8081:8080"                    # 8081 para não conflitar com o Spring Boot (8080)
+      # Porta padrão 8081 (não conflita com o Spring Boot na 8080).
+      # Para usar outra: definir JENKINS_PORT no ambiente ou num arquivo .env
+      - "${JENKINS_PORT:-8081}:8080"
     volumes:
       - jenkins_home:/var/jenkins_home # mantém jobs e plugins entre reinícios
     restart: unless-stopped
- 
+
 volumes:
   jenkins_home:
