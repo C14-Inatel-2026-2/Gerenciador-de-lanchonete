@@ -25,7 +25,11 @@ pipeline {
             post {
                 always {
                     junit 'backend/target/surefire-reports/*.xml'
-                    recordCoverage(tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']])
+                    recordCoverage(
+                        id: 'backend-jacoco',
+                        name: 'Cobertura Backend',
+                        tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']]
+                    )
                 }
             }
         }
@@ -48,12 +52,16 @@ pipeline {
                 }
                 
                 // Lê o LCOV e gera o relatório de cobertura no Jenkins
-                recordCoverage(tools: [[
-                    parser: 'LCOV',
-                    pattern: 'frontend/coverage/lcov.info'
-                ]],
-                // Faz o Jenkins resolver os caminhos do LCOV a partir da pasta do frontend.
-                sourceDirectories: [[path: 'frontend']])
+                recordCoverage(
+                    id: 'frontend-lcov',
+                    name: 'Cobertura Frontend',
+                    tools: [[
+                        parser: 'LCOV',
+                        pattern: 'frontend/coverage/lcov.info'
+                    ]],
+                    // Faz o Jenkins resolver os caminhos do LCOV a partir da pasta do frontend.
+                     sourceDirectories: [[path: 'frontend']]
+                )
             }
         }
 
