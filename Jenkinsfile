@@ -28,7 +28,8 @@ pipeline {
                     recordCoverage(
                         id: 'backend-jacoco',
                         name: 'Cobertura Backend',
-                        tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']]
+                           tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']],
+                           sourceDirectories: [[path: 'backend/src/main/java']]
                     )
                 }
             }
