@@ -15,6 +15,26 @@ pipeline {
             }
         }
 
+        // Roda os testes e publica o relatório JUnit e a cobertura JaCoCo
+        stage('Testes Backend') {
+            steps {
+                dir('backend') {
+                    sh './mvnw -B -ntp test'
+                }
+            }
+            post {
+                always {
+                    junit 'backend/target/surefire-reports/*.xml'
+                    recordCoverage(
+                        id: 'backend-jacoco',
+                        name: 'Cobertura Backend',
+                           tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']],
+                           sourceDirectories: [[path: 'backend/src/main/java']]
+                    )
+                }
+            }
+        }
+
         stage('Frontend Lint') {
             steps {
                 dir('frontend') {
@@ -33,12 +53,16 @@ pipeline {
                 }
                 
                 // Lê o LCOV e gera o relatório de cobertura no Jenkins
-                recordCoverage(tools: [[
-                    parser: 'LCOV',
-                    pattern: 'frontend/coverage/lcov.info'
-                ]],
-                // Faz o Jenkins resolver os caminhos do LCOV a partir da pasta do frontend.
-                sourceDirectories: [[path: 'frontend']])
+                recordCoverage(
+                    id: 'frontend-lcov',
+                    name: 'Cobertura Frontend',
+                    tools: [[
+                        parser: 'LCOV',
+                        pattern: 'frontend/coverage/lcov.info'
+                    ]],
+                    // Faz o Jenkins resolver os caminhos do LCOV a partir da pasta do frontend.
+                     sourceDirectories: [[path: 'frontend']]
+                )
             }
         }
 
@@ -46,6 +70,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'npm run build'
+
                 }
             }
         }
