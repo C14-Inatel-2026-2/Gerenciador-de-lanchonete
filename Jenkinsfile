@@ -29,13 +29,16 @@ pipeline {
         stage('Frontend Tests and Coverage') {
             steps {
                 dir('frontend') {
-                    sh 'npm run test:coverage' // executa os testes e gera o relatório de cobertura
+                    sh 'npm run test:coverage' // Executa os testes e gera o relatório de cobertura
                 }
-                // lê o LCOV e gera o relatório de cobertura no Jenkins
+                
+                // Lê o LCOV e gera o relatório de cobertura no Jenkins
                 recordCoverage(tools: [[
                     parser: 'LCOV',
                     pattern: 'frontend/coverage/lcov.info'
-                ]])
+                ]],
+                // Faz o Jenkins resolver os caminhos do LCOV a partir da pasta do frontend.
+                sourceDirectories: [[path: 'frontend']])
             }
         }
 
