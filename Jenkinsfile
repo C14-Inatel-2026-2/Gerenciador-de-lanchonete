@@ -25,6 +25,14 @@ pipeline {
                 }
             }
         }
+
+        stage('Frontend Tests') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run test:run'
+                }
+            }
+        }
     }
 
     post {
