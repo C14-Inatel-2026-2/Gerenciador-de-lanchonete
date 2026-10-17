@@ -33,6 +33,14 @@ pipeline {
                 }
             }
         }
+
+        stage('Frontend Build') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run build'
+                }
+            }
+        }
     }
 
     post {
