@@ -14,6 +14,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Frontend Lint') {
+            steps {
+                dir('frontend') {
+                    sh 'node --version'
+                    sh 'npm --version'
+                    sh 'npm ci'
+                    sh 'npm run lint'
+                }
+            }
+        }
     }
 
     post {
