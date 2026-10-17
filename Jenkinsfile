@@ -14,6 +14,20 @@ pipeline {
                 }
             }
         }
+        // Roda os testes e publica o relatório JUnit e a cobertura JaCoCo
+        stage('Testes Backend') {
+            steps {
+                dir('backend') {
+                    sh './mvnw -B -ntp test'
+                }
+            }
+            post {
+                always {
+                    junit 'backend/target/surefire-reports/*.xml'
+                    recordCoverage(tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']])
+                }
+            }
+        }
     }
 
     post {
