@@ -26,7 +26,9 @@ pipeline {
                 always {
                     junit 'backend/target/surefire-reports/*.xml'
                     recordCoverage(tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']])
-
+                }
+            }
+        }
 
         stage('Frontend Lint') {
             steps {
