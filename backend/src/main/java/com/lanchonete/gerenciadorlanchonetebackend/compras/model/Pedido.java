@@ -16,7 +16,6 @@ public class Pedido {
     @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
 
-    // EAGER para evitar LazyInitializationException fora de transação
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "item_pedido", joinColumns = @JoinColumn(name = "pedido_id"))
     private List<ItemPedido> itens;
@@ -31,7 +30,6 @@ public class Pedido {
     @Column(nullable = false)
     private StatusPedido status;
 
-    // Exigido pelo JPA; não use diretamente
     protected Pedido() {
     }
 
@@ -88,12 +86,6 @@ public class Pedido {
 
     public StatusPedido getStatus() {
         return status;
-    }
-
-    // Visibilidade de pacote: só o PedidoLifecycleService (mesmo pacote) altera o status,
-    // então ninguém contorna a máquina de estados.
-    void setStatus(StatusPedido status) {
-        this.status = status;
     }
 
     public void alterarStatus(StatusPedido novo) {
