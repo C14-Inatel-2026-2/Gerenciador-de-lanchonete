@@ -97,8 +97,37 @@ class PedidoLifecycleServiceTest {
         verifyNoInteractions(pedidoRepository);
     }
 
-    // Leva o pedido até o status desejado usando só transições válidas,
-    // já que alterarStatus não permite pular etapas.
+    @Test
+    void deveMarcarComoProntoPedidoEmPreparo() {
+        levarPedidoAte(StatusPedido.EM_PREPARO);
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Pedido atualizado = lifecycleService.marcarComoPronto(pedidoBase);
+
+        assertEquals(StatusPedido.PRONTO, atualizado.getStatus());
+        verify(pedidoRepository, times(1)).save(pedidoBase);
+    }
+
+    @Test
+    void deveEntregarPedidoPronto() {
+        levarPedidoAte(StatusPedido.PRONTO);
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Pedido atualizado = lifecycleService.entregar(pedidoBase);
+
+        assertEquals(StatusPedido.ENTREGUE, atualizado.getStatus());
+        verify(pedidoRepository, times(1)).save(pedidoBase);
+    }
+
+    @Test
+    void deveCancelarPedidoEmPreparo() {
+        levarPedidoAte(StatusPedido.EM_PREPARO);
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Pedido cancelado = lifecycleService.cancelarPedido(pedidoBase);
+
+        assertEquals(StatusPedido.CANCELADO, cancelado.getStatus());
+    }
     private void levarPedidoAte(StatusPedido alvo) {
         List<StatusPedido> caminho = switch (alvo) {
             case CRIADO -> List.of();
