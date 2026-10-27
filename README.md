@@ -40,3 +40,25 @@ gerenciador-lanchonete/
  │    └── package.json
  ├── Jenkinsfile              # Pipeline CI/CD
  └── README.md
+
+```
+
+
+## ⚙️ CI/CD local (Jenkins)
+
+O Jenkins roda em Docker, já configurado por código (`jenkins/casc.yaml`).
+Imagem e plugins têm versões fixas (`jenkins/Dockerfile` e `jenkins/plugins.txt`)
+para o build ser reproduzível.
+
+1. Copie `.env.example` para `.env` na raiz e defina usuário e senha do Jenkins
+   (e `JENKINS_PORT`, se a 8081 estiver ocupada).
+2. Suba o Jenkins: `docker compose up -d --build`
+3. Acesse `http://localhost:8081` (ou a porta definida no `.env`).
+4. O job **Gerenciador de Lanchonete** é criado automaticamente e roda o
+   `Jenkinsfile` de cada branch do repositório.
+
+## Rodando o backend
+
+1. Copie `backend/.env.example` para `backend/.env` e preencha os dados do banco.
+2. Na pasta `backend`: `docker compose up --build -d`
+3. Logs: `docker compose logs -f backend`
