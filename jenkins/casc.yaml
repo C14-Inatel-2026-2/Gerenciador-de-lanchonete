@@ -1,9 +1,6 @@
-# Configuração do Jenkins como código (JCasC).
-# Lida automaticamente quando o container sobe. Segredos vêm do .env.
 jenkins:
   systemMessage: "Jenkins do Gerenciador de Lanchonete - configurado por jenkins/casc.yaml"
 
-  # Usuário admin criado a partir do .env (sem tela de cadastro)
   securityRealm:
     local:
       allowsSignup: false
@@ -54,3 +51,7 @@ jobs:
           }
         }
       }
+
+unclassified:
+  location:
+    url: "http://localhost:${JENKINS_PORT:-8081}/"
