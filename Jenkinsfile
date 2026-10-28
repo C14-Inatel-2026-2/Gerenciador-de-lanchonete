@@ -70,14 +70,39 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh 'npm run build'
-
                 }
             }
         }
-    }
 
-    post {
-        success { echo 'Pipeline concluída com sucesso.' }
-        failure { echo 'Pipeline falhou — verifique o stage em vermelho.' }
-    }
-}
+        stage('Deploy Backend') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'render-deploy-hook', variable: 'HOOK')]) {
+                    sh 'curl -fsS -X POST "$HOOK"'
+                }
+            }
+        }
+
+        stage('Deploy Frontend') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'vercel-deploy-hook', variable: 'HOOK')]) {
+                    sh 'curl -fsS -X POST "$HOOK"'
+                }
+            }
+        }
+
+        }
+
+        post {
+            success {
+                echo 'Pipeline concluída com sucesso.'
+            }
+            failure {
+                echo 'Pipeline falhou — verifique o stage em vermelho.'
+            }
+        }
