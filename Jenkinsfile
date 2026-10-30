@@ -106,3 +106,5 @@ pipeline {
                 echo 'Pipeline falhou — verifique o stage em vermelho.'
             }
         }
+        }
+        }
