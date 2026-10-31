@@ -9,6 +9,11 @@ RUN apt-get update \
     && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+# Docker CLI para o stage "Docker Build Backend".
+# O Jenkins usa o Docker do próprio computador (socket montado no docker-compose.yml).
+COPY --from=docker:27.5.1-cli /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=docker:27.5.1-cli /usr/local/libexec/docker/cli-plugins/docker-buildx /usr/local/libexec/docker/cli-plugins/docker-buildx
 USER jenkins
 
 # Plugins pré-instalados: ninguém precisa instalar nada pela interface
