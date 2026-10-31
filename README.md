@@ -75,10 +75,15 @@ gerenciador-lanchonete/
 |----|---------------------|----------|
 
 ### Fila da cozinha e status do pedido (US04)
-<!-- Lilyan: adicione suas linhas abaixo -->
 
 | ID | Requisito funcional | História |
 |----|---------------------|----------|
+| RF-CIC01 | O funcionário deve poder avançar um pedido pelas etapas CRIADO → EM_PREPARO → PRONTO → ENTREGUE. | US04 |
+| RF-CIC02 | O sistema deve permitir cancelar um pedido apenas quando ele está CRIADO ou EM_PREPARO. | US04 |
+| RF-CIC03 | O sistema deve recusar transições inválidas (pular etapa, voltar etapa ou sair de ENTREGUE/CANCELADO), sem alterar o status, informando a transição recusada. | US04 |
+| RF-CIC04 | O sistema deve salvar o novo status do pedido a cada mudança válida. | US04 |
+| RF-CIC05 | O funcionário deve poder ver a fila da cozinha com os pedidos CRIADO, EM_PREPARO e PRONTO, do mais antigo para o mais novo. | US04 |
+| RF-CIC06 | Apenas FUNCIONÁRIO e ADMIN devem poder alterar o status de um pedido. | US04 |
 
 ### Painel administrativo (US05)
 <!-- Yasmin: adicione suas linhas abaixo -->
@@ -120,10 +125,14 @@ gerenciador-lanchonete/
 |----|-----------|-------------------------|----------------|
 
 ### Cozinha e status do pedido
-<!-- Lilyan: adicione suas linhas abaixo -->
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
+| RNF-CIC01 | Manutenibilidade | A regra de transição de status fica em um único lugar (`StatusPedido.podeTransitarPara`, usada por `Pedido.alterarStatus`). | Nenhum outro arquivo altera o status diretamente; refactor da PR #21. |
+| RNF-CIC02 | Confiabilidade | Uma transição inválida não altera o status nem é salva no banco. | Testes do `PedidoLifecycleServiceTest` com `verify(never()).save`. |
+| RNF-CIC03 | Qualidade | Todas as combinações de transição (válidas e inválidas) são cobertas por testes automatizados. | `StatusPedidoTest` (testes parametrizados) no relatório do Jenkins. |
+| RNF-CIC04 | Manutenibilidade | O status é salvo no banco como texto (nome do enum), para que adicionar um novo status não corrompa pedidos antigos. | `Pedido` usa `@Enumerated(EnumType.STRING)`. |
+| RNF-CIC05 | Interoperabilidade | A API responde HTTP 409 (Conflict) quando a transição de status é inválida. | Teste do endpoint de status (Sprint 1). |
 
 ### Painel administrativo
 <!-- Yasmin: adicione suas linhas abaixo -->
