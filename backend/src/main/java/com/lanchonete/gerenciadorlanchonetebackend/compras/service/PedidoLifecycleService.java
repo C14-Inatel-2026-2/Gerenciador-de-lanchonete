@@ -2,7 +2,6 @@ package com.lanchonete.gerenciadorlanchonetebackend.compras.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
-import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.repository.PedidoRepository;
 import org.springframework.stereotype.Service;
 
@@ -31,21 +30,15 @@ public class PedidoLifecycleService {
         return atualizarStatus(pedido, StatusPedido.CANCELADO);
     }
 
-    // Único ponto que altera status: valida a transição, altera e persiste.
+    // Único ponto que altera status e persiste. A validação da transição
+    // fica no próprio Pedido (alterarStatus), para não duplicar a regra.
     public Pedido atualizarStatus(Pedido pedido, StatusPedido novoStatus) {
         if (pedido == null) {
             throw new IllegalArgumentException("O pedido não pode ser nulo.");
         }
-        if (novoStatus == null) {
-            throw new IllegalArgumentException("O novo status não pode ser nulo.");
-        }
-
-        StatusPedido atual = pedido.getStatus();
-        if (!atual.podeTransitarPara(novoStatus)) {
-            throw new TransicaoStatusInvalidaException(atual, novoStatus);
-        }
-
         pedido.alterarStatus(novoStatus);
         return pedidoRepository.save(pedido);
     }
 }
+
+
