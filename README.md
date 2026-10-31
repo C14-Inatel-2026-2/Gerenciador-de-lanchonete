@@ -69,10 +69,17 @@ gerenciador-lanchonete/
 | RF-CAT09 | O sistema deve validar os dados de produtos e categorias antes de salvar. | US06 |
 
 ### Carrinho e finalização do pedido (US03)
-<!-- Júlia: adicione suas linhas abaixo -->
 
 | ID | Requisito funcional | História |
 |----|---------------------|----------|
+| RF-CAR01 | O sistema deve permitir que o cliente adicione ao carrinho produtos disponíveis no cardápio, iniciando cada produto com quantidade 1. | US03 |
+| RF-CAR02 | Ao adicionar ao carrinho um produto que já esteja nele, o sistema deve somar a quantidade à linha existente, sem criar uma linha duplicada. | US03 |
+| RF-CAR03 | O sistema deve exibir, para cada item, o nome do produto, o preço unitário, a quantidade e o subtotal, além do total do carrinho em reais. | US03 |
+| RF-CAR04 | O sistema deve permitir alterar a quantidade de um item para um inteiro positivo e remover itens do carrinho, recalculando os valores após cada alteração. | US03 |
+| RF-CAR05 | O sistema não deve permitir a finalização de um carrinho vazio nem a criação de pedido sem itens. | US03 |
+| RF-CAR06 | Ao finalizar um carrinho válido, o sistema deve criar e persistir um pedido associado ao cliente, com os itens e quantidades informados, total calculado e status inicial CRIADO. | US03 |
+| RF-CAR07 | Após a confirmação de que o pedido foi salvo, o sistema deve exibir sua identificação e esvaziar o carrinho. Se a finalização falhar, deve informar o erro e preservar o carrinho. | US03 |
+| RF-CAR08 | O backend deve validar a disponibilidade dos produtos e calcular o pedido com os preços do catálogo, sem confiar em preços enviados pelo front-end. | US03 |
 
 ### Fila da cozinha e status do pedido (US04)
 <!-- Lilyan: adicione suas linhas abaixo -->
@@ -95,6 +102,10 @@ gerenciador-lanchonete/
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
+| RNF-GER01 | Portabilidade | O sistema deve poder ser iniciado em um ambiente compatível usando Docker Compose, conforme instruções documentadas no repositório, sem instalação manual das dependências da aplicação. | Seguir as instruções em um ambiente limpo e confirmar que os serviços iniciam corretamente. |
+| RNF-GER02 | Usabilidade | As telas principais devem funcionar em larguras de viewport a partir de 360 px, sem rolagem horizontal e mantendo visíveis os conteúdos e controles necessários. | Testar as telas em viewport de 360 px e verificar a ausência de rolagem horizontal e controles cortados. |
+| RNF-GER03 | Segurança | Senhas, tokens e credenciais de serviços externos não devem ser armazenados no repositório; devem ser configurados por variáveis de ambiente. | Revisar os arquivos de configuração e verificar que usam variáveis de ambiente, sem valores secretos versionados. |
+| RNF-GER04 | Qualidade | A pipeline do Jenkins deve executar build e testes automatizados do front-end e do back-end em cada pull request; uma falha deve reprovar a pipeline. | Abrir um pull request e verificar os resultados da pipeline; provocar uma falha de teste em ambiente de validação e confirmar que a pipeline reprova. |
 
 ### Catálogo
 
@@ -114,10 +125,13 @@ gerenciador-lanchonete/
 |----|-----------|-------------------------|----------------|
 
 ### Carrinho e pedido
-<!-- Júlia: adicione suas linhas abaixo -->
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
+| RNF-CAR01 | Integridade | O total do pedido deve ser calculado no backend com valores decimais (BigDecimal), usando os preços do catálogo, com precisão de duas casas decimais. | Testes com múltiplos itens e quantidades; comparar os subtotais e o total persistido com o resultado esperado. |
+| RNF-CAR02 | Confiabilidade | A falha ou rejeição da finalização não deve criar um pedido parcial nem limpar o carrinho. | Testes automatizados para produto indisponível, requisição inválida e falha ao salvar; confirmar pedido não persistido e carrinho preservado. |
+| RNF-CAR03 | Desempenho | A finalização do pedido deve responder em até 1 segundo em pelo menos 95% das requisições, sob uma carga de teste definida pelo grupo. | Teste de carga no endpoint de criação de pedido; registrar percentual de respostas dentro do limite e documentar a carga utilizada. |
+| RNF-CAR04 | Qualidade | As classes de serviço do módulo de carrinho e pedidos devem ter pelo menos 70% de cobertura de testes. | Relatório JaCoCo gerado na pipeline Jenkins, seguindo o padrão já proposto para o catálogo no README. |
 
 ### Cozinha e status do pedido
 <!-- Lilyan: adicione suas linhas abaixo -->
