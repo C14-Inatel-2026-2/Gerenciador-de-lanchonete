@@ -48,11 +48,21 @@ gerenciador-lanchonete/
 
 > Cada integrante preenche a tabela do seu módulo. Todo RF referencia uma história de usuário (US). Formato do ID: `RF-<MÓDULO><nº>`.
 
-### Autenticação (US01)
-<!-- Karolina: adicione suas linhas abaixo -->
+### Autenticação e usuários (US01 e US07)
 
 | ID | Requisito funcional | História |
 |----|---------------------|----------|
+| RF-AUT01 | O sistema deve permitir que o cliente crie uma conta informando nome, e-mail e senha. | US01 |
+| RF-AUT02 | O sistema deve atribuir o perfil CLIENTE a toda conta criada pelo cadastro comum, ignorando qualquer outro perfil enviado. | US01 |
+| RF-AUT03 | O sistema deve recusar o cadastro de um e-mail já existente, informando "E-mail já cadastrado". | US01 |
+| RF-AUT04 | O sistema deve validar o nome (obrigatório) e o formato do e-mail antes de salvar, guardando o e-mail em letras minúsculas. | US01 |
+| RF-AUT05 | O sistema deve permitir que o usuário cadastrado entre no sistema e identificar o usuário logado em cada requisição. | US01 |
+| RF-AUT06 | O usuário logado deve poder consultar e atualizar os dados permitidos do próprio perfil, sem alterar a própria role. | US01, US07 |
+| RF-AUT07 | O sistema deve negar o acesso às áreas protegidas a usuários desativados. | US01 |
+| RF-AUT08 | O administrador deve poder listar os usuários com nome, e-mail, perfil e situação (ativo ou desativado). | US07 |
+| RF-AUT09 | O administrador deve poder cadastrar funcionários. | US07 |
+| RF-AUT10 | O administrador deve poder alterar a role de um usuário. | US07 |
+| RF-AUT11 | O administrador deve poder desativar um usuário sem excluí-lo do banco. | US07 |
 
 ### Catálogo (US02 e US06)
 
@@ -107,11 +117,16 @@ gerenciador-lanchonete/
 | RNF-CAT05 | Integridade | Produtos desativados permanecem no banco, preservando o histórico de pedidos. | Teste que confirma que o produto desativado ainda existe. |
 | RNF-CAT06 | Manutenibilidade | O módulo separa model, repository, service e controller dentro do pacote do próprio módulo. | Estrutura de pastas do módulo. |
 
-### Autenticação
-<!-- Karolina: adicione suas linhas abaixo -->
+### Autenticação e usuários
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
+| RNF-AUT01 | Segurança | O backend não armazena senhas: a validação de credenciais fica com o provedor de autenticação (Supabase Auth). | A entidade `UserProfile` não possui campo de senha. |
+| RNF-AUT02 | Segurança | As operações de gerenciamento de usuários só aceitam o perfil ADMIN; CLIENTE e FUNCIONARIO recebem acesso negado (HTTP 403). | Testes do `AuthorizationService` e dos endpoints de admin para cada perfil. |
+| RNF-AUT03 | Segurança | As chaves e URLs do Supabase vêm de variáveis de ambiente, sem segredos nos arquivos versionados. | Os arquivos atuais não contêm segredos e o `application.properties` usa variáveis `${...}`. Credenciais que já apareceram no histórico do Git são trocadas (como foi feito com a senha do banco). |
+| RNF-AUT04 | Integridade | O e-mail e o identificador do Supabase são únicos também no banco de dados, não apenas na validação do serviço. | `UserProfile` usa `@Column(unique = true)` nesses campos. |
+| RNF-AUT05 | Qualidade | `UserService` e `AuthorizationService` têm pelo menos 80% de cobertura de testes. | Relatório JaCoCo no Jenkins. |
+| RNF-AUT06 | Manutenibilidade | A identificação do usuário logado fica isolada em uma única interface, de modo que trocar o mecanismo de login (por exemplo, de um login simplificado para o Supabase Auth) não altere controllers nem regras de autorização. | Controllers e `AuthorizationService` dependem apenas da interface, não da implementação. |
 
 ### Carrinho e pedido
 <!-- Júlia: adicione suas linhas abaixo -->
