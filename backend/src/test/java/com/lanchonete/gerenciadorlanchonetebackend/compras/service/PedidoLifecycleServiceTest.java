@@ -127,7 +127,11 @@ class PedidoLifecycleServiceTest {
         Pedido cancelado = lifecycleService.cancelarPedido(pedidoBase);
 
         assertEquals(StatusPedido.CANCELADO, cancelado.getStatus());
+        verify(pedidoRepository, times(1)).save(pedidoBase);
     }
+
+    // Leva o pedido até o status desejado usando só transições válidas,
+    // já que alterarStatus não permite pular etapas.
     private void levarPedidoAte(StatusPedido alvo) {
         List<StatusPedido> caminho = switch (alvo) {
             case CRIADO -> List.of();
@@ -139,3 +143,4 @@ class PedidoLifecycleServiceTest {
         caminho.forEach(pedidoBase::alterarStatus);
     }
 }
+

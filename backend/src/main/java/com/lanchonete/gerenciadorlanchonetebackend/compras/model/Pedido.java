@@ -16,6 +16,7 @@ public class Pedido {
     @Column(name = "cliente_id", nullable = false)
     private Long clienteId;
 
+    // EAGER para evitar LazyInitializationException fora de transação
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "item_pedido", joinColumns = @JoinColumn(name = "pedido_id"))
     private List<ItemPedido> itens;
@@ -30,6 +31,7 @@ public class Pedido {
     @Column(nullable = false)
     private StatusPedido status;
 
+    // Exigido pelo JPA; não use diretamente
     protected Pedido() {
     }
 
@@ -112,3 +114,5 @@ public class Pedido {
         }
     }
 }
+
+

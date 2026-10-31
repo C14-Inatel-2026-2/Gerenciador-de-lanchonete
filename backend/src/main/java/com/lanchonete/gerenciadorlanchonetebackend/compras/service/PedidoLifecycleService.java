@@ -30,6 +30,8 @@ public class PedidoLifecycleService {
         return atualizarStatus(pedido, StatusPedido.CANCELADO);
     }
 
+    // Único ponto que altera status e persiste. A validação da transição
+    // fica no próprio Pedido (alterarStatus), para não duplicar a regra.
     public Pedido atualizarStatus(Pedido pedido, StatusPedido novoStatus) {
         if (pedido == null) {
             throw new IllegalArgumentException("O pedido não pode ser nulo.");
@@ -38,3 +40,5 @@ public class PedidoLifecycleService {
         return pedidoRepository.save(pedido);
     }
 }
+
+
