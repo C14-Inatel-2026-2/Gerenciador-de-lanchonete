@@ -121,12 +121,12 @@ gerenciador-lanchonete/
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
-| RNF-AUT01 | Segurança | O backend não armazena senhas: a validação de credenciais é delegada ao Supabase Auth (efetivo na Sprint 2, com o login real). | A entidade `UserProfile` não possui campo de senha. |
+| RNF-AUT01 | Segurança | O backend não armazena senhas: a validação de credenciais fica com o provedor de autenticação (Supabase Auth). | A entidade `UserProfile` não possui campo de senha. |
 | RNF-AUT02 | Segurança | As operações de gerenciamento de usuários só aceitam o perfil ADMIN; CLIENTE e FUNCIONARIO recebem acesso negado (HTTP 403). | Testes do `AuthorizationService` e dos endpoints de admin para cada perfil. |
-| RNF-AUT03 | Segurança | As chaves e URLs do Supabase vêm de variáveis de ambiente, sem segredos no repositório. | Busca no repositório não encontra chaves; `application.properties` usa variáveis `${...}`. |
+| RNF-AUT03 | Segurança | As chaves e URLs do Supabase vêm de variáveis de ambiente, sem segredos nos arquivos versionados. | Os arquivos atuais não contêm segredos e o `application.properties` usa variáveis `${...}`. Credenciais que já apareceram no histórico do Git são trocadas (como foi feito com a senha do banco). |
 | RNF-AUT04 | Integridade | O e-mail e o identificador do Supabase são únicos também no banco de dados, não apenas na validação do serviço. | `UserProfile` usa `@Column(unique = true)` nesses campos. |
 | RNF-AUT05 | Qualidade | `UserService` e `AuthorizationService` têm pelo menos 80% de cobertura de testes. | Relatório JaCoCo no Jenkins. |
-| RNF-AUT06 | Manutenibilidade | A identificação do usuário logado fica isolada em uma única interface, de modo que a troca do login simplificado (Sprint 1) pelo Supabase Auth (Sprint 2) não altere controllers nem regras de autorização. | O PR da Sprint 2 altera apenas a implementação dessa interface e a configuração. |
+| RNF-AUT06 | Manutenibilidade | A identificação do usuário logado fica isolada em uma única interface, de modo que trocar o mecanismo de login (por exemplo, de um login simplificado para o Supabase Auth) não altere controllers nem regras de autorização. | Controllers e `AuthorizationService` dependem apenas da interface, não da implementação. |
 
 ### Carrinho e pedido
 <!-- Júlia: adicione suas linhas abaixo -->
