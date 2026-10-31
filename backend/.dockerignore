@@ -1,0 +1,6 @@
+# Arquivos que não devem ir para dentro da imagem Docker
+target/
+.env
+.idea/
+.vscode/
+*.iml
