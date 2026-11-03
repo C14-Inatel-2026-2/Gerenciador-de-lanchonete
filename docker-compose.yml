@@ -15,6 +15,13 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home # mantém histórico de builds entre reinícios
       - ./jenkins/casc.yaml:/var/jenkins_config/casc.yaml:ro
+      # Permite que o Jenkins rode "docker build" usando o Docker do computador
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Grupo dono do socket do Docker (0 no Docker Desktop).
+    # No Linux ou no Docker dentro do WSL, definir DOCKER_GID no .env
+    # com o resultado de: stat -c %g /var/run/docker.sock
+    group_add:
+      - "${DOCKER_GID:-0}"
     restart: unless-stopped
 
 volumes:

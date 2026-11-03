@@ -35,6 +35,28 @@ pipeline {
             }
         }
 
+        // Gera a imagem Docker do backend com o mesmo Dockerfile usado no deploy do Render.
+        // Só roda se o build e os testes passaram; se o Dockerfile quebrar, a pipeline avisa antes do deploy.
+        stage('Docker Build Backend') {
+            environment {
+                IMAGE = "gerenciador-lanchonete-backend:build-${env.BUILD_NUMBER}"
+            }
+            steps {
+                dir('backend') {
+                    sh 'docker version'
+                    sh 'docker build -t "$IMAGE" .'
+                    // Confere se o .jar da aplicação foi copiado para dentro da imagem
+                    sh 'docker run --rm --entrypoint ls "$IMAGE" -l /app/app.jar'
+                }
+            }
+            post {
+                always {
+                    // Remove a imagem gerada para não lotar o disco a cada build
+                    sh 'docker rmi "$IMAGE" || true'
+                }
+            }
+        }
+
         stage('Frontend Lint') {
             steps {
                 dir('frontend') {
