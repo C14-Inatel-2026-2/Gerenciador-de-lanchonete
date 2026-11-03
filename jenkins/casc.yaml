@@ -54,3 +54,9 @@ jobs:
           }
         }
       }
+
+# Endereço do próprio Jenkins (usado em links). A porta vem do .env.
+unclassified:
+  location:
+    url: "http://localhost:${JENKINS_PORT:-8081}/"
+
