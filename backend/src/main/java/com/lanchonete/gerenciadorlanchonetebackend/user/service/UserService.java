@@ -1,5 +1,6 @@
 package com.lanchonete.gerenciadorlanchonetebackend.user.service;
 
+import com.lanchonete.gerenciadorlanchonetebackend.user.exception.EmailJaCadastradoException;
 import com.lanchonete.gerenciadorlanchonetebackend.user.exception.UserValidationException;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
@@ -28,7 +29,7 @@ public class UserService {
         String emailNormalizado = validarEmail(email);
 
         if (userProfileRepository.existsByEmail(emailNormalizado)) {
-            throw new UserValidationException("E-mail já cadastrado");
+            throw new EmailJaCadastradoException();
         }
 
         UserProfile userProfile = new UserProfile(
