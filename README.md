@@ -130,7 +130,7 @@ gerenciador-lanchonete/
 |----|-----------|-------------------------|----------------|
 | RNF-CAR01 | Integridade | O total do pedido deve ser calculado no backend com valores decimais (BigDecimal), usando os preços do catálogo, com precisão de duas casas decimais. | Testes com múltiplos itens e quantidades; comparar os subtotais e o total persistido com o resultado esperado. |
 | RNF-CAR02 | Confiabilidade | A falha ou rejeição da finalização não deve criar um pedido parcial nem limpar o carrinho. | Testes automatizados para produto indisponível, requisição inválida e falha ao salvar; confirmar pedido não persistido e carrinho preservado. |
-| RNF-CAR03 | Desempenho | A finalização do pedido deve responder em até 1 segundo em pelo menos 95% das requisições, sob uma carga de teste definida pelo grupo. | Teste de carga no endpoint de criação de pedido; registrar percentual de respostas dentro do limite e documentar a carga utilizada. |
+| RNF-CAR03 | Desempenho | A finalização do pedido deve responder em até 1 s em 95% de 50 requisições sequenciais. | Enviar 50 requisições sequenciais ao endpoint de criação de pedido e medir o tempo de resposta: pelo menos 48 devem responder em até 1 s. |
 | RNF-CAR04 | Qualidade | As classes de serviço do módulo de carrinho e pedidos devem ter pelo menos 70% de cobertura de testes. | Relatório JaCoCo gerado na pipeline Jenkins, seguindo o padrão já proposto para o catálogo no README. |
 
 ### Cozinha e status do pedido
