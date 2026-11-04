@@ -102,7 +102,7 @@ gerenciador-lanchonete/
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
-| RNF-GER01 | Portabilidade | O sistema deve poder ser iniciado em um ambiente compatível usando Docker Compose, conforme instruções documentadas no repositório, sem instalação manual das dependências da aplicação. | Seguir as instruções em um ambiente limpo e confirmar que os serviços iniciam corretamente. |
+| RNF-GER01 | Portabilidade | O backend e o Jenkins podem ser iniciados com Docker Compose, conforme instruções do README; o front-end roda com npm install e npm run dev. | Seguir as instruções do README em uma máquina limpa e confirmar que os serviços sobem.
 | RNF-GER02 | Usabilidade | As telas principais devem funcionar em larguras de viewport a partir de 360 px, sem rolagem horizontal e mantendo visíveis os conteúdos e controles necessários. | Testar as telas em viewport de 360 px e verificar a ausência de rolagem horizontal e controles cortados. |
 | RNF-GER03 | Segurança | Senhas, tokens e credenciais de serviços externos não devem ser armazenados no repositório; devem ser configurados por variáveis de ambiente. | Revisar os arquivos de configuração e verificar que usam variáveis de ambiente, sem valores secretos versionados. |
 | RNF-GER04 | Qualidade | A pipeline do Jenkins deve executar build e testes automatizados do front-end e do back-end em cada pull request; uma falha deve reprovar a pipeline. | Abrir um pull request e verificar os resultados da pipeline; provocar uma falha de teste em ambiente de validação e confirmar que a pipeline reprova. |
