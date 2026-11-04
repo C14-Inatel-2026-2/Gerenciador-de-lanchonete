@@ -15,14 +15,19 @@ jenkins:
       allowAnonymousRead: false
 
 # Credenciais dos stages entram aqui (ex.: deploy), sempre lendo do .env:
-# credentials:
-#   system:
-#     domainCredentials:
-#       - credentials:
-#           - string:
-#               scope: GLOBAL
-#               id: "render-deploy-hook"
-#               secret: "${RENDER_DEPLOY_HOOK}"
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: "render-deploy-hook"
+              secret: "${RENDER_DEPLOY_HOOK}"
+
+          - string:
+              scope: GLOBAL
+              id: "vercel-deploy-hook"
+              secret: "${VERCEL_DEPLOY_HOOK}"
 
 # Job multibranch: descobre sozinho toda branch que tiver Jenkinsfile
 jobs:

@@ -28,6 +28,20 @@ Perfis de usuário: Cliente, Funcionário (cozinha) e Administrador.
 
 ---
 
+## 🚀 Deploy e variáveis de ambiente
+
+O deploy automático é executado pelo Jenkins somente na branch `main`, após a conclusão bem-sucedida das etapas de build e testes.
+
+Os Deploy Hooks do Render e da Vercel são credenciais privadas e devem ser configurados por quem administra o deploy no Jenkins.
+
+As variáveis necessárias são:
+- `RENDER_DEPLOY_HOOK`
+- `VERCEL_DEPLOY_HOOK`
+
+Essas informações devem ser mantidas em segredo e nunca devem ser enviadas ao repositório.
+
+---
+
 ## 📁 Estrutura do Monorepo
 
 ```text
