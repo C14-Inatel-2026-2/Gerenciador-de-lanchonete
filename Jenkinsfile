@@ -74,6 +74,7 @@ pipeline {
             }
         }
 
+
         stage('Deploy Backend') {
             when {
                 branch 'main'
@@ -86,19 +87,23 @@ pipeline {
         }
 
         stage('Deploy Frontend') {
-                    when {
-                        branch 'main'
-                    }
-                    steps {
-                        withCredentials([string(credentialsId: 'vercel-deploy-hook', variable: 'HOOK')]) {
-                            sh 'curl -fsS -X POST "$HOOK"'
-                        }
-                    }
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'vercel-deploy-hook', variable: 'HOOK')]) {
+                    sh 'curl -fsS -X POST "$HOOK"'
                 }
             }
-
-            post {
-                success { echo 'Pipeline concluída com sucesso.' }
-                failure { echo 'Pipeline falhou — verifique o stage em vermelho.' }
-            }
         }
+    }
+
+    post {
+        success {
+            echo 'Pipeline concluída com sucesso.'
+        }
+        failure {
+            echo 'Pipeline falhou — verifique o stage em vermelho.'
+        }
+    }
+}
