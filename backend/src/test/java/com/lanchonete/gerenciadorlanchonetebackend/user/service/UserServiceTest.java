@@ -1,5 +1,6 @@
 package com.lanchonete.gerenciadorlanchonetebackend.user.service;
 
+import com.lanchonete.gerenciadorlanchonetebackend.user.exception.EmailJaCadastradoException;
 import com.lanchonete.gerenciadorlanchonetebackend.user.exception.UserValidationException;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
@@ -45,13 +46,14 @@ class UserServiceTest {
         when(repository.existsByEmail("karolina@email.com")).thenReturn(true);
         UserService userService = new UserService(repository);
 
-        assertThrows(
-                UserValidationException.class,
+        EmailJaCadastradoException ex = assertThrows(
+                EmailJaCadastradoException.class,
                 () -> userService.criarPerfil(
                         "supabase-123", "Karolina", "Karolina@email.com"
                 )
         );
 
+        assertEquals("E-mail já cadastrado", ex.getMessage());
         verify(repository, never()).save(any(UserProfile.class));
     }
 
