@@ -2,7 +2,10 @@ package com.lanchonete.gerenciadorlanchonetebackend.compras.controller;
 
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.service.PedidoLifecycleService;
+import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.UsuarioNaoAutenticadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
@@ -13,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,6 +26,7 @@ import java.util.List;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,6 +94,79 @@ class CozinhaControllerTest {
             .andExpect(jsonPath("$.erro").value("Usuário não autenticado"));
 
         verifyNoInteractions(lifecycleService);
+    }
+
+        @Test
+    void patchStatusAvancaPedidoERetornaPedidoAtualizado() throws Exception {
+        logarComo(UserRole.FUNCIONARIO);
+        Pedido emPreparo = pedido(5L);
+        emPreparo.alterarStatus(StatusPedido.EM_PREPARO);
+        when(lifecycleService.atualizarStatusPorId(5L, StatusPedido.EM_PREPARO)).thenReturn(emPreparo);
+
+        mockMvc.perform(patchStatus(5L, "{ \"status\": \"EM_PREPARO\" }"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(5))
+            .andExpect(jsonPath("$.status").value("EM_PREPARO"));
+    }
+
+    @Test
+    void patchComTransicaoInvalidaRetorna409() throws Exception {
+        logarComo(UserRole.FUNCIONARIO);
+        when(lifecycleService.atualizarStatusPorId(5L, StatusPedido.ENTREGUE))
+            .thenThrow(new TransicaoStatusInvalidaException(StatusPedido.CRIADO, StatusPedido.ENTREGUE));
+
+        mockMvc.perform(patchStatus(5L, "{ \"status\": \"ENTREGUE\" }"))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.erro").value("Transição de status inválida: CRIADO -> ENTREGUE."));
+    }
+
+    @Test
+    void patchDePedidoInexistenteRetorna404() throws Exception {
+        logarComo(UserRole.ADMIN);
+        when(lifecycleService.atualizarStatusPorId(99L, StatusPedido.EM_PREPARO))
+            .thenThrow(new RecursoNaoEncontradoException("Pedido não encontrado"));
+
+        mockMvc.perform(patchStatus(99L, "{ \"status\": \"EM_PREPARO\" }"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.erro").value("Pedido não encontrado"));
+    }
+
+    @Test
+    void patchComStatusForaDoEnumRetorna400() throws Exception {
+        logarComo(UserRole.FUNCIONARIO);
+
+        mockMvc.perform(patchStatus(5L, "{ \"status\": \"VOANDO\" }"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.erro").value("Requisição inválida"));
+
+        verifyNoInteractions(lifecycleService);
+    }
+
+    @Test
+    void patchSemStatusRetorna400() throws Exception {
+        logarComo(UserRole.FUNCIONARIO);
+
+        mockMvc.perform(patchStatus(5L, "{ }"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.erro").value("O novo status não pode ser nulo."));
+
+        verifyNoInteractions(lifecycleService);
+    }
+
+    @Test
+    void patchNegadoParaClienteSemAlterarPedido() throws Exception {
+        logarComo(UserRole.CLIENTE);
+
+        mockMvc.perform(patchStatus(5L, "{ \"status\": \"EM_PREPARO\" }"))
+            .andExpect(status().isForbidden());
+
+        verifyNoInteractions(lifecycleService);
+    }
+
+    private RequestBuilder patchStatus(Long id, String json) {
+        return patch("/api/pedidos/{id}/status", id)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json);
     }
 
     private void logarComo(UserRole role) {

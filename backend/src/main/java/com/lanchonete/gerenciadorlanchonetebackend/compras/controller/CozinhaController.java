@@ -1,5 +1,6 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.controller;
 
+import com.lanchonete.gerenciadorlanchonetebackend.compras.dto.AtualizarStatusRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.dto.PedidoResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.service.PedidoLifecycleService;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.AcessoNegadoException;
@@ -7,6 +8,9 @@ import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import com.lanchonete.gerenciadorlanchonetebackend.user.security.UsuarioAtualProvider;
 import com.lanchonete.gerenciadorlanchonetebackend.user.service.AuthorizationService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +44,18 @@ public class CozinhaController {
         return lifecycleService.listarFila().stream()
             .map(PedidoResponse::de)
             .toList();
+    }
+
+
+    // A regra da transição não fica aqui: o service chama Pedido.alterarStatus,
+    // e uma transição inválida vira 409 no GlobalExceptionHandler (RNF-CIC05).
+    @PatchMapping("/{id}/status")
+    public PedidoResponse atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest request) {
+        exigirAcessoCozinha();
+        if (request.status() == null) {
+            throw new IllegalArgumentException("O novo status não pode ser nulo.");
+        }
+        return PedidoResponse.de(lifecycleService.atualizarStatusPorId(id, request.status()));
     }
 
     // 401 sai do provider (usuário não identificado); 403 sai daqui (sem permissão).
