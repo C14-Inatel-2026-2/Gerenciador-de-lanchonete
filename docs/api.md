@@ -21,6 +21,26 @@ Os controllers obtêm o usuário logado pela interface `UsuarioAtualProvider` (R
 
 A troca não altera nenhum controller: só a implementação da interface.
 
+#### Usuários de teste (fase provisória)
+
+Com o header provisório, não dá para criar perfis pela API (o cadastro depende do token do Supabase). Para testar as rotas protegidas, rode o script [`backend/scripts/usuarios-teste.sql`](../backend/scripts/usuarios-teste.sql) no **SQL Editor** do Supabase. Ele cria:
+
+| Id no banco do grupo | Usuário | E-mail | Perfil | Uso |
+|---|---|---|---|---|
+| `1` | Cliente Teste | `cliente.teste@lanchonete.com` | `CLIENTE` | Rotas de cliente (pedidos, perfil) |
+| `2` | Funcionário Teste | `funcionario.teste@lanchonete.com` | `FUNCIONARIO` | Fila da cozinha e status do pedido |
+| `3` | Admin Teste | `admin.teste@lanchonete.com` | `ADMIN` | Gestão de produtos, usuários e painel |
+| `4` | Desativado Teste | `desativado.teste@lanchonete.com` | `CLIENTE` (inativo) | Conferir que o acesso é negado (`403`) |
+
+**No banco compartilhado do grupo (Supabase), o script já foi rodado e os ids são os da tabela acima.** Em outro banco, os ids são gerados de novo e podem ser diferentes: confira pelo `SELECT` no fim do script. Exemplo:
+
+```powershell
+# Agindo como o Cliente Teste
+curl.exe -i http://localhost:8080/api/usuarios/me -H "X-Usuario-Id: 1"
+```
+
+Depois da #55, esses perfis deixam de servir para login e podem ser removidos com o `DELETE` comentado no fim do script.
+
 ### Erros
 
 Toda resposta de erro tem o mesmo corpo:
