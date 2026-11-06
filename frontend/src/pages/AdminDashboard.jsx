@@ -1,4 +1,5 @@
 import { formatCurrency } from "../utils/formatCurrency";
+import "./AdminDashboard.css";
 
 function AdminDashboard() {
     const pedidosHoje = 24;
@@ -25,7 +26,7 @@ function AdminDashboard() {
     ];
 
     return (
-        <main>
+        <section className="admin-dashboard">
             <h1>Painel Administrativo</h1>
 
             <section>
@@ -69,7 +70,7 @@ function AdminDashboard() {
                     ))}
                 </tbody>
             </table>
-        </main>
+        </section>
     );
 }
 

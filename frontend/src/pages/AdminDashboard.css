@@ -1,0 +1,72 @@
+.admin-page {
+  width: min(1120px, calc(100% - 48px));
+  padding: 52px 0 72px;
+  margin: 0 auto;
+  flex: 1;
+}
+.admin-page > .page-heading {
+  margin-bottom: 24px;
+}
+.admin-page > .admin-dashboard {
+  padding: 22px;
+  border: 1px solid #eeeae5;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgb(52 37 25 / 3%);
+}
+.admin-page > .admin-dashboard > h1 {
+  display: none;
+}
+.admin-page > .admin-dashboard > section {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.admin-page > .admin-dashboard > section > div {
+  padding: 16px;
+  border-radius: 12px;
+  background: #fbf8f4;
+}
+.admin-page > .admin-dashboard > section h2 {
+  margin: 0 0 8px;
+  color: #837b72;
+  font-size: 11px;
+  font-weight: 600;
+}
+.admin-page > .admin-dashboard > section p {
+  color: #39332d;
+  font-size: 22px;
+  font-weight: 700;
+}
+.admin-page > .admin-dashboard > h2 {
+  margin: 26px 0 12px;
+  color: #302b26;
+  font-size: 15px;
+}
+.admin-page .admin-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #6b645c;
+  font-size: 12px;
+  text-align: left;
+}
+.admin-page .admin-dashboard th,
+.admin-page .admin-dashboard td {
+  padding: 11px 9px;
+  border-bottom: 1px solid #f0ede9;
+}
+.admin-page .admin-dashboard th {
+  color: #938a80;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+@media (max-width: 800px) {
+  .admin-page {
+    width: min(100% - 32px, 620px);
+    padding-top: 34px;
+  }
+  .admin-page > .admin-dashboard > section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
