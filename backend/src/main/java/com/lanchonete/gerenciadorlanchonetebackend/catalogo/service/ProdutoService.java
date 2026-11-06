@@ -11,8 +11,8 @@ import java.util.List;
 public class ProdutoService {
     private final ProdutoRepository produtoRepository;
 
-    public ProdutoService(ProdutoRepository prodtoRepository) {
-        this.produtoRepository = prodtoRepository;
+    public ProdutoService(ProdutoRepository produtoRepository) {
+        this.produtoRepository = produtoRepository;
     }
 
     public Produto salvar(Produto produto) {
