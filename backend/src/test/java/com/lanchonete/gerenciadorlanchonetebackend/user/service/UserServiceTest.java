@@ -27,7 +27,7 @@ class UserServiceTest {
     @Test
     void deveSalvarNovoPerfilQuandoEmailNaoExiste() {
         when(repository.existsByEmail("karolina@email.com")).thenReturn(false);
-        UserService userService = new UserService(repository);
+        UserService userService = new UserService(repository, new AuthorizationService());
 
         userService.criarPerfil(
                 "supabase-123", "Karolina", " Karolina@EMAIL.com "
@@ -44,7 +44,7 @@ class UserServiceTest {
     @Test
     void naoDeveCriarUsuarioComEmailDuplicado() {
         when(repository.existsByEmail("karolina@email.com")).thenReturn(true);
-        UserService userService = new UserService(repository);
+        UserService userService = new UserService(repository, new AuthorizationService());
 
         EmailJaCadastradoException ex = assertThrows(
                 EmailJaCadastradoException.class,
@@ -93,7 +93,7 @@ class UserServiceTest {
     }
 
     private void assertInvalid(String supabaseUserId, String nome, String email) {
-        UserService userService = new UserService(repository);
+        UserService userService = new UserService(repository, new AuthorizationService());
 
         assertThrows(
                 UserValidationException.class,
