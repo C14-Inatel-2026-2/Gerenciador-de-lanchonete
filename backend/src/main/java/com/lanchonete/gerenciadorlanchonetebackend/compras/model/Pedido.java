@@ -1,15 +1,39 @@
-package Compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Entity
+@Table(name = "pedido")
 public class Pedido {
-    private final Long clienteId;
-    private final List<ItemPedido> itens;
-    private final BigDecimal total;
-    private final LocalDateTime criadoEm;
-    private final StatusPedido status;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "cliente_id", nullable = false)
+    private Long clienteId;
+
+    // EAGER para evitar LazyInitializationException fora de transação
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "item_pedido", joinColumns = @JoinColumn(name = "pedido_id"))
+    private List<ItemPedido> itens;
+
+    @Column(nullable = false)
+    private BigDecimal total;
+
+    @Column(name = "criado_em", nullable = false)
+    private LocalDateTime criadoEm;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusPedido status;
+
+    // Exigido pelo JPA; não use diretamente
+    protected Pedido() {
+    }
 
     public Pedido(Long clienteId, List<ItemPedido> itens) {
         validarClienteId(clienteId);
@@ -38,6 +62,14 @@ public class Pedido {
         return new Pedido(clienteId, itensPedido);
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getClienteId() {
         return clienteId;
     }
@@ -58,6 +90,12 @@ public class Pedido {
         return status;
     }
 
+    public void alterarStatus(StatusPedido novo) {
+        if (novo == null) throw new IllegalArgumentException("O novo status não pode ser nulo.");
+        if (!status.podeTransitarPara(novo)) throw new TransicaoStatusInvalidaException(status, novo);
+        this.status = novo;
+    }
+
     private BigDecimal calcularTotalDosItens(List<ItemPedido> itens) {
         return itens.stream()
             .map(ItemPedido::calcularSubtotal)
@@ -76,3 +114,5 @@ public class Pedido {
         }
     }
 }
+
+

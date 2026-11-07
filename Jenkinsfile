@@ -1,0 +1,131 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+        // Compila o backend antes de qualquer outra etapa (fail fast)
+        stage('Build Backend') {
+            steps {
+                dir('backend') {
+                    sh './mvnw -B -ntp clean compile'
+                }
+            }
+        }
+
+        // Roda os testes e publica o relatório JUnit e a cobertura JaCoCo
+        stage('Testes Backend') {
+            steps {
+                dir('backend') {
+                    sh './mvnw -B -ntp test'
+                }
+            }
+            post {
+                always {
+                    junit 'backend/target/surefire-reports/*.xml'
+                    recordCoverage(
+                        id: 'backend-jacoco',
+                        name: 'Cobertura Backend',
+                           tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']],
+                           sourceDirectories: [[path: 'backend/src/main/java']]
+                    )
+                }
+            }
+        }
+
+        // Gera a imagem Docker do backend com o mesmo Dockerfile usado no deploy do Render.
+        // Só roda se o build e os testes passaram; se o Dockerfile quebrar, a pipeline avisa antes do deploy.
+        stage('Docker Build Backend') {
+            environment {
+                IMAGE = "gerenciador-lanchonete-backend:build-${env.BUILD_NUMBER}"
+            }
+            steps {
+                dir('backend') {
+                    sh 'docker version'
+                    sh 'docker build -t "$IMAGE" .'
+                    // Confere se o .jar da aplicação foi copiado para dentro da imagem
+                    sh 'docker run --rm --entrypoint ls "$IMAGE" -l /app/app.jar'
+                }
+            }
+            post {
+                always {
+                    // Remove a imagem gerada para não lotar o disco a cada build
+                    sh 'docker rmi "$IMAGE" || true'
+                }
+            }
+        }
+
+        stage('Frontend Lint') {
+            steps {
+                dir('frontend') {
+                    sh 'node --version'
+                    sh 'npm --version'
+                    sh 'npm ci'
+                    sh 'npm run lint'
+                }
+            }
+        }
+
+        stage('Frontend Tests and Coverage') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run test:coverage' // Executa os testes e gera o relatório de cobertura
+                }
+                
+                // Lê o LCOV e gera o relatório de cobertura no Jenkins
+                recordCoverage(
+                    id: 'frontend-lcov',
+                    name: 'Cobertura Frontend',
+                    tools: [[
+                        parser: 'LCOV',
+                        pattern: 'frontend/coverage/lcov.info'
+                    ]],
+                    // Faz o Jenkins resolver os caminhos do LCOV a partir da pasta do frontend.
+                     sourceDirectories: [[path: 'frontend']]
+                )
+            }
+        }
+
+        stage('Frontend Build') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run build'
+                }
+            }
+        }
+
+
+        stage('Deploy Backend') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'render-deploy-hook', variable: 'HOOK')]) {
+                    sh 'curl -fsS -X POST "$HOOK"'
+                }
+            }
+        }
+
+        stage('Deploy Frontend') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'vercel-deploy-hook', variable: 'HOOK')]) {
+                    sh 'curl -fsS -X POST "$HOOK"'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline concluída com sucesso.'
+        }
+        failure {
+            echo 'Pipeline falhou — verifique o stage em vermelho.'
+        }
+    }
+}

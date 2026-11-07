@@ -1,12 +1,20 @@
-package Compras;
+package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
+
+import jakarta.persistence.Embeddable;
 import java.math.BigDecimal;
 
+@Embeddable
 public class ItemPedido {
-    private final Long produtoId;
-    private final String nome;
-    private final BigDecimal precoUnitario;
-    private final int quantidade;
+    private Long produtoId;
+    private String nome;
+    private BigDecimal precoUnitario;
+    private int quantidade;
+
+    // Exigido pelo JPA; não use diretamente
+    protected ItemPedido() {
+    }
 
     public ItemPedido(Long produtoId, String nome, BigDecimal precoUnitario, int quantidade) {
         validarProdutoId(produtoId);
@@ -25,12 +33,8 @@ public class ItemPedido {
             throw new IllegalArgumentException("O item do carrinho não pode ser nulo.");
         }
 
-        return new ItemPedido(
-            itemCarrinho.getProdutoId(),
-            itemCarrinho.getNome(),
-            itemCarrinho.getPrecoUnitario(),
-            itemCarrinho.getQuantidade()
-        );
+        Produto produto = itemCarrinho.getProduto();
+        return new ItemPedido(produto.getId(), produto.getNome(), produto.getPreco(), itemCarrinho.getQuantidade());
     }
 
     public Long getProdutoId() {
