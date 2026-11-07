@@ -31,4 +31,8 @@ public class CategoriaService {
     public List<Categoria> listarCategorias(){
         return categoriaRepository.findAll();
     }
+
+    public List<Categoria> listarCategoriasAtivas() {
+        return categoriaRepository.findByAtivoTrue();
+    }
 }

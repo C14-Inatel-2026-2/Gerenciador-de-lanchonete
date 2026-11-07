@@ -1,5 +1,8 @@
 package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapioResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
@@ -10,8 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -61,5 +66,42 @@ public class ProdutoServiceTest {
         assertThrows(IllegalArgumentException.class, () -> produtoService.salvar(produto));
 
         verify(produtoRepository, never()).save(any());
+    }
+
+    @Test
+    void deveAgruparProdutosDisponiveisPorCategoriaNoCardapio() {
+        Categoria lanches = new Categoria("Lanches");
+        lanches.setId(1L);
+        Categoria bebidas = new Categoria("Bebidas");
+        bebidas.setId(2L);
+
+        Produto xBurguer = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), lanches);
+        Produto suco = new Produto("Suco", "Suco natural", BigDecimal.valueOf(8), bebidas);
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(xBurguer, suco));
+
+        CardapioResponse cardapio = produtoService.obterCardapio();
+
+        assertEquals(2, cardapio.categorias().size());
+        assertEquals("Lanches", cardapio.categorias().get(0).nome());
+        assertEquals(
+                List.of(new ProdutoCardapioResponse("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25))),
+                cardapio.categorias().get(0).produtos()
+        );
+        assertEquals("Bebidas", cardapio.categorias().get(1).nome());
+        assertEquals(
+                List.of(new ProdutoCardapioResponse("Suco", "Suco natural", BigDecimal.valueOf(8))),
+                cardapio.categorias().get(1).produtos()
+        );
+        assertNull(cardapio.mensagem());
+    }
+
+    @Test
+    void deveInformarQuandoCardapioNaoTemProdutosDisponiveis() {
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of());
+
+        CardapioResponse cardapio = produtoService.obterCardapio();
+
+        assertEquals(List.of(), cardapio.categorias());
+        assertEquals("Cardápio vazio: não há produtos disponíveis.", cardapio.mensagem());
     }
 }

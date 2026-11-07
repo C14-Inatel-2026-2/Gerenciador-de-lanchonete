@@ -22,6 +22,11 @@ public class AuthorizationService {
                 && userProfile.getRole() == UserRole.ADMIN;
     }
 
+    public boolean podeGerenciarCatalogo(UserProfile userProfile) {
+        return podeAcessarRecursosProtegidos(userProfile)
+                && userProfile.getRole() == UserRole.ADMIN;
+    }
+
     public boolean podeAcessarRecursosProtegidos(UserProfile userProfile) {
         return userProfile != null && userProfile.isAtivo();
     }
