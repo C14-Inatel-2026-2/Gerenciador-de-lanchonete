@@ -19,12 +19,34 @@ public class CategoriaService {
         return categoriaRepository.save(categoria);
     }
 
-    private void validar(Categoria categoria) {
-        if(categoria.getNome() == null || categoria.getNome().trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome da categoria é obrigatório");
+    public Categoria editar(Long id, String nome) {
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+        categoria.setNome(nome);
+        validarNome(categoria);
+        if (categoriaRepository.existsByNomeAndIdNot(nome, id)) {
+            throw new IllegalArgumentException("Já existe uma categoria cadastrada com este nome");
         }
+        return categoriaRepository.save(categoria);
+    }
+
+    public Categoria desativar(Long id) {
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+        categoria.setAtivo(false);
+        return categoriaRepository.save(categoria);
+    }
+
+    private void validar(Categoria categoria) {
+        validarNome(categoria);
         if(categoriaRepository.existsByNome(categoria.getNome())){
             throw new IllegalArgumentException("Já existe uma categoria cadastrada com este nome");
+        }
+    }
+
+    private void validarNome(Categoria categoria) {
+        if(categoria.getNome() == null || categoria.getNome().trim().isEmpty()) {
+            throw new IllegalArgumentException("Nome da categoria é obrigatório");
         }
     }
 

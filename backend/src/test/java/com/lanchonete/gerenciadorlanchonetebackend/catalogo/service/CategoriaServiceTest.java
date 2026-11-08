@@ -9,8 +9,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -82,5 +84,62 @@ class CategoriaServiceTest {
 
         assertEquals(categorias, resultado);
         verify(categoriaRepository).findAll();
+    }
+
+    @Test
+    void deveEditarCategoriaSemConsiderarSeuProprioNomeDuplicado() {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(categoriaRepository.save(categoria)).thenReturn(categoria);
+
+        Categoria editada = categoriaService.editar(1L, "Lanches");
+
+        assertEquals("Lanches", editada.getNome());
+        verify(categoriaRepository).existsByNomeAndIdNot("Lanches", 1L);
+        verify(categoriaRepository).save(categoria);
+    }
+
+    @Test
+    void naoDeveEditarCategoriaComNomeDuplicado() {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(categoriaRepository.existsByNomeAndIdNot("Bebidas", 1L)).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> categoriaService.editar(1L, "Bebidas"));
+
+        verify(categoriaRepository, never()).save(any(Categoria.class));
+    }
+
+    @Test
+    void naoDeveEditarCategoriaInexistente() {
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> categoriaService.editar(1L, "Lanches"));
+
+        verify(categoriaRepository, never()).save(any(Categoria.class));
+    }
+
+    @Test
+    void deveDesativarCategoriaSemRemoveLa() {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(categoriaRepository.save(categoria)).thenReturn(categoria);
+
+        Categoria desativada = categoriaService.desativar(1L);
+
+        assertFalse(desativada.isAtivo());
+        verify(categoriaRepository).save(categoria);
+    }
+
+    @Test
+    void naoDeveDesativarCategoriaInexistente() {
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> categoriaService.desativar(1L));
+
+        verify(categoriaRepository, never()).save(any(Categoria.class));
     }
 }

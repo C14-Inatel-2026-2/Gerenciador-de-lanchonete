@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     boolean existsByNome(String nome);
+    boolean existsByNomeAndIdNot(String nome, Long id);
     List<Categoria> findByAtivoTrue();
 }
