@@ -40,6 +40,11 @@ pipeline {
                 // Faz o Jenkins resolver os caminhos do LCOV a partir da pasta do frontend.
                 sourceDirectories: [[path: 'frontend']])
             }
+            post {
+                always {
+                    junit 'frontend/junit.xml'
+                }
+            }
         }
 
         stage('Frontend Build') {
