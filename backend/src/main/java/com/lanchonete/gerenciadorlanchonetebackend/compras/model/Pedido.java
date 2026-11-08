@@ -90,12 +90,6 @@ public class Pedido {
         return status;
     }
 
-    // Visibilidade de pacote: só o PedidoLifecycleService (mesmo pacote) altera o status,
-    // então ninguém contorna a máquina de estados.
-    void setStatus(StatusPedido status) {
-        this.status = status;
-    }
-
     public void alterarStatus(StatusPedido novo) {
         if (novo == null) throw new IllegalArgumentException("O novo status não pode ser nulo.");
         if (!status.podeTransitarPara(novo)) throw new TransicaoStatusInvalidaException(status, novo);
@@ -120,3 +114,5 @@ public class Pedido {
         }
     }
 }
+
+

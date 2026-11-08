@@ -24,12 +24,15 @@ class StatusPedidoTest {
 
     @ParameterizedTest(name = "{0} -> {1} é bloqueada")
     @CsvSource({
+        "CRIADO,CRIADO",
         "CRIADO,PRONTO",
         "CRIADO,ENTREGUE",
         "EM_PREPARO,CRIADO",
+        "EM_PREPARO,EM_PREPARO",
         "EM_PREPARO,ENTREGUE",
         "PRONTO,CRIADO",
         "PRONTO,EM_PREPARO",
+        "PRONTO,PRONTO",
         "PRONTO,CANCELADO"
     })
     void deveBloquearTransicoesInvalidas(StatusPedido origem, StatusPedido destino) {
