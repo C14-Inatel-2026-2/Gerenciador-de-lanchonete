@@ -52,6 +52,38 @@ class ProdutoControllerTest {
     }
 
     @Test
+    void deveListarSomenteProdutosDisponiveis() throws Exception {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        Produto produto = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), categoria);
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(produto));
+
+        mockMvc.perform(get("/api/produtos"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("X-Burger"))
+                .andExpect(jsonPath("$[0].disponivel").value(true))
+                .andExpect(jsonPath("$[1]").doesNotExist());
+
+        verify(produtoRepository).findByDisponivelTrue();
+    }
+
+    @Test
+    void deveFiltrarProdutosDisponiveisPorCategoria() throws Exception {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        Produto produto = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), categoria);
+        when(produtoRepository.findByCategoriaIdAndDisponivelTrue(1L)).thenReturn(List.of(produto));
+
+        mockMvc.perform(get("/api/produtos").param("categoriaId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].nome").value("X-Burger"))
+                .andExpect(jsonPath("$[0].categoria.id").value(1))
+                .andExpect(jsonPath("$[1]").doesNotExist());
+
+        verify(produtoRepository).findByCategoriaIdAndDisponivelTrue(1L);
+    }
+
+    @Test
     void deveRetornarMensagemQuandoCardapioEstiverVazio() throws Exception {
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of());
 

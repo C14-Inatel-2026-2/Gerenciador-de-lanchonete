@@ -46,6 +46,13 @@ public class ProdutoService {
         return produtoRepository.findByDisponivelTrue();
     }
 
+    public List<Produto> listarProdutosDisponiveis(Long categoriaId) {
+        if (categoriaId == null) {
+            return produtoRepository.findByDisponivelTrue();
+        }
+        return produtoRepository.findByCategoriaIdAndDisponivelTrue(categoriaId);
+    }
+
     public CardapioResponse obterCardapio() {
         List<Produto> produtosDisponiveis = listarDisponiveis();
         if (produtosDisponiveis.isEmpty()) {
