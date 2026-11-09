@@ -5,7 +5,9 @@ import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapi
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
+import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -24,6 +27,9 @@ import static org.mockito.Mockito.*;
 public class ProdutoServiceTest {
     @Mock
     private ProdutoRepository produtoRepository;
+
+    @Mock
+    private CategoriaRepository categoriaRepository;
 
     @InjectMocks
     private ProdutoService produtoService;
@@ -47,7 +53,9 @@ public class ProdutoServiceTest {
     @Test
     void deveSalvarProdutoValido() {
         Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
         Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(produtoRepository.save(produto)).thenReturn(produto);
 
         Produto salvo = produtoService.salvar(produto);
@@ -59,11 +67,45 @@ public class ProdutoServiceTest {
     @Test
     void excecaoParaProdutoComNomeDuplicado(){
         Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
         Produto produto = new Produto("X-Burguer", "Delicioso", BigDecimal.valueOf(15), categoria);
 
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(produtoRepository.existsByNome("X-Burguer")).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () -> produtoService.salvar(produto));
+
+        verify(produtoRepository, never()).save(any());
+    }
+
+    @Test
+    void deveEditarProdutoSemTratarSeuProprioNomeComoDuplicado() {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        produto.setId(2L);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(produtoRepository.save(produto)).thenReturn(produto);
+
+        Produto editado = produtoService.editar(2L, "X-Burger", "Atualizado", BigDecimal.valueOf(16), 1L);
+
+        assertEquals("Atualizado", editado.getDescricao());
+        assertEquals(BigDecimal.valueOf(16), editado.getPreco());
+        verify(produtoRepository).existsByNomeAndIdNot("X-Burger", 2L);
+        verify(produtoRepository).save(produto);
+    }
+
+    @Test
+    void deveLancar404QuandoCategoriaNaoExistir() {
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> produtoService.salvar(
+                        new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L))
+                )
+        );
 
         verify(produtoRepository, never()).save(any());
     }
@@ -103,5 +145,11 @@ public class ProdutoServiceTest {
 
         assertEquals(List.of(), cardapio.categorias());
         assertEquals("Cardápio vazio: não há produtos disponíveis.", cardapio.mensagem());
+    }
+
+    private Categoria categoriaComId(Long id) {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(id);
+        return categoria;
     }
 }
