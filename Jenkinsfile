@@ -86,6 +86,11 @@ pipeline {
                      sourceDirectories: [[path: 'frontend']]
                 )
             }
+            post {
+                always {
+                    junit 'frontend/junit.xml'
+                }
+            }
         }
 
         stage('Frontend Build') {
