@@ -10,7 +10,10 @@ import com.lanchonete.gerenciadorlanchonetebackend.user.service.AuthorizationSer
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,17 +46,40 @@ public class CategoriaController {
 
     @PostMapping
     public ResponseEntity<CategoriaResponse> criarCategoria(@RequestBody CategoriaRequest request) {
-        if (request == null) {
-            throw new IllegalArgumentException("Corpo da requisição é obrigatório");
-        }
-
-        var usuario = usuarioAtualProvider.obterUsuarioAtual();
-        if (!authorizationService.podeGerenciarCatalogo(usuario)) {
-            throw new AcessoNegadoException("Apenas administradores podem criar categorias");
-        }
+        validarAdministrador("Apenas administradores podem criar categorias");
+        validarRequest(request);
 
         Categoria categoria = categoriaService.salvar(new Categoria(request.nome()));
         return ResponseEntity.status(HttpStatus.CREATED).body(paraResposta(categoria));
+    }
+
+    @PutMapping("/{id}")
+    public CategoriaResponse editarCategoria(
+            @PathVariable Long id,
+            @RequestBody CategoriaRequest request
+    ) {
+        validarAdministrador("Apenas administradores podem gerenciar categorias");
+        validarRequest(request);
+        return paraResposta(categoriaService.editar(id, request.nome()));
+    }
+
+    @PatchMapping("/{id}/desativar")
+    public CategoriaResponse desativarCategoria(@PathVariable Long id) {
+        validarAdministrador("Apenas administradores podem gerenciar categorias");
+        return paraResposta(categoriaService.desativar(id));
+    }
+
+    private void validarAdministrador(String mensagem) {
+        var usuario = usuarioAtualProvider.obterUsuarioAtual();
+        if (!authorizationService.podeGerenciarCatalogo(usuario)) {
+            throw new AcessoNegadoException(mensagem);
+        }
+    }
+
+    private void validarRequest(CategoriaRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Corpo da requisição é obrigatório");
+        }
     }
 
     private CategoriaResponse paraResposta(Categoria categoria) {

@@ -22,7 +22,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -98,6 +100,69 @@ class CategoriaControllerTest {
                         .content("{\"nome\":\"Lanches\"}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.erro").value("Apenas administradores podem criar categorias"));
+
+        verifyNoInteractions(categoriaRepository);
+    }
+
+    @Test
+    void deveEditarCategoriaQuandoUsuarioForAdmin() throws Exception {
+        UserProfile admin = new UserProfile("admin-1", "Admin", "admin@example.com", UserRole.ADMIN);
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(admin);
+        when(categoriaRepository.findById(1L)).thenReturn(java.util.Optional.of(categoria));
+        when(categoriaRepository.save(categoria)).thenReturn(categoria);
+
+        mockMvc.perform(put("/api/categorias/1")
+                        .contentType("application/json")
+                        .content("{\"nome\":\"Lanches\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nome").value("Lanches"));
+
+        verify(categoriaRepository).existsByNomeAndIdNot("Lanches", 1L);
+        verify(categoriaRepository).save(categoria);
+    }
+
+    @Test
+    void naoDeveEditarCategoriaQuandoUsuarioNaoForAdmin() throws Exception {
+        UserProfile cliente = new UserProfile("cliente-1", "Cliente", "cliente@example.com", UserRole.CLIENTE);
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(cliente);
+
+        mockMvc.perform(put("/api/categorias/1")
+                        .contentType("application/json")
+                        .content("{\"nome\":\"Lanches\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.erro").value("Apenas administradores podem gerenciar categorias"));
+
+        verifyNoInteractions(categoriaRepository);
+    }
+
+    @Test
+    void deveDesativarCategoriaQuandoUsuarioForAdmin() throws Exception {
+        UserProfile admin = new UserProfile("admin-1", "Admin", "admin@example.com", UserRole.ADMIN);
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(admin);
+        when(categoriaRepository.findById(1L)).thenReturn(java.util.Optional.of(categoria));
+        when(categoriaRepository.save(categoria)).thenReturn(categoria);
+
+        mockMvc.perform(patch("/api/categorias/1/desativar"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.ativo").value(false));
+
+        verify(categoriaRepository).save(categoria);
+    }
+
+    @Test
+    void naoDeveDesativarCategoriaQuandoUsuarioNaoForAdmin() throws Exception {
+        UserProfile cliente = new UserProfile("cliente-1", "Cliente", "cliente@example.com", UserRole.CLIENTE);
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(cliente);
+
+        mockMvc.perform(patch("/api/categorias/1/desativar"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.erro").value("Apenas administradores podem gerenciar categorias"));
 
         verifyNoInteractions(categoriaRepository);
     }
