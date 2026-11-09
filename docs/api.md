@@ -89,6 +89,12 @@ O perfil criado em `POST /api/usuarios` é sempre `CLIENTE`, mesmo que o corpo t
 | `PATCH` | `/api/usuarios/{id}/role` | ADMIN | `{ "role": "FUNCIONARIO" }` | `200` `UsuarioResponse` |
 | `PATCH` | `/api/usuarios/{id}/desativar` | ADMIN | — | `200` `UsuarioResponse` (`ativo: false`) |
 
+- `GET /api/usuarios` traz ativos e desativados, em ordem de nome.
+- Para cadastrar um funcionário, ele se cadastra normalmente e o ADMIN muda a role dele para `FUNCIONARIO`.
+- O ADMIN **não pode** alterar a própria role nem desativar a si mesmo → `403`.
+- Usuário desativado continua no banco, mas perde o acesso às rotas protegidas (`403`).
+- Erros: `400` role ausente ou inválida · `403` quem chama não é ADMIN ativo · `404` usuário não encontrado.
+
 ## Catálogo (US02 e US06 · #44, estoque #56)
 
 | Método | Rota | Acesso | Corpo | Resposta |
