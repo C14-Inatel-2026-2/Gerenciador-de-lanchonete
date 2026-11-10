@@ -3,6 +3,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.user.model;
 import com.lanchonete.gerenciadorlanchonetebackend.user.exception.UserValidationException;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,5 +40,26 @@ class UserProfileTest {
         userProfile.desativar();
 
         assertFalse(userProfile.isAtivo());
+    }
+
+    @Test
+    void deveAlterarRole() {
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Karolina", "karolina@email.com", UserRole.CLIENTE
+        );
+
+        userProfile.alterarRole(UserRole.FUNCIONARIO);
+
+        assertEquals(UserRole.FUNCIONARIO, userProfile.getRole());
+    }
+
+    @Test
+    void naoDeveAlterarRoleParaNula() {
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Karolina", "karolina@email.com", UserRole.CLIENTE
+        );
+
+        assertThrows(UserValidationException.class, () -> userProfile.alterarRole(null));
+        assertEquals(UserRole.CLIENTE, userProfile.getRole());
     }
 }

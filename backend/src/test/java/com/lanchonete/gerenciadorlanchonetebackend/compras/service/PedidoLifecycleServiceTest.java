@@ -5,6 +5,7 @@ import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.repository.PedidoRepository;
+import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -128,6 +130,39 @@ class PedidoLifecycleServiceTest {
 
         assertEquals(StatusPedido.CANCELADO, cancelado.getStatus());
         verify(pedidoRepository, times(1)).save(pedidoBase);
+    }
+
+        @Test
+    void listarFilaBuscaSoStatusDaCozinhaDoMaisAntigoParaOMaisNovo() {
+        when(pedidoRepository.findByStatusInOrderByCriadoEmAsc(
+                List.of(StatusPedido.CRIADO, StatusPedido.EM_PREPARO, StatusPedido.PRONTO)))
+            .thenReturn(List.of(pedidoBase));
+
+        List<Pedido> fila = lifecycleService.listarFila();
+
+        assertEquals(List.of(pedidoBase), fila);
+    }
+
+    @Test
+    void atualizarStatusPorIdBuscaPedidoESalvaNovoStatus() {
+        when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedidoBase));
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Pedido atualizado = lifecycleService.atualizarStatusPorId(1L, StatusPedido.EM_PREPARO);
+
+        assertEquals(StatusPedido.EM_PREPARO, atualizado.getStatus());
+        verify(pedidoRepository).save(pedidoBase);
+    }
+
+    @Test
+    void atualizarStatusPorIdDePedidoInexistenteLanca404SemSalvar() {
+        when(pedidoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        RecursoNaoEncontradoException excecao = assertThrows(RecursoNaoEncontradoException.class,
+            () -> lifecycleService.atualizarStatusPorId(99L, StatusPedido.EM_PREPARO));
+
+        assertEquals("Pedido não encontrado", excecao.getMessage());
+        verify(pedidoRepository, never()).save(any());
     }
 
     // Leva o pedido até o status desejado usando só transições válidas,

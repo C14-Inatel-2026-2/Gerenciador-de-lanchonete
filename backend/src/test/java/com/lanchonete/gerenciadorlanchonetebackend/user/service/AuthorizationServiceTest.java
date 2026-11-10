@@ -66,6 +66,29 @@ class AuthorizationServiceTest {
         assertFalse(new AuthorizationService().podeAcessarRecursosProtegidos(null));
     }
 
+        @Test
+    void funcionarioAtivoDevePoderOperarCozinha() {
+        assertTrue(new AuthorizationService().podeOperarCozinha(perfil(UserRole.FUNCIONARIO)));
+    }
+
+    @Test
+    void adminAtivoDevePoderOperarCozinha() {
+        assertTrue(new AuthorizationService().podeOperarCozinha(perfil(UserRole.ADMIN)));
+    }
+
+    @Test
+    void clienteNaoDeveOperarCozinha() {
+        assertFalse(new AuthorizationService().podeOperarCozinha(perfil(UserRole.CLIENTE)));
+    }
+
+    @Test
+    void funcionarioDesativadoNaoDeveOperarCozinha() {
+        UserProfile userProfile = perfil(UserRole.FUNCIONARIO);
+        userProfile.desativar();
+
+        assertFalse(new AuthorizationService().podeOperarCozinha(userProfile));
+    }
+
     private UserProfile perfil(UserRole role) {
         return new UserProfile("supabase-123", "Usuário", "usuario@email.com", role);
     }

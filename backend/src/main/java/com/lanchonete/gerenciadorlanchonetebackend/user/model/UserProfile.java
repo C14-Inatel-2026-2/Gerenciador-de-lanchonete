@@ -73,4 +73,11 @@ public class UserProfile {
     public void desativar() {
         this.ativo = false;
     }
+
+    public void alterarRole(UserRole novaRole) {
+        if (novaRole == null) {
+            throw new UserValidationException("Role é obrigatória");
+        }
+        this.role = novaRole;
+    }
 }
