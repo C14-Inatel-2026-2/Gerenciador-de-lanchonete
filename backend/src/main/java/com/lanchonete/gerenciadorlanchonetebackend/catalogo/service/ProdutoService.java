@@ -3,6 +3,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
@@ -31,9 +32,10 @@ public class ProdutoService {
 
     public Produto salvar(Produto produto) {
         validarDados(produto.getNome(), produto.getPreco(), produto.getCategoria());
+        produto.setNome(produto.getNome().trim());
         produto.setCategoria(obterCategoriaAtiva(produto.getCategoria().getId()));
-        if (produtoRepository.existsByNome(produto.getNome())) {
-            throw new IllegalArgumentException("Já existe um produto cadastrado com este nome");
+        if (produtoRepository.existsByNomeIgnoreCase(produto.getNome())) {
+            throw new ProdutoDuplicadoException("Já existe um produto cadastrado com este nome");
         }
         return produtoRepository.save(produto);
     }
@@ -42,12 +44,13 @@ public class ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
         validarDados(nome, preco, categoriaId);
+        String nomeNormalizado = nome.trim();
         Categoria categoria = obterCategoriaAtiva(categoriaId);
-        if (produtoRepository.existsByNomeAndIdNot(nome, id)) {
-            throw new IllegalArgumentException("Já existe um produto cadastrado com este nome");
+        if (produtoRepository.existsByNomeIgnoreCaseAndIdNot(nomeNormalizado, id)) {
+            throw new ProdutoDuplicadoException("Já existe um produto cadastrado com este nome");
         }
 
-        produto.setNome(nome);
+        produto.setNome(nomeNormalizado);
         produto.setDescricao(descricao);
         produto.setPreco(preco);
         produto.setCategoria(categoria);
@@ -105,6 +108,7 @@ public class ProdutoService {
             produtosPorCategoria
                     .computeIfAbsent(categoriaId, id -> new ArrayList<>())
                     .add(new ProdutoCardapioResponse(
+                            produto.getId(),
                             produto.getNome(),
                             produto.getDescricao(),
                             produto.getPreco()
@@ -113,6 +117,7 @@ public class ProdutoService {
 
         List<CategoriaCardapioResponse> categorias = produtosPorCategoria.entrySet().stream()
                 .map(entry -> new CategoriaCardapioResponse(
+                        categoriasPorId.get(entry.getKey()).getId(),
                         categoriasPorId.get(entry.getKey()).getNome(),
                         entry.getValue()
                 ))

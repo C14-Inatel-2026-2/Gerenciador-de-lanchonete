@@ -41,8 +41,10 @@ public class ProdutoController {
     }
 
     @GetMapping
-    public List<Produto> listarProdutos(@RequestParam(required = false) Long categoriaId) {
-        return produtoService.listarProdutosDisponiveis(categoriaId);
+    public List<ProdutoResponse> listarProdutos(@RequestParam(required = false) Long categoriaId) {
+        return produtoService.listarProdutosDisponiveis(categoriaId).stream()
+                .map(this::paraResposta)
+                .toList();
     }
 
     @GetMapping("/cardapio")

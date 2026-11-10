@@ -3,6 +3,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.CategoriaDuplicadaException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
+import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -144,7 +145,7 @@ class CategoriaServiceTest {
     void naoDeveEditarCategoriaInexistente() {
         when(categoriaRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> categoriaService.editar(1L, "Lanches"));
+        assertThrows(RecursoNaoEncontradoException.class, () -> categoriaService.editar(1L, "Lanches"));
 
         verify(categoriaRepository, never()).save(any(Categoria.class));
     }
@@ -166,7 +167,7 @@ class CategoriaServiceTest {
     void naoDeveDesativarCategoriaInexistente() {
         when(categoriaRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> categoriaService.desativar(1L));
+        assertThrows(RecursoNaoEncontradoException.class, () -> categoriaService.desativar(1L));
 
         verify(categoriaRepository, never()).save(any(Categoria.class));
     }

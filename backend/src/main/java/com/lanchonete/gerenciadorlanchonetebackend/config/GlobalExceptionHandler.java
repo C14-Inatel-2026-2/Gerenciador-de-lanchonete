@@ -2,6 +2,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.config;
 
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.CategoriaDuplicadaException;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.AcessoNegadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
@@ -58,6 +59,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({
             EmailJaCadastradoException.class,
             CategoriaDuplicadaException.class,
+            ProdutoDuplicadoException.class,
             TransicaoStatusInvalidaException.class,
             EstoqueInsuficienteException.class
     })

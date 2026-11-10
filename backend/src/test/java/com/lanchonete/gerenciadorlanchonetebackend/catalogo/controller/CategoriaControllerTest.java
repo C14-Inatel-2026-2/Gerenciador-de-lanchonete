@@ -139,6 +139,19 @@ class CategoriaControllerTest {
     }
 
     @Test
+    void editarCategoriaInexistenteRetorna404() throws Exception {
+        UserProfile admin = new UserProfile("admin-1", "Admin", "admin@example.com", UserRole.ADMIN);
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(admin);
+        when(categoriaRepository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        mockMvc.perform(put("/api/categorias/99")
+                        .contentType("application/json")
+                        .content("{\"nome\":\"Lanches\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro").value("Categoria não encontrada"));
+    }
+
+    @Test
     void deveDesativarCategoriaQuandoUsuarioForAdmin() throws Exception {
         UserProfile admin = new UserProfile("admin-1", "Admin", "admin@example.com", UserRole.ADMIN);
         Categoria categoria = new Categoria("Lanches");
@@ -165,5 +178,16 @@ class CategoriaControllerTest {
                 .andExpect(jsonPath("$.erro").value("Apenas administradores podem gerenciar categorias"));
 
         verifyNoInteractions(categoriaRepository);
+    }
+
+    @Test
+    void desativarCategoriaInexistenteRetorna404() throws Exception {
+        UserProfile admin = new UserProfile("admin-1", "Admin", "admin@example.com", UserRole.ADMIN);
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(admin);
+        when(categoriaRepository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        mockMvc.perform(patch("/api/categorias/99/desativar"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.erro").value("Categoria não encontrada"));
     }
 }

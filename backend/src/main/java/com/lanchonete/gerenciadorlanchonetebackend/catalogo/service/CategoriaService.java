@@ -3,6 +3,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.CategoriaDuplicadaException;
+import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class CategoriaService {
 
     public Categoria editar(Long id, String nome) {
         Categoria categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
         categoria.setNome(nome);
         validarNome(categoria);
         if (categoriaRepository.existsByNomeIgnoreCaseAndIdNot(categoria.getNome(), id)) {
@@ -33,7 +34,7 @@ public class CategoriaService {
 
     public Categoria desativar(Long id) {
         Categoria categoria = categoriaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria não encontrada"));
         categoria.setAtivo(false);
         return categoriaRepository.save(categoria);
     }

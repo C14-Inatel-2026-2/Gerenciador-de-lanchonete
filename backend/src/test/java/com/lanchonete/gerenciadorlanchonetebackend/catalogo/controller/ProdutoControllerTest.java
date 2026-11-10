@@ -65,11 +65,14 @@ class ProdutoControllerTest {
         Categoria categoria = new Categoria("Lanches");
         categoria.setId(1L);
         Produto produto = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), categoria);
+        produto.setId(2L);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(produto));
 
         mockMvc.perform(get("/api/produtos/cardapio"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.categorias[0].id").value(1))
                 .andExpect(jsonPath("$.categorias[0].nome").value("Lanches"))
+                .andExpect(jsonPath("$.categorias[0].produtos[0].id").value(2))
                 .andExpect(jsonPath("$.categorias[0].produtos[0].nome").value("X-Burger"))
                 .andExpect(jsonPath("$.categorias[0].produtos[0].descricao").value("Pão, carne e queijo"))
                 .andExpect(jsonPath("$.categorias[0].produtos[0].preco").value(25));
@@ -82,12 +85,15 @@ class ProdutoControllerTest {
         Categoria categoria = new Categoria("Lanches");
         categoria.setId(1L);
         Produto produto = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), categoria);
+        produto.setId(2L);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(produto));
 
         mockMvc.perform(get("/api/produtos"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].nome").value("X-Burger"))
                 .andExpect(jsonPath("$[0].disponivel").value(true))
+                .andExpect(jsonPath("$[0].categoriaId").value(1))
                 .andExpect(jsonPath("$[1]").doesNotExist());
 
         verify(produtoRepository).findByDisponivelTrue();
@@ -98,12 +104,14 @@ class ProdutoControllerTest {
         Categoria categoria = new Categoria("Lanches");
         categoria.setId(1L);
         Produto produto = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), categoria);
+        produto.setId(2L);
         when(produtoRepository.findByCategoriaIdAndDisponivelTrue(1L)).thenReturn(List.of(produto));
 
         mockMvc.perform(get("/api/produtos").param("categoriaId", "1"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].nome").value("X-Burger"))
-                .andExpect(jsonPath("$[0].categoria.id").value(1))
+                .andExpect(jsonPath("$[0].categoriaId").value(1))
                 .andExpect(jsonPath("$[1]").doesNotExist());
 
         verify(produtoRepository).findByCategoriaIdAndDisponivelTrue(1L);
@@ -144,6 +152,23 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.disponivel").value(true));
 
         verify(produtoRepository).save(any(Produto.class));
+    }
+
+    @Test
+    void naoDeveCriarProdutoComNomeDuplicadoRetorna409() throws Exception {
+        autorizarAdmin();
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoriaAtiva()));
+        when(produtoRepository.existsByNomeIgnoreCase("x-burger")).thenReturn(true);
+
+        mockMvc.perform(post("/api/produtos")
+                        .contentType("application/json")
+                        .content("""
+                                {"nome":" x-burger ","descricao":"Delicioso","preco":25,"categoriaId":1}
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro").value("Já existe um produto cadastrado com este nome"));
+
+        verify(produtoRepository, never()).save(any(Produto.class));
     }
 
     @Test
@@ -211,7 +236,7 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.descricao").value("Pão e carne"))
                 .andExpect(jsonPath("$.preco").value(27));
 
-        verify(produtoRepository).existsByNomeAndIdNot("X-Burger", 2L);
+        verify(produtoRepository).existsByNomeIgnoreCaseAndIdNot("X-Burger", 2L);
         verify(produtoRepository).save(produto);
     }
 

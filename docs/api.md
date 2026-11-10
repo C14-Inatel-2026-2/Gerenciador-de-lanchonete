@@ -96,6 +96,8 @@ O perfil criado em `POST /api/usuarios` é sempre `CLIENTE`, mesmo que o corpo t
 | `GET` | `/api/categorias` | Público | — | `200` `CategoriaResponse[]` (só ativas) |
 | `POST` | `/api/categorias` | ADMIN | `{ "nome" }` | `201` `CategoriaResponse` |
 | `PUT` | `/api/categorias/{id}` | ADMIN | `{ "nome", "ativo" }` | `200` `CategoriaResponse` |
+| `PATCH` | `/api/categorias/{id}/desativar` | ADMIN | — | `200` `CategoriaResponse` (`ativo: false`) |
+| `GET` | `/api/produtos/cardapio` | Público | — | `200` `CardapioResponse` (produtos disponíveis agrupados por categoria) |
 | `GET` | `/api/produtos?categoriaId={id}` | Público | — | `200` `ProdutoResponse[]` (só disponíveis; filtro opcional) |
 | `POST` | `/api/produtos` | ADMIN | `ProdutoRequest` | `201` `ProdutoResponse` |
 | `PUT` | `/api/produtos/{id}` | ADMIN | `ProdutoRequest` | `200` `ProdutoResponse` |
@@ -105,6 +107,20 @@ O perfil criado em `POST /api/usuarios` é sempre `CLIENTE`, mesmo que o corpo t
 ```json
 // CategoriaResponse
 { "id": 1, "nome": "Lanches", "ativo": true }
+
+// CardapioResponse
+{
+  "categorias": [
+    {
+      "id": 1,
+      "nome": "Lanches",
+      "produtos": [
+        { "id": 10, "nome": "X-Burguer", "descricao": "Pão, carne e queijo", "preco": 18.90 }
+      ]
+    }
+  ],
+  "mensagem": null
+}
 
 // ProdutoRequest
 { "nome": "X-Burguer", "descricao": "Pão, carne e queijo", "preco": 18.90, "categoriaId": 1 }
