@@ -16,7 +16,17 @@ export async function api(caminho, opcoes = {}) {
     }
   );
 
-  const dados = await resposta.json();
+  const texto = await resposta.text();
+
+  let dados = null;
+
+  if (texto) {
+    try {
+      dados = JSON.parse(texto);
+    } catch {
+      dados = null;
+    }
+  }
 
   if (resposta.status === 401) {
     limparSessao();
@@ -24,7 +34,7 @@ export async function api(caminho, opcoes = {}) {
   }
 
   if (!resposta.ok) {
-    throw new Error(dados.erro);
+    throw new Error(dados?.erro ?? `Erro ${resposta.status}`);
   }
 
   return dados;

@@ -22,7 +22,7 @@ describe("api", () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ sucesso: true }),
+      text: async () => JSON.stringify({ sucesso: true }),
     });
 
     await api("/teste");
@@ -38,9 +38,10 @@ describe("api", () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 400,
-      json: async () => ({
-        erro: "Erro de teste",
-      }),
+      text: async () =>
+        JSON.stringify({
+          erro: "Erro de teste",
+        }),
     });
 
     await expect(api("/teste")).rejects.toThrow("Erro de teste");
