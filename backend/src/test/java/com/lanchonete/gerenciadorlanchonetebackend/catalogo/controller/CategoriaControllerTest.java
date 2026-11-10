@@ -71,7 +71,7 @@ class CategoriaControllerTest {
     void deveCriarCategoriaQuandoUsuarioForAdmin() throws Exception {
         UserProfile admin = new UserProfile("admin-1", "Admin", "admin@example.com", UserRole.ADMIN);
         when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(admin);
-        when(categoriaRepository.existsByNome("Lanches")).thenReturn(false);
+        when(categoriaRepository.existsByNomeIgnoreCase("Lanches")).thenReturn(false);
         when(categoriaRepository.save(any(Categoria.class))).thenAnswer(invocation -> {
             Categoria categoria = invocation.getArgument(0);
             categoria.setId(2L);
@@ -86,7 +86,7 @@ class CategoriaControllerTest {
                 .andExpect(jsonPath("$.nome").value("Lanches"))
                 .andExpect(jsonPath("$.ativo").value(true));
 
-        verify(categoriaRepository).existsByNome("Lanches");
+        verify(categoriaRepository).existsByNomeIgnoreCase("Lanches");
         verify(categoriaRepository).save(any(Categoria.class));
     }
 
@@ -120,7 +120,7 @@ class CategoriaControllerTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nome").value("Lanches"));
 
-        verify(categoriaRepository).existsByNomeAndIdNot("Lanches", 1L);
+        verify(categoriaRepository).existsByNomeIgnoreCaseAndIdNot("Lanches", 1L);
         verify(categoriaRepository).save(categoria);
     }
 

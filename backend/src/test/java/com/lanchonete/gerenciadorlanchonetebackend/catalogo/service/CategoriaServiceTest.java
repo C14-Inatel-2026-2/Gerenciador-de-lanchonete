@@ -1,6 +1,7 @@
 package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.CategoriaDuplicadaException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,13 +28,26 @@ class CategoriaServiceTest {
     @Test
     void deveSalvarCategoriaValida() {
         Categoria categoria = new Categoria("Lanches");
-        when(categoriaRepository.existsByNome("Lanches")).thenReturn(false);
+        when(categoriaRepository.existsByNomeIgnoreCase("Lanches")).thenReturn(false);
         when(categoriaRepository.save(categoria)).thenReturn(categoria);
 
         Categoria salva = categoriaService.salvar(categoria);
 
         assertEquals(categoria, salva);
-        verify(categoriaRepository).existsByNome("Lanches");
+        verify(categoriaRepository).existsByNomeIgnoreCase("Lanches");
+        verify(categoriaRepository).save(categoria);
+    }
+
+    @Test
+    void deveRemoverEspacosDoNomeAoSalvarCategoria() {
+        Categoria categoria = new Categoria(" Lanches ");
+        when(categoriaRepository.existsByNomeIgnoreCase("Lanches")).thenReturn(false);
+        when(categoriaRepository.save(categoria)).thenReturn(categoria);
+
+        Categoria salva = categoriaService.salvar(categoria);
+
+        assertEquals("Lanches", salva.getNome());
+        verify(categoriaRepository).existsByNomeIgnoreCase("Lanches");
         verify(categoriaRepository).save(categoria);
     }
 
@@ -66,12 +80,12 @@ class CategoriaServiceTest {
 
     @Test
     void naoDeveSalvarCategoriaComNomeDuplicado() {
-        Categoria categoria = new Categoria("Lanches");
-        when(categoriaRepository.existsByNome("Lanches")).thenReturn(true);
+        Categoria categoria = new Categoria("lanches");
+        when(categoriaRepository.existsByNomeIgnoreCase("lanches")).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> categoriaService.salvar(categoria));
+        assertThrows(CategoriaDuplicadaException.class, () -> categoriaService.salvar(categoria));
 
-        verify(categoriaRepository).existsByNome("Lanches");
+        verify(categoriaRepository).existsByNomeIgnoreCase("lanches");
         verify(categoriaRepository, never()).save(any(Categoria.class));
     }
 
@@ -96,7 +110,7 @@ class CategoriaServiceTest {
         Categoria editada = categoriaService.editar(1L, "Lanches");
 
         assertEquals("Lanches", editada.getNome());
-        verify(categoriaRepository).existsByNomeAndIdNot("Lanches", 1L);
+        verify(categoriaRepository).existsByNomeIgnoreCaseAndIdNot("Lanches", 1L);
         verify(categoriaRepository).save(categoria);
     }
 
@@ -105,11 +119,25 @@ class CategoriaServiceTest {
         Categoria categoria = new Categoria("Lanches");
         categoria.setId(1L);
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
-        when(categoriaRepository.existsByNomeAndIdNot("Bebidas", 1L)).thenReturn(true);
+        when(categoriaRepository.existsByNomeIgnoreCaseAndIdNot("Bebidas", 1L)).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> categoriaService.editar(1L, "Bebidas"));
+        assertThrows(CategoriaDuplicadaException.class, () -> categoriaService.editar(1L, "Bebidas"));
 
         verify(categoriaRepository, never()).save(any(Categoria.class));
+    }
+
+    @Test
+    void deveRemoverEspacosDoNomeAoEditarCategoria() {
+        Categoria categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(categoriaRepository.save(categoria)).thenReturn(categoria);
+
+        Categoria editada = categoriaService.editar(1L, " Lanches ");
+
+        assertEquals("Lanches", editada.getNome());
+        verify(categoriaRepository).existsByNomeIgnoreCaseAndIdNot("Lanches", 1L);
+        verify(categoriaRepository).save(categoria);
     }
 
     @Test

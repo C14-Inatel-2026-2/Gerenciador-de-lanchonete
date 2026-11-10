@@ -2,6 +2,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.CategoriaDuplicadaException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,8 +25,8 @@ public class CategoriaService {
                 .orElseThrow(() -> new IllegalArgumentException("Categoria não encontrada"));
         categoria.setNome(nome);
         validarNome(categoria);
-        if (categoriaRepository.existsByNomeAndIdNot(nome, id)) {
-            throw new IllegalArgumentException("Já existe uma categoria cadastrada com este nome");
+        if (categoriaRepository.existsByNomeIgnoreCaseAndIdNot(categoria.getNome(), id)) {
+            throw new CategoriaDuplicadaException("Já existe uma categoria cadastrada com este nome");
         }
         return categoriaRepository.save(categoria);
     }
@@ -39,15 +40,16 @@ public class CategoriaService {
 
     private void validar(Categoria categoria) {
         validarNome(categoria);
-        if(categoriaRepository.existsByNome(categoria.getNome())){
-            throw new IllegalArgumentException("Já existe uma categoria cadastrada com este nome");
+        if (categoriaRepository.existsByNomeIgnoreCase(categoria.getNome())) {
+            throw new CategoriaDuplicadaException("Já existe uma categoria cadastrada com este nome");
         }
     }
 
     private void validarNome(Categoria categoria) {
-        if(categoria.getNome() == null || categoria.getNome().trim().isEmpty()) {
+        if (categoria.getNome() == null || categoria.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("Nome da categoria é obrigatório");
         }
+        categoria.setNome(categoria.getNome().trim());
     }
 
     public List<Categoria> listarCategorias(){
