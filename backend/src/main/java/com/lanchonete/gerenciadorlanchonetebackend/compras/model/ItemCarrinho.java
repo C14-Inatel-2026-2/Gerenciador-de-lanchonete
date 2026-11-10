@@ -11,7 +11,7 @@ public class ItemCarrinho {
 
     public ItemCarrinho(Produto produto, int quantidade) {
         validarProduto(produto);
-        validarQuantidade(quantidade);
+        ValidacoesCompras.validarQuantidade(quantidade);
 
         this.produto = produto;
         this.quantidade = quantidade;
@@ -38,17 +38,17 @@ public class ItemCarrinho {
     }
 
     public void aumentarQuantidade(int quantidadeAdicional) {
-        validarQuantidade(quantidadeAdicional);
+        ValidacoesCompras.validarQuantidade(quantidadeAdicional);
         quantidade += quantidadeAdicional;
     }
 
     public void alterarQuantidade(int novaQuantidade) {
-        validarQuantidade(novaQuantidade);
+        ValidacoesCompras.validarQuantidade(novaQuantidade);
         quantidade = novaQuantidade;
     }
 
     public void diminuirQuantidade(int quantidadeRemovida) {
-        validarQuantidade(quantidadeRemovida);
+        ValidacoesCompras.validarQuantidade(quantidadeRemovida);
 
         if (quantidadeRemovida >= quantidade) {
             throw new IllegalArgumentException(
@@ -100,12 +100,6 @@ public class ItemCarrinho {
 
         if(!produto.isDisponivel()) {
             throw new IllegalArgumentException("O produto deve estar disponível.");
-        }
-    }
-
-    private void validarQuantidade(int quantidade) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
         }
     }
 }

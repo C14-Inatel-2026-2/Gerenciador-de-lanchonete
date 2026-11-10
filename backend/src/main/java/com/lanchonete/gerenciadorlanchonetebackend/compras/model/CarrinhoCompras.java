@@ -24,12 +24,12 @@ public class CarrinhoCompras {
     }
 
     public boolean removerItemPorProdutoId(Long produtoId) {
-        validarProdutoId(produtoId);
+        ValidacoesCompras.validarProdutoId(produtoId);
         return itens.removeIf(item -> item.getProdutoId().equals(produtoId));
     }
 
     public void alterarQuantidade(Long produtoId, int novaQuantidade) {
-        validarProdutoId(produtoId);
+        ValidacoesCompras.validarProdutoId(produtoId);
 
         if (novaQuantidade <= 0) {
             removerItemPorProdutoId(produtoId);
@@ -66,7 +66,7 @@ public class CarrinhoCompras {
     }
 
     public Optional<ItemCarrinho> buscarItemPorProdutoId(Long produtoId) {
-        validarProdutoId(produtoId);
+        ValidacoesCompras.validarProdutoId(produtoId);
 
         return itens.stream()
                 .filter(item -> item.getProdutoId().equals(produtoId))
@@ -94,12 +94,6 @@ public class CarrinhoCompras {
     private void validarItem(ItemCarrinho item) {
         if (item == null) {
             throw new IllegalArgumentException("O item não pode ser nulo.");
-        }
-    }
-
-    private void validarProdutoId(Long produtoId) {
-        if (produtoId == null || produtoId <= 0) {
-            throw new IllegalArgumentException("O identificador do produto deve ser positivo.");
         }
     }
 }
