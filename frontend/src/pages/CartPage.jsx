@@ -31,7 +31,7 @@ function CartPage({ cart, onFinishOrder, onUpdateQuantity }) {
                         <div className="cart-items">
                             {cart.map((item) => (
                                 <article className="cart-item" key={item.id}>
-                                    <div className="product-art" aria-hidden="true">{item.categoria === "Bebidas" ? "🥤" : item.categoria === "Acompanhamentos" ? "🍟" : "🍔"}</div>
+                                    <div className="product-art" aria-hidden="true">🍽️</div>
                                     <div className="cart-item-info">
                                         <div className="item-title-row">
                                             <h3>{item.nome}</h3>

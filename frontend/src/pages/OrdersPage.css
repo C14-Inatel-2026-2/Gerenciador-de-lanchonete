@@ -199,12 +199,6 @@
   color: #37312b;
   font-size: 12px;
 }
-.demo-label {
-  color: #a49b91;
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
 .detail-products {
   padding: 0 0 15px;
   display: flex;

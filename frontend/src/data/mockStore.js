@@ -1,42 +1,56 @@
-export const mockProducts = [
-    {
-        id: 1,
-        nome: "X-Burger da casa",
-        descricao: "Hambúrguer artesanal, queijo, alface e molho especial.",
-        preco: 24.9,
-        disponivel: true,
-        categoria: "Hambúrgueres",
-    },
-    {
-        id: 2,
-        nome: "Batata crocante",
-        descricao: "Porção individual de batatas fritas.",
-        preco: 12.5,
-        disponivel: true,
-        categoria: "Acompanhamentos",
-    },
-    {
-        id: 3,
-        nome: "Suco de laranja",
-        descricao: "Suco natural, feito na hora.",
-        preco: 8,
-        disponivel: true,
-        categoria: "Bebidas",
-    },
-    {
-        id: 4,
-        nome: "Cheeseburger",
-        descricao: "Hambúrguer, queijo derretido e pão brioche.",
-        preco: 21.5,
-        disponivel: true,
-        categoria: "Hambúrgueres",
-    },
-];
+export const mockProducts = {
+    categorias: [
+        {
+            id: 1,
+            nome: "Lanches",
+            produtos: [
+                {
+                    id: 1,
+                    nome: "X-Burger da casa",
+                    descricao: "Hambúrguer artesanal, queijo, alface e molho especial.",
+                    preco: 24.9,
+                },
+                {
+                    id: 4,
+                    nome: "Cheeseburger",
+                    descricao: "Hambúrguer, queijo derretido e pão brioche.",
+                    preco: 21.5,
+                },
+            ],
+        },
+        {
+            id: 2,
+            nome: "Acompanhamentos",
+            produtos: [
+                {
+                    id: 2,
+                    nome: "Batata crocante",
+                    descricao: "Porção individual de batatas fritas.",
+                    preco: 12.5,
+                },
+            ],
+        },
+        {
+            id: 3,
+            nome: "Bebidas",
+            produtos: [
+                {
+                    id: 3,
+                    nome: "Suco de laranja",
+                    descricao: "Suco natural, feito na hora.",
+                    preco: 8,
+                },
+            ],
+        },
+    ],
+    mensagem: null,
+};
 
-export const initialCart = [
-    { ...mockProducts[0], quantidade: 1 },
-    { ...mockProducts[1], quantidade: 2 },
-];
+const produtosDoCardapio = mockProducts.categorias.flatMap((categoria) => categoria.produtos);
+
+export const initialCart = produtosDoCardapio
+    .filter((produto) => produto.id === 1 || produto.id === 2)
+    .map((produto) => ({ ...produto, quantidade: produto.id === 1 ? 1 : 2 }));
 
 const dateDaysAgo = (days, hour) => {
     const date = new Date();
@@ -48,31 +62,34 @@ const dateDaysAgo = (days, hour) => {
 export const mockOrders = [
     {
         id: 1048,
-        criadoEm: dateDaysAgo(0, 12),
+        clienteId: 1,
         status: "EM_PREPARO",
+        total: 65.8,
+        criadoEm: dateDaysAgo(0, 12),
         itens: [
-            { produtoId: 1, nome: "X-Burger da casa", precoUnitario: 24.9, quantidade: 2 },
-            { produtoId: 3, nome: "Suco de laranja", precoUnitario: 8, quantidade: 2 },
+            { produtoId: 1, nome: "X-Burger da casa", precoUnitario: 24.9, quantidade: 2, subtotal: 49.8 },
+            { produtoId: 3, nome: "Suco de laranja", precoUnitario: 8, quantidade: 2, subtotal: 16 },
         ],
-        demonstrativo: true,
     },
     {
         id: 1047,
-        criadoEm: dateDaysAgo(0, 11),
+        clienteId: 1,
         status: "PRONTO",
+        total: 34,
+        criadoEm: dateDaysAgo(0, 11),
         itens: [
-            { produtoId: 2, nome: "Batata crocante", precoUnitario: 12.5, quantidade: 1 },
-            { produtoId: 4, nome: "Cheeseburger", precoUnitario: 21.5, quantidade: 1 },
+            { produtoId: 2, nome: "Batata crocante", precoUnitario: 12.5, quantidade: 1, subtotal: 12.5 },
+            { produtoId: 4, nome: "Cheeseburger", precoUnitario: 21.5, quantidade: 1, subtotal: 21.5 },
         ],
-        demonstrativo: true,
     },
     {
         id: 1046,
-        criadoEm: dateDaysAgo(1, 19),
+        clienteId: 1,
         status: "ENTREGUE",
+        total: 43,
+        criadoEm: dateDaysAgo(1, 19),
         itens: [
-            { produtoId: 4, nome: "Cheeseburger", precoUnitario: 21.5, quantidade: 2 },
+            { produtoId: 4, nome: "Cheeseburger", precoUnitario: 21.5, quantidade: 2, subtotal: 43 },
         ],
-        demonstrativo: true,
     },
 ];

@@ -23,7 +23,7 @@ function formatDate(value) {
 }
 
 function getOrderTotal(order) {
-    return order.itens.reduce((sum, item) => sum + (item.precoUnitario ?? item.preco) * item.quantidade, 0);
+    return order.total;
 }
 
 function OrdersPage({ orders }) {
@@ -96,13 +96,12 @@ function OrdersPage({ orders }) {
                                         )}
                                         <div className="details-heading">
                                             <h3>Detalhes do pedido</h3>
-                                            {order.demonstrativo && <span className="demo-label">Demonstrativo</span>}
                                         </div>
                                         <div className="detail-products">
                                             {order.itens.map((item) => (
                                                 <div className="detail-product" key={item.produtoId ?? item.id ?? item.nome}>
                                                     <span>{item.quantidade}× {item.nome}</span>
-                                                    <span>{formatCurrency((item.precoUnitario ?? item.preco) * item.quantidade)}</span>
+                                                    <span>{formatCurrency(item.subtotal)}</span>
                                                 </div>
                                             ))}
                                         </div>
