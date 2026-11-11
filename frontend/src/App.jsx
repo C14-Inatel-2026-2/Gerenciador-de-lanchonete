@@ -13,7 +13,7 @@ import AdminUsuarios from "./pages/AdminUsuarios";
 import AdminDashboard from "./pages/AdminDashboard";
 import CartPage from "./pages/CartPage";
 import OrdersPage from "./pages/OrdersPage";
-import { initialCart, mockOrders, mockProducts } from "./data/mockStore";
+import { initialCart, mockOrders } from "./data/mockStore";
 import "./App.css";
 
 function AppRoutes() {
@@ -26,19 +26,6 @@ function AppRoutes() {
         setCart((currentCart) => currentCart
             .map((item) => item.id === productId ? { ...item, quantidade: quantity } : item)
             .filter((item) => item.quantidade > 0));
-    };
-
-    const addToCart = (product) => {
-        setCart((currentCart) => {
-            const existingItem = currentCart.find((item) => item.id === product.id);
-            if (existingItem) {
-                return currentCart.map((item) => item.id === product.id
-                    ? { ...item, quantidade: item.quantidade + 1 }
-                    : item);
-            }
-            return [...currentCart, { ...product, quantidade: 1 }];
-        });
-        setNotice(`${product.nome} adicionado ao carrinho.`);
     };
 
     const finishOrder = () => {
@@ -91,8 +78,6 @@ function AppRoutes() {
                         element={
                             <CartPage
                                 cart={cart}
-                                products={mockProducts}
-                                onAdd={addToCart}
                                 onFinishOrder={finishOrder}
                                 onUpdateQuantity={updateQuantity}
                             />

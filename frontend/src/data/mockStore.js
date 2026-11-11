@@ -54,7 +54,6 @@ export const mockOrders = [
             { produtoId: 1, nome: "X-Burger da casa", precoUnitario: 24.9, quantidade: 2 },
             { produtoId: 3, nome: "Suco de laranja", precoUnitario: 8, quantidade: 2 },
         ],
-        endereco: "Av. Brasil, 450 — Jardim América",
         demonstrativo: true,
     },
     {
@@ -65,7 +64,6 @@ export const mockOrders = [
             { produtoId: 2, nome: "Batata crocante", precoUnitario: 12.5, quantidade: 1 },
             { produtoId: 4, nome: "Cheeseburger", precoUnitario: 21.5, quantidade: 1 },
         ],
-        endereco: "Rua do Comércio, 82 — Centro",
         demonstrativo: true,
     },
     {
@@ -75,7 +73,6 @@ export const mockOrders = [
         itens: [
             { produtoId: 4, nome: "Cheeseburger", precoUnitario: 21.5, quantidade: 2 },
         ],
-        endereco: "Rua Ipê Amarelo, 17 — Vila Nova",
         demonstrativo: true,
     },
 ];

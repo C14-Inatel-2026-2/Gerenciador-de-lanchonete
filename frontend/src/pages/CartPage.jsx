@@ -1,11 +1,11 @@
 import { formatCurrency } from "../utils/formatCurrency";
 import "./CartPage.css";
 
-function CartPage({ cart, products, onAdd, onFinishOrder, onUpdateQuantity }) {
+function CartPage({ cart, onFinishOrder, onUpdateQuantity }) {
     const total = cart.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
 
     return (
-        <main className="page-container">
+        <div className="page-container">
             <section className="page-heading">
                 <h1>Meu carrinho</h1>
                 <p className="page-description">Confira seus itens e deixe tudo do seu jeito.</p>
@@ -71,10 +71,6 @@ function CartPage({ cart, products, onAdd, onFinishOrder, onUpdateQuantity }) {
                         <span>Subtotal</span>
                         <span>{formatCurrency(total)}</span>
                     </div>
-                    <div className="summary-line">
-                        <span>Entrega</span>
-                        <span className="free-delivery">Grátis</span>
-                    </div>
                     <div className="summary-total">
                         <strong>Total</strong>
                         <strong>{formatCurrency(total)}</strong>
@@ -86,32 +82,7 @@ function CartPage({ cart, products, onAdd, onFinishOrder, onUpdateQuantity }) {
                 </aside>
             </div>
 
-            <section className="catalog-section">
-                <div className="section-title-row">
-                    <div>
-                        <p className="eyebrow">FEITO PRA VOCÊ</p>
-                        <h2>Que tal adicionar mais?</h2>
-                    </div>
-                    <span className="section-caption">Seleção demonstrativa</span>
-                </div>
-                <div className="product-grid">
-                    {products.filter((product) => product.disponivel).map((product) => (
-                        <article className="product-card" key={product.id}>
-                            <div className="product-card-art" aria-hidden="true">{product.categoria === "Bebidas" ? "🥤" : product.categoria === "Acompanhamentos" ? "🍟" : "🍔"}</div>
-                            <div className="product-card-content">
-                                <span className="category-label">{product.categoria}</span>
-                                <h3>{product.nome}</h3>
-                                <p>{product.descricao}</p>
-                                <div className="product-card-footer">
-                                    <strong>{formatCurrency(product.preco)}</strong>
-                                    <button aria-label={`Adicionar ${product.nome} ao carrinho`} className="add-button" onClick={() => onAdd(product)} type="button">+</button>
-                                </div>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-            </section>
-        </main>
+        </div>
     );
 }
 

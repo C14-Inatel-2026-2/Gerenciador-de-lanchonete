@@ -226,14 +226,8 @@
 .detail-footer {
   padding-top: 15px;
   display: flex;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: flex-end;
   border-top: 1px solid #f1ede8;
-}
-.detail-footer > div {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 .detail-label {
   color: #a0988f;
@@ -291,10 +285,6 @@
   }
   .progress-step {
     font-size: 8px;
-  }
-  .detail-footer {
-    flex-direction: column;
-    gap: 15px;
   }
   .detail-total {
     text-align: left;

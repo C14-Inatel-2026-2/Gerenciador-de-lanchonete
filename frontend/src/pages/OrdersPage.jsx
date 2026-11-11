@@ -30,7 +30,7 @@ function OrdersPage({ orders }) {
     const [expandedOrder, setExpandedOrder] = useState(null);
 
     return (
-        <main className="page-container">
+        <div className="page-container">
             <section className="page-heading">
                 <p className="eyebrow">ACOMPANHE POR AQUI</p>
                 <h1>Meus pedidos</h1>
@@ -107,10 +107,6 @@ function OrdersPage({ orders }) {
                                             ))}
                                         </div>
                                         <div className="detail-footer">
-                                            <div>
-                                                <span className="detail-label">Endereço de entrega</span>
-                                                <strong>{order.endereco || "Não informado"}</strong>
-                                            </div>
                                             <div className="detail-total">
                                                 <span className="detail-label">Total do pedido</span>
                                                 <strong>{formatCurrency(getOrderTotal(order))}</strong>
@@ -124,7 +120,7 @@ function OrdersPage({ orders }) {
                 </section>
             )}
             <p className="page-footnote">Os pedidos exibidos são dados demonstrativos enquanto a API de pedidos não está disponível.</p>
-        </main>
+        </div>
     );
 }
 
