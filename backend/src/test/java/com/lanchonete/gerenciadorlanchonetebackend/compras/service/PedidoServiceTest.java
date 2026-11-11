@@ -1,7 +1,6 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.service;
 
-import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
-import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.ProdutoTestFactory;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.CarrinhoCompras;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemCarrinho;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
@@ -67,8 +66,6 @@ class PedidoServiceTest {
     }
 
     private ItemCarrinho novoItem(Long produtoId, String nome, String preco, int quantidade) {
-        Produto produto = new Produto(nome, "Produto de teste", new BigDecimal(preco), new Categoria("Lanches"));
-        produto.setId(produtoId);
-        return new ItemCarrinho(produto, quantidade);
+        return new ItemCarrinho(ProdutoTestFactory.produto(produtoId, nome, preco), quantidade);
     }
 }
