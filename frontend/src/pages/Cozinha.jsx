@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { atualizarStatus, listarFila } from "../services/cozinha";
 import { formatCurrency } from "../utils/formatCurrency";
 
@@ -35,21 +35,28 @@ export default function Cozinha() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [pedidoEmAtualizacao, setPedidoEmAtualizacao] = useState(null);
-
-  const carregarFila = useCallback(async () => {
-    try {
-      const fila = await listarFila();
-      setPedidos(fila ?? []);
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setCarregando(false);
-    }
-  }, []);
+  // Muda de valor para pedir uma nova busca da fila
+  const [versaoDaFila, setVersaoDaFila] = useState(0);
 
   useEffect(() => {
-    carregarFila();
-  }, [carregarFila]);
+    // Se a tela fechar ou uma busca mais nova começar, ignora a resposta antiga
+    let ativo = true;
+
+    listarFila()
+      .then((fila) => {
+        if (ativo) setPedidos(fila ?? []);
+      })
+      .catch((e) => {
+        if (ativo) setErro(e.message);
+      })
+      .finally(() => {
+        if (ativo) setCarregando(false);
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [versaoDaFila]);
 
   async function mudarStatus(id, novoStatus) {
     setErro("");
@@ -59,9 +66,9 @@ export default function Cozinha() {
     } catch (e) {
       setErro(e.message);
     } finally {
-      // Recarrega mesmo com erro: num 409, a fila passa a mostrar o status atual
-      await carregarFila();
       setPedidoEmAtualizacao(null);
+      // Recarrega mesmo com erro: num 409, a fila passa a mostrar o status atual
+      setVersaoDaFila((versao) => versao + 1);
     }
   }
 
