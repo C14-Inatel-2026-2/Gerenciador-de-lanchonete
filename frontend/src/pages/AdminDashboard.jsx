@@ -1,4 +1,5 @@
 import { formatCurrency } from "../utils/formatCurrency";
+import CardMetrica from "../components/CardMetrica";
 
 function AdminDashboard() {
     const pedidosHoje = 24;
@@ -29,24 +30,25 @@ function AdminDashboard() {
             <h1>Painel Administrativo</h1>
 
             <section>
-                <div>
-                    <h2>Pedidos hoje</h2>
-                    <p>{pedidosHoje}</p>
-                </div>
+                <CardMetrica
+                    titulo="Pedidos hoje"
+                    valor={pedidosHoje}
+                />
 
-                <div>
-                    <h2>Faturamento</h2>
-                    <p>{formatCurrency(faturamento)}</p>
-                </div>
+                <CardMetrica
+                    titulo="Faturamento"
+                    valor={formatCurrency(faturamento)}
+                />
 
-                <div>
-                    <h2>Produtos ativos</h2>
-                    <p>{produtosAtivos}</p>
-                </div>
-                <div>
-                    <h2>Usuários cadastrados</h2>
-                    <p>{usuarios}</p>
-                </div>
+                <CardMetrica
+                    titulo="Produtos ativos"
+                    valor={produtosAtivos}
+                />
+
+                <CardMetrica
+                    titulo="Usuários cadastrados"
+                    valor={usuarios}
+                />
             </section>
             <h2>Pedidos Recentes</h2>
 
