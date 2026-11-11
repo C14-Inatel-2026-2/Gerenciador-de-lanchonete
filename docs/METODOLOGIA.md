@@ -35,9 +35,9 @@ Usamos um **Kanban leve com ciclos fixos de 2 semanas**. Não seguimos Scrum for
 |---|---|---|
 | C0 | 07/08 a 21/08 | 1 — ideia e formação do grupo |
 | C1 | 28/08 a 11/09 | 2 — desenvolvimento inicial do projeto |
-| C2 | 11/09 a 02/10 | 3 — testes unitários |
+| C2 | 12/09 a 02/10 | 3 — testes unitários |
 | C3 | 03/10 a 17/10 | 4 — pipeline de CI/CD |
-| C4 | 17/10 a 31/10 | 5 — agile e engenharia de requisitos |
+| C4 | 18/10 a 31/10 | 5 — agile e engenharia de requisitos |
 | C5 | 03/11 a 13/11 | 6 — refactoring e entrega final |
 
 - **Reuniões:** uma reunião, antes da entrega 1, para definir a ideia. Depois disso, todas as decisões foram tomadas no grupo de WhatsApp.
@@ -90,7 +90,7 @@ Os dados abaixo foram tirados do histórico do Git da `main`.
 | C3 | 6 | #9, #12, #13, #14, #15, #17 |
 | C4 | **1** | #26 |
 | C5 | **15** | #18, #21, #22, #29, #30, #32, #33, #57, #58, #60, #61, #62, #63, #66, #68 |
-| C6 | preencher depois que finalizar tudo|
+*Atualizar no fim do projeto*
 
 ### Lead time (do primeiro commit da PR até o merge)
 
@@ -123,5 +123,3 @@ Os dados abaixo foram tirados do histórico do Git da `main`.
 - Manter a **documentação sempre atualizada** e conferir se tudo entrou no quadro.
 - Sempre explicar **o que está acontecendo, de onde estamos saindo e para onde estamos indo**.
 - Não deixar acumular, o trabalho precisa andar dentro do ciclo, e não só perto da entrega.
-
----
