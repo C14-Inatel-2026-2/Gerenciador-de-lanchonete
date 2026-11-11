@@ -64,4 +64,21 @@ describe("CarrinhoContext", () => {
 
         expect(result.current.cart.some((item) => item.id === 1)).toBe(false);
     });
+
+    it("limpa os itens e zera o total", async () => {
+        const { result } = renderHook(() => useCarrinho(), {
+            wrapper: CarrinhoProvider,
+        });
+
+        act(() => result.current.limparCarrinho());
+
+        expect(result.current.cart).toEqual([]);
+        expect(result.current.total).toBe(0);
+        await waitFor(() => {
+            expect(JSON.parse(localStorage.getItem(CHAVE_CARRINHO))).toEqual({
+                itens: [],
+                total: 0,
+            });
+        });
+    });
 });
