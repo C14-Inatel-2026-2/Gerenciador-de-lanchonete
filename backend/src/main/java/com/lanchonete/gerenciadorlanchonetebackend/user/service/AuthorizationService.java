@@ -20,8 +20,7 @@ public class AuthorizationService {
     }
 
     public boolean podeGerenciarCatalogo(UserProfile userProfile) {
-        return podeAcessarRecursosProtegidos(userProfile)
-                && userProfile.getRole() == UserRole.ADMIN;
+        return ehAdminAtivo(userProfile);
     }
 
     // Fila da cozinha e mudança de status do pedido (RF-CIC06)
