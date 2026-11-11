@@ -7,6 +7,7 @@ import com.lanchonete.gerenciadorlanchonetebackend.user.exception.UserValidation
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
 import com.lanchonete.gerenciadorlanchonetebackend.user.repository.UserProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,13 +20,25 @@ public class UserService {
 
     private final UserProfileRepository userProfileRepository;
     private final AuthorizationService authorizationService;
+    private final AdministradoresIniciais administradoresIniciais;
 
+    /** Sem administrador inicial: todo cadastro nasce CLIENTE. */
     public UserService(
             UserProfileRepository userProfileRepository,
             AuthorizationService authorizationService
     ) {
+        this(userProfileRepository, authorizationService, AdministradoresIniciais.nenhum());
+    }
+
+    @Autowired
+    public UserService(
+            UserProfileRepository userProfileRepository,
+            AuthorizationService authorizationService,
+            AdministradoresIniciais administradoresIniciais
+    ) {
         this.userProfileRepository = userProfileRepository;
         this.authorizationService = authorizationService;
+        this.administradoresIniciais = administradoresIniciais;
     }
 
     /** Lista todos os perfis, ativos e desativados, em ordem de nome (RN-AUTHZ-01). */
@@ -84,17 +97,29 @@ public class UserService {
         validarNome(nome);
         String emailNormalizado = validarEmail(email);
 
-        if (userProfileRepository.existsByEmail(emailNormalizado)) {
+        // Perfil já criado para esta conta do Supabase, ou e-mail usado por outro perfil
+        if (userProfileRepository.existsBySupabaseUserId(supabaseUserId)
+                || userProfileRepository.existsByEmail(emailNormalizado)) {
             throw new EmailJaCadastradoException();
         }
+
+        // Nunca vem do pedido: só os e-mails de ADMIN_EMAILS nascem ADMIN (RN-USER-03, #55)
+        UserRole role = administradoresIniciais.contem(emailNormalizado) ? UserRole.ADMIN : UserRole.CLIENTE;
 
         UserProfile userProfile = new UserProfile(
                 supabaseUserId,
                 nome,
                 emailNormalizado,
-                UserRole.CLIENTE
+                role
         );
         return userProfileRepository.save(userProfile);
+    }
+
+    /** O próprio usuário altera o nome. A role nunca muda por aqui (RN-AUTHZ-04). */
+    public UserProfile atualizarNome(UserProfile usuario, String nome) {
+        validarNome(nome);
+        usuario.alterarNome(nome.trim());
+        return userProfileRepository.save(usuario);
     }
 
     private void validarSupabaseUserId(String supabaseUserId) {

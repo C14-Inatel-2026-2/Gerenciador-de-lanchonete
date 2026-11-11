@@ -12,6 +12,7 @@ import com.lanchonete.gerenciadorlanchonetebackend.user.exception.EmailJaCadastr
 import com.lanchonete.gerenciadorlanchonetebackend.user.exception.UserValidationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -29,7 +30,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// Testa só o formato dos erros: os filtros de segurança ficam desligados (o token é testado no SecurityConfig)
 @WebMvcTest(controllers = GlobalExceptionHandlerTest.ExcecaoTestController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import(GlobalExceptionHandlerTest.ExcecaoTestController.class)
 class GlobalExceptionHandlerTest {
 
