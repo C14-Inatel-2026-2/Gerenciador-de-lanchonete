@@ -1,5 +1,6 @@
 import { formatCurrency } from "../utils/formatCurrency";
 import CardMetrica from "../components/CardMetrica";
+import TabelaPedidosRecentes from "../components/TabelaPedidosRecentes";
 
 function AdminDashboard() {
     const pedidosHoje = 24;
@@ -50,6 +51,8 @@ function AdminDashboard() {
                     valor={usuarios}
                 />
             </section>
+
+            <TabelaPedidosRecentes pedidos={pedidosRecentes} />
 
         </main>
     );

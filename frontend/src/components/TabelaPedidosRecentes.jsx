@@ -1,4 +1,7 @@
-<h2>Pedidos Recentes</h2>
+function TabelaPedidosRecentes({ pedidos }) {
+    return (
+        <>
+            <h2>Pedidos Recentes</h2>
 
             <table>
                 <thead>
@@ -10,7 +13,7 @@
                 </thead>
 
                 <tbody>
-                    {pedidosRecentes.map((pedido) => (
+                    {pedidos.map((pedido) => (
                         <tr key={pedido.id}>
                             <td>{pedido.id}</td>
                             <td>{pedido.cliente}</td>
@@ -19,3 +22,8 @@
                     ))}
                 </tbody>
             </table>
+        </>
+    );
+}
+
+export default TabelaPedidosRecentes;
