@@ -1,5 +1,6 @@
 import {
   cabecalhosDeAutenticacao,
+  lerSessao,
   limparSessao,
 } from "../contexts/sessao";
 
@@ -10,7 +11,7 @@ export async function api(caminho, opcoes = {}) {
       ...opcoes,
       headers: {
         "Content-Type": "application/json",
-        ...cabecalhosDeAutenticacao(),
+        ...(await cabecalhosDeAutenticacao()),
         ...(opcoes.headers || {}),
       },
     }
@@ -28,7 +29,10 @@ export async function api(caminho, opcoes = {}) {
     }
   }
 
-  if (resposta.status === 401) {
+  // Sessão vencida de quem estava logado: volta para o login.
+  // Sem perfil salvo (ex.: no meio do login ou do cadastro), o 401 vira só
+  // a mensagem de erro, para a tela poder mostrá-la.
+  if (resposta.status === 401 && lerSessao() !== null) {
     limparSessao();
     window.location.href = "/login";
   }
