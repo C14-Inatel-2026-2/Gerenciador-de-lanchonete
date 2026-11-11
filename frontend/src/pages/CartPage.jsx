@@ -1,9 +1,7 @@
 import { formatCurrency } from "../utils/formatCurrency";
 import "./CartPage.css";
 
-function CartPage({ cart, onFinishOrder, onUpdateQuantity }) {
-    const total = cart.reduce((sum, item) => sum + item.preco * item.quantidade, 0);
-
+function CartPage({ cart, total, onFinishOrder, onUpdateQuantity }) {
     return (
         <div className="page-container">
             <section className="page-heading">

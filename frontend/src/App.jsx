@@ -2,6 +2,8 @@ import { useState } from "react";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { CarrinhoProvider } from "./contexts/CarrinhoContext";
+import { useCarrinho } from "./contexts/useCarrinho";
 
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -13,20 +15,14 @@ import AdminUsuarios from "./pages/AdminUsuarios";
 import AdminDashboard from "./pages/AdminDashboard";
 import CartPage from "./pages/CartPage";
 import OrdersPage from "./pages/OrdersPage";
-import { initialCart, mockOrders } from "./data/mockStore";
+import { mockOrders } from "./data/mockStore";
 import "./App.css";
 
 function AppRoutes() {
     const navigate = useNavigate();
-    const [cart, setCart] = useState(initialCart);
+    const { cart, total, atualizarQuantidade, limparCarrinho } = useCarrinho();
     const [orders, setOrders] = useState(mockOrders);
     const [notice, setNotice] = useState("");
-
-    const updateQuantity = (productId, quantity) => {
-        setCart((currentCart) => currentCart
-            .map((item) => item.id === productId ? { ...item, quantidade: quantity } : item)
-            .filter((item) => item.quantidade > 0));
-    };
 
     const finishOrder = () => {
         if (cart.length === 0) return;
@@ -43,11 +39,11 @@ function AppRoutes() {
             clienteId: 1,
             criadoEm: new Date().toISOString(),
             status: "CRIADO",
-            total: itens.reduce((total, item) => total + item.subtotal, 0),
+            total,
             itens,
         };
         setOrders((currentOrders) => [order, ...currentOrders]);
-        setCart([]);
+        limparCarrinho();
         setNotice(`Pedido #${order.id} criado no modo demonstrativo.`);
         navigate("/meus-pedidos");
     };
@@ -78,8 +74,9 @@ function AppRoutes() {
                         element={
                             <CartPage
                                 cart={cart}
+                                total={total}
                                 onFinishOrder={finishOrder}
-                                onUpdateQuantity={updateQuantity}
+                                onUpdateQuantity={atualizarQuantidade}
                             />
                         }
                     />
@@ -100,7 +97,9 @@ function AppRoutes() {
 function App() {
     return (
         <BrowserRouter>
-            <AppRoutes />
+            <CarrinhoProvider>
+                <AppRoutes />
+            </CarrinhoProvider>
         </BrowserRouter>
     );
 }
