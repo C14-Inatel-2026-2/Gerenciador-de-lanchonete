@@ -2,6 +2,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.user.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserRole;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,40 +10,47 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AuthorizationServiceTest {
 
+    private AuthorizationService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new AuthorizationService();
+    }
+
     @Test
     void usuarioAdminAtivoDevePoderGerenciarUsuarios() {
         UserProfile userProfile = perfil(UserRole.ADMIN);
 
-        assertTrue(new AuthorizationService().podeGerenciarUsuarios(userProfile));
+        assertTrue(service.podeGerenciarUsuarios(userProfile));
     }
 
     @Test
     void usuarioAdminAtivoDevePoderAlterarRole() {
         UserProfile userProfile = perfil(UserRole.ADMIN);
 
-        assertTrue(new AuthorizationService().podeAlterarRole(userProfile));
+        assertTrue(service.podeAlterarRole(userProfile));
     }
 
     @Test
     void usuarioAdminAtivoDevePoderDesativarUsuario() {
         UserProfile userProfile = perfil(UserRole.ADMIN);
 
-        assertTrue(new AuthorizationService().podeDesativarUsuario(userProfile));
+        assertTrue(service.podeDesativarUsuario(userProfile));
     }
 
     @Test
     void usuarioClienteAtivoNaoDeveGerenciarUsuarios() {
-        assertFalse(new AuthorizationService().podeGerenciarUsuarios(perfil(UserRole.CLIENTE)));
+        assertFalse(service.podeGerenciarUsuarios(perfil(UserRole.CLIENTE)));
     }
 
     @Test
     void usuarioFuncionarioAtivoNaoDeveAlterarRole() {
-        assertFalse(new AuthorizationService().podeAlterarRole(perfil(UserRole.FUNCIONARIO)));
+        assertFalse(service.podeAlterarRole(perfil(UserRole.FUNCIONARIO)));
     }
 
     @Test
     void usuarioClienteAtivoNaoDeveDesativarUsuario() {
-        assertFalse(new AuthorizationService().podeDesativarUsuario(perfil(UserRole.CLIENTE)));
+        assertFalse(service.podeDesativarUsuario(perfil(UserRole.CLIENTE)));
     }
 
     @Test
@@ -50,7 +58,7 @@ class AuthorizationServiceTest {
         UserProfile userProfile = perfil(UserRole.CLIENTE);
         userProfile.desativar();
 
-        assertFalse(new AuthorizationService().podeAcessarRecursosProtegidos(userProfile));
+        assertFalse(service.podeAcessarRecursosProtegidos(userProfile));
     }
 
     @Test
@@ -58,27 +66,27 @@ class AuthorizationServiceTest {
         UserProfile userProfile = perfil(UserRole.ADMIN);
         userProfile.desativar();
 
-        assertFalse(new AuthorizationService().podeAcessarRecursosProtegidos(userProfile));
+        assertFalse(service.podeAcessarRecursosProtegidos(userProfile));
     }
 
     @Test
     void usuarioNuloNaoDeveSerAutorizado() {
-        assertFalse(new AuthorizationService().podeAcessarRecursosProtegidos(null));
+        assertFalse(service.podeAcessarRecursosProtegidos(null));
     }
 
-        @Test
+    @Test
     void funcionarioAtivoDevePoderOperarCozinha() {
-        assertTrue(new AuthorizationService().podeOperarCozinha(perfil(UserRole.FUNCIONARIO)));
+        assertTrue(service.podeOperarCozinha(perfil(UserRole.FUNCIONARIO)));
     }
 
     @Test
     void adminAtivoDevePoderOperarCozinha() {
-        assertTrue(new AuthorizationService().podeOperarCozinha(perfil(UserRole.ADMIN)));
+        assertTrue(service.podeOperarCozinha(perfil(UserRole.ADMIN)));
     }
 
     @Test
     void clienteNaoDeveOperarCozinha() {
-        assertFalse(new AuthorizationService().podeOperarCozinha(perfil(UserRole.CLIENTE)));
+        assertFalse(service.podeOperarCozinha(perfil(UserRole.CLIENTE)));
     }
 
     @Test
@@ -86,7 +94,7 @@ class AuthorizationServiceTest {
         UserProfile userProfile = perfil(UserRole.FUNCIONARIO);
         userProfile.desativar();
 
-        assertFalse(new AuthorizationService().podeOperarCozinha(userProfile));
+        assertFalse(service.podeOperarCozinha(userProfile));
     }
 
     private UserProfile perfil(UserRole role) {

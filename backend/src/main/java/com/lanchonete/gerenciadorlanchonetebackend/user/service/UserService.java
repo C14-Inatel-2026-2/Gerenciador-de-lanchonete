@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
 
     private static final String SOMENTE_ADMIN = "Acesso restrito a administradores";
+    private static final Pattern FORMATO_EMAIL = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
     private final UserProfileRepository userProfileRepository;
     private final AuthorizationService authorizationService;
@@ -82,7 +84,7 @@ public class UserService {
 
         validarSupabaseUserId(supabaseUserId);
         validarNome(nome);
-        String emailNormalizado = validarEmail(email);
+        String emailNormalizado = normalizarEValidarEmail(email);
 
         if (userProfileRepository.existsByEmail(emailNormalizado)) {
             throw new EmailJaCadastradoException();
@@ -113,7 +115,7 @@ public class UserService {
         }
     }
 
-    private String validarEmail(String email) {
+    private String normalizarEValidarEmail(String email) {
         if (email == null || email.isBlank()) {
             throw new UserValidationException(
                     "E-mail é obrigatório"
@@ -121,7 +123,7 @@ public class UserService {
         }
 
         String emailNormalizado = email.trim().toLowerCase(Locale.ROOT);
-        if (!emailNormalizado.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+        if (!FORMATO_EMAIL.matcher(emailNormalizado).matches()) {
             throw new UserValidationException(
                     "E-mail inválido"
             );
