@@ -92,13 +92,34 @@ class CozinhaControllerTest {
     }
 
     @Test
-    void filaSemUsuarioIdentificadoRetorna401() throws Exception {
+    void filaSemTokenRetorna401SemChamarOService() throws Exception {
+        mockMvc.perform(get("/api/pedidos/fila"))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.erro").value("Usuário não autenticado"));
+
+        verifyNoInteractions(lifecycleService);
+    }
+
+    @Test
+    void patchSemTokenRetorna401SemAlterarPedido() throws Exception {
+        mockMvc.perform(patch("/api/pedidos/{id}/status", 5L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"status\": \"EM_PREPARO\" }"))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.erro").value("Usuário não autenticado"));
+
+        verifyNoInteractions(lifecycleService);
+    }
+
+    @Test
+    void filaComTokenValidoMasSemPerfilRetorna401() throws Exception {
+        // Token do Supabase válido, mas a pessoa ainda não concluiu o cadastro na API
         when(usuarioAtualProvider.obterUsuarioAtual())
-            .thenThrow(new UsuarioNaoAutenticadoException("Usuário não autenticado"));
+            .thenThrow(new UsuarioNaoAutenticadoException("Perfil não encontrado. Conclua o cadastro."));
 
         mockMvc.perform(get("/api/pedidos/fila").with(jwt()))
             .andExpect(status().isUnauthorized())
-            .andExpect(jsonPath("$.erro").value("Usuário não autenticado"));
+            .andExpect(jsonPath("$.erro").value("Perfil não encontrado. Conclua o cadastro."));
 
         verifyNoInteractions(lifecycleService);
     }
