@@ -1,20 +1,23 @@
 import { useState } from "react";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import MainLayout from "./layouts/MainLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import Cardapio from "./pages/Cardapio";
+import Cozinha from "./pages/Cozinha";
+import Admin from "./pages/Admin";
+import AdminProdutos from "./pages/AdminProdutos";
+import AdminUsuarios from "./pages/AdminUsuarios";
 import AdminDashboard from "./pages/AdminDashboard";
 import CartPage from "./pages/CartPage";
 import OrdersPage from "./pages/OrdersPage";
 import { initialCart, mockOrders, mockProducts } from "./data/mockStore";
 import "./App.css";
 
-const pages = [
-    { id: "cart", label: "Carrinho" },
-    { id: "orders", label: "Pedidos" },
-    { id: "admin", label: "Painel administrativo" },
-];
-
-function App() {
-    const profileName = "Usuário";
-    const profileInitial = profileName.trim().charAt(0).toLocaleUpperCase("pt-BR") || "U";
-    const [page, setPage] = useState("cart");
+function AppRoutes() {
+    const navigate = useNavigate();
     const [cart, setCart] = useState(initialCart);
     const [orders, setOrders] = useState(mockOrders);
     const [notice, setNotice] = useState("");
@@ -41,64 +44,29 @@ function App() {
     const finishOrder = () => {
         if (cart.length === 0) return;
 
+        const itens = cart.map((item) => ({
+            produtoId: item.id,
+            nome: item.nome,
+            precoUnitario: item.preco,
+            quantidade: item.quantidade,
+            subtotal: item.preco * item.quantidade,
+        }));
         const order = {
             id: Math.max(...orders.map((item) => item.id), 0) + 1,
+            clienteId: 1,
             criadoEm: new Date().toISOString(),
             status: "CRIADO",
-            itens: cart.map((item) => ({
-                produtoId: item.id,
-                nome: item.nome,
-                precoUnitario: item.preco,
-                quantidade: item.quantidade,
-            })),
-            endereco: "Rua das Flores, 123 — Centro",
-            demonstrativo: true,
+            total: itens.reduce((total, item) => total + item.subtotal, 0),
+            itens,
         };
         setOrders((currentOrders) => [order, ...currentOrders]);
         setCart([]);
         setNotice(`Pedido #${order.id} criado no modo demonstrativo.`);
-        setPage("orders");
+        navigate("/meus-pedidos");
     };
-
-    const cartCount = cart.reduce((total, item) => total + item.quantidade, 0);
 
     return (
         <div className="app-shell">
-            <header className="topbar">
-                <a className="brand" href="#inicio" onClick={(event) => {
-                    event.preventDefault();
-                    setPage("cart");
-                }}>
-                    <span className="brand-mark" aria-hidden="true">B</span>
-                    <span>
-                        <strong>Boa Mordida</strong>
-                        <small>lanchonete</small>
-                    </span>
-                </a>
-                <nav className="main-nav" aria-label="Navegação principal">
-                    {pages.map((item) => (
-                        <button
-                            className={`nav-link${page === item.id ? " is-active" : ""}`}
-                            key={item.id}
-                            onClick={() => {
-                                setNotice("");
-                                setPage(item.id);
-                            }}
-                            type="button"
-                        >
-                            {item.label}
-                            {item.id === "cart" && cartCount > 0 && (
-                                <span className="nav-count">{cartCount}</span>
-                            )}
-                        </button>
-                    ))}
-                </nav>
-                <div className="profile-chip">
-                    <span className="profile-avatar" aria-hidden="true">{profileInitial}</span>
-                    <span>Olá, {profileName}</span>
-                </div>
-            </header>
-
             {notice && (
                 <div className="notice" role="status">
                     <span>{notice}</span>
@@ -106,32 +74,49 @@ function App() {
                 </div>
             )}
 
-            {page === "cart" && (
-                <CartPage
-                    cart={cart}
-                    onAdd={addToCart}
-                    onFinishOrder={finishOrder}
-                    onUpdateQuantity={updateQuantity}
-                    products={mockProducts}
-                />
-            )}
-            {page === "orders" && <OrdersPage orders={orders} />}
-            {page === "admin" && (
-                <main className="admin-page">
-                    <div className="page-heading">
-                        <p className="eyebrow">VISÃO GERAL</p>
-                        <h1>Painel administrativo</h1>
-                        <p className="page-description">Resumo demonstrativo da operação da lanchonete.</p>
-                    </div>
-                    <AdminDashboard />
-                </main>
-            )}
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/cadastro" element={<Cadastro />} />
 
-            <footer className="site-footer">
-                <span>Boa Mordida</span>
-                <span>Protótipo de interface · dados demonstrativos</span>
-            </footer>
+                <Route
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route path="/cardapio" element={<Cardapio />} />
+                    <Route
+                        path="/carrinho"
+                        element={
+                            <CartPage
+                                cart={cart}
+                                products={mockProducts}
+                                onAdd={addToCart}
+                                onFinishOrder={finishOrder}
+                                onUpdateQuantity={updateQuantity}
+                            />
+                        }
+                    />
+                    <Route path="/meus-pedidos" element={<OrdersPage orders={orders} />} />
+                    <Route path="/cozinha" element={<Cozinha />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/admin/produtos" element={<AdminProdutos />} />
+                    <Route path="/admin/usuarios" element={<AdminUsuarios />} />
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                </Route>
+
+                <Route path="*" element={<Login />} />
+            </Routes>
         </div>
+    );
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <AppRoutes />
+        </BrowserRouter>
     );
 }
 

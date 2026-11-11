@@ -202,7 +202,8 @@ para o build ser reproduzível.
 | RNF-CIC02 | Confiabilidade | Uma transição inválida não altera o status nem é salva no banco. | Testes do `PedidoLifecycleServiceTest` com `verify(never()).save`. |
 | RNF-CIC03 | Qualidade | Todas as combinações de transição (válidas e inválidas) são cobertas por testes automatizados. | `StatusPedidoTest` (testes parametrizados) no relatório do Jenkins. |
 | RNF-CIC04 | Manutenibilidade | O status é salvo no banco como texto (nome do enum), para que adicionar um novo status não corrompa pedidos antigos. | `Pedido` usa `@Enumerated(EnumType.STRING)`. |
-| RNF-CIC05 | Interoperabilidade | A API responde HTTP 409 (Conflict) quando a transição de status é inválida. | Teste do endpoint de status (Sprint 1). |
+| RNF-CIC05 | Interoperabilidade | A API responde HTTP 409 (Conflict) quando a transição de status é inválida. | `CozinhaControllerTest.patchComTransicaoInvalidaRetorna409` (MockMvc) no relatório do Jenkins. |
+| RNF-CIC06 | Segurança | A fila da cozinha e a mudança de status só aceitam FUNCIONARIO e ADMIN; CLIENTE recebe 403 e nenhum pedido é consultado ou alterado. | Testes do `CozinhaControllerTest` (403 para CLIENTE) e do `AuthorizationServiceTest` (`podeOperarCozinha`). |
 
 ### Painel administrativo
 <!-- Yasmin: adicione suas linhas abaixo -->

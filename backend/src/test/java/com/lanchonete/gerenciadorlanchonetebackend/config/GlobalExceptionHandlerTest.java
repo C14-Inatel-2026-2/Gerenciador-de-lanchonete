@@ -1,6 +1,8 @@
 package com.lanchonete.gerenciadorlanchonetebackend.config;
 
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.CategoriaDuplicadaException;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.AcessoNegadoException;
@@ -51,6 +53,16 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/email-duplicado")
         void emailDuplicado() {
             throw new EmailJaCadastradoException();
+        }
+
+        @GetMapping("/categoria-duplicada")
+        void categoriaDuplicada() {
+            throw new CategoriaDuplicadaException("Já existe uma categoria cadastrada com este nome");
+        }
+
+        @GetMapping("/produto-duplicado")
+        void produtoDuplicado() {
+            throw new ProdutoDuplicadoException("Já existe um produto cadastrado com este nome");
         }
 
         @GetMapping("/nao-encontrado")
@@ -107,6 +119,20 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(get("/teste/email-duplicado"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.erro").value("E-mail já cadastrado"));
+    }
+
+    @Test
+    void categoriaDuplicadaRetorna409() throws Exception {
+        mockMvc.perform(get("/teste/categoria-duplicada"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro").value("Já existe uma categoria cadastrada com este nome"));
+    }
+
+    @Test
+    void produtoDuplicadoRetorna409() throws Exception {
+        mockMvc.perform(get("/teste/produto-duplicado"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro").value("Já existe um produto cadastrado com este nome"));
     }
 
     @Test

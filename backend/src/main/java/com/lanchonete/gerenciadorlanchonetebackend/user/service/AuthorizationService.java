@@ -22,6 +22,18 @@ public class AuthorizationService {
                 && userProfile.getRole() == UserRole.ADMIN;
     }
 
+    public boolean podeGerenciarCatalogo(UserProfile userProfile) {
+        return podeAcessarRecursosProtegidos(userProfile)
+                && userProfile.getRole() == UserRole.ADMIN;
+    }
+
+    // Fila da cozinha e mudança de status do pedido (RF-CIC06)
+    public boolean podeOperarCozinha(UserProfile userProfile) {
+        return podeAcessarRecursosProtegidos(userProfile)
+                && (userProfile.getRole() == UserRole.FUNCIONARIO
+                    || userProfile.getRole() == UserRole.ADMIN);
+    }
+
     public boolean podeAcessarRecursosProtegidos(UserProfile userProfile) {
         return userProfile != null && userProfile.isAtivo();
     }
