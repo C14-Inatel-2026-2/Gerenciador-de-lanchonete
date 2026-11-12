@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { CarrinhoProvider } from "./contexts/CarrinhoContext";
 import { useCarrinho } from "./contexts/useCarrinho";
+import { criarPedido } from "./services/pedidos";
 
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -21,39 +22,44 @@ import "./App.css";
 function AppRoutes() {
     const navigate = useNavigate();
     const { cart, total, atualizarQuantidade, limparCarrinho } = useCarrinho();
-    const [orders, setOrders] = useState(mockOrders);
-    const [notice, setNotice] = useState("");
+    const orders = mockOrders;
+    const [notice, setNotice] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const checkoutInProgress = useRef(false);
 
-    const finishOrder = () => {
-        if (cart.length === 0) return;
+    const finishOrder = async () => {
+        if (cart.length === 0 || checkoutInProgress.current) return;
 
-        const itens = cart.map((item) => ({
-            produtoId: item.id,
-            nome: item.nome,
-            precoUnitario: item.preco,
-            quantidade: item.quantidade,
-            subtotal: item.preco * item.quantidade,
-        }));
-        const order = {
-            id: Math.max(...orders.map((item) => item.id), 0) + 1,
-            clienteId: 1,
-            criadoEm: new Date().toISOString(),
-            status: "CRIADO",
-            total,
-            itens,
-        };
-        setOrders((currentOrders) => [order, ...currentOrders]);
-        limparCarrinho();
-        setNotice(`Pedido #${order.id} criado no modo demonstrativo.`);
-        navigate("/meus-pedidos");
+        checkoutInProgress.current = true;
+        setIsSubmitting(true);
+        setNotice(null);
+
+        try {
+            const pedido = await criarPedido(cart);
+            if (pedido?.id == null) {
+                throw new Error("A API não retornou o número do pedido.");
+            }
+
+            limparCarrinho();
+            setNotice({ message: `Pedido #${pedido.id} criado com sucesso.`, type: "success" });
+            navigate("/meus-pedidos");
+        } catch (error) {
+            setNotice({
+                message: error instanceof Error ? error.message : "Não foi possível finalizar o pedido.",
+                type: "error",
+            });
+        } finally {
+            checkoutInProgress.current = false;
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <div className="app-shell">
             {notice && (
-                <div className="notice" role="status">
-                    <span>{notice}</span>
-                    <button aria-label="Fechar aviso" onClick={() => setNotice("")} type="button">×</button>
+                <div className="notice" role={notice.type === "error" ? "alert" : "status"}>
+                    <span>{notice.message}</span>
+                    <button aria-label="Fechar aviso" onClick={() => setNotice(null)} type="button">×</button>
                 </div>
             )}
 
@@ -75,6 +81,7 @@ function AppRoutes() {
                             <CartPage
                                 cart={cart}
                                 total={total}
+                                isSubmitting={isSubmitting}
                                 onFinishOrder={finishOrder}
                                 onUpdateQuantity={atualizarQuantidade}
                             />

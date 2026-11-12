@@ -1,7 +1,7 @@
 import { formatCurrency } from "../utils/formatCurrency";
 import "./CartPage.css";
 
-function CartPage({ cart, total, onFinishOrder, onUpdateQuantity }) {
+function CartPage({ cart, total, isSubmitting = false, onFinishOrder, onUpdateQuantity }) {
     return (
         <div className="page-container">
             <section className="page-heading">
@@ -74,10 +74,15 @@ function CartPage({ cart, total, onFinishOrder, onUpdateQuantity }) {
                         <strong>Total</strong>
                         <strong>{formatCurrency(total)}</strong>
                     </div>
-                    <button className="primary-button checkout-button" disabled={cart.length === 0} onClick={onFinishOrder} type="button">
-                        Finalizar pedido <span aria-hidden="true">→</span>
+                    <button
+                        className="primary-button checkout-button"
+                        disabled={cart.length === 0 || isSubmitting}
+                        onClick={onFinishOrder}
+                        type="button"
+                    >
+                        {isSubmitting ? "Enviando pedido..." : "Finalizar pedido"}
+                        {!isSubmitting && <span aria-hidden="true"> →</span>}
                     </button>
-                    <p className="mock-note">Finalização demonstrativa: o pedido não é enviado ao servidor.</p>
                 </aside>
             </div>
 
