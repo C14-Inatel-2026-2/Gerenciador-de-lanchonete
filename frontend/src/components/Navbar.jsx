@@ -1,11 +1,17 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { itensDoMenu } from "../utils/itensDoMenu";
 
 export default function Navbar() {
-  const { usuario } = useAuth();
+  const { usuario, sair } = useAuth();
+  const navigate = useNavigate();
 
   const menu = itensDoMenu(usuario?.role);
+
+  function aoSair() {
+    sair();
+    navigate("/login", { replace: true });
+  }
 
   return (
     <nav>
@@ -18,6 +24,15 @@ export default function Navbar() {
           </li>
         ))}
       </ul>
+
+      {usuario && (
+        <p>
+          Olá, {usuario.nome}{" "}
+          <button type="button" onClick={aoSair}>
+            Sair
+          </button>
+        </p>
+      )}
     </nav>
   );
 }
