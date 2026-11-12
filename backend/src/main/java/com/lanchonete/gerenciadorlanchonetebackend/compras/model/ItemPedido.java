@@ -17,10 +17,10 @@ public class ItemPedido {
     }
 
     public ItemPedido(Long produtoId, String nome, BigDecimal precoUnitario, int quantidade) {
-        validarProdutoId(produtoId);
+        ValidacoesCompras.validarProdutoId(produtoId);
         validarNome(nome);
         validarPrecoUnitario(precoUnitario);
-        validarQuantidade(quantidade);
+        ValidacoesCompras.validarQuantidade(quantidade);
 
         this.produtoId = produtoId;
         this.nome = nome;
@@ -57,12 +57,6 @@ public class ItemPedido {
         return precoUnitario.multiply(BigDecimal.valueOf(quantidade));
     }
 
-    private void validarProdutoId(Long produtoId) {
-        if (produtoId == null || produtoId <= 0) {
-            throw new IllegalArgumentException("O identificador do produto deve ser positivo.");
-        }
-    }
-
     private void validarNome(String nome) {
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException("O nome do produto não pode ser vazio.");
@@ -72,12 +66,6 @@ public class ItemPedido {
     private void validarPrecoUnitario(BigDecimal precoUnitario) {
         if (precoUnitario == null || precoUnitario.signum() < 0) {
             throw new IllegalArgumentException("O preco unitario não pode ser negativo.");
-        }
-    }
-
-    private void validarQuantidade(int quantidade) {
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
         }
     }
 }

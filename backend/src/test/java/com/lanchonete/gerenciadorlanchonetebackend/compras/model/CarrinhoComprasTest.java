@@ -1,7 +1,7 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.model;
 
-import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.ProdutoTestFactory;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -259,8 +259,7 @@ class CarrinhoComprasTest {
 	}
 
 	private ItemCarrinho novoItem(long produtoId, String nome, String preco, int quantidade) {
-		Produto produto = new Produto(nome, "Produto de teste", new BigDecimal(preco), new Categoria("Lanches"));
-		produto.setId(produtoId);
+		Produto produto = ProdutoTestFactory.produto(produtoId, nome, preco);
 		return new ItemCarrinho(produto, quantidade);
 	}
 }
