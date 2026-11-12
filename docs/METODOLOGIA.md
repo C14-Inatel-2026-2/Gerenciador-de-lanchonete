@@ -1,7 +1,6 @@
 # Metodologia de desenvolvimento
 
 >Este documento descreve como foi organizado o trabalho ao longo do semestre, incluindo metodologia, por quê, papéis, cadência, ferramentas, DoD/DoR e métricas.
-> O relato do dia a dia (conflitos, bloqueios e lições) está em [`DINAMICA.md`](DINAMICA.md).
 
 ## 1. Qual metodologia usamos (e por quê)
 
@@ -90,6 +89,7 @@ Os dados abaixo foram tirados do histórico do Git da `main`.
 | C3 | 6 | #9, #12, #13, #14, #15, #17 |
 | C4 | **1** | #26 |
 | C5 | **15** | #18, #21, #22, #29, #30, #32, #33, #57, #58, #60, #61, #62, #63, #66, #68 |
+
 *Atualizar no fim do projeto*
 
 ### Lead time (do primeiro commit da PR até o merge)
@@ -123,3 +123,4 @@ Os dados abaixo foram tirados do histórico do Git da `main`.
 - Manter a **documentação sempre atualizada** e conferir se tudo entrou no quadro.
 - Sempre explicar **o que está acontecendo, de onde estamos saindo e para onde estamos indo**.
 - Não deixar acumular, o trabalho precisa andar dentro do ciclo, e não só perto da entrega.
+
