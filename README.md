@@ -202,16 +202,16 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 <!-- Cada responsável pelo módulo: preencher a rastreabilidade entre suas histórias, funcionalidades e requisitos. -->
 
-| História | Perfil | Funcionalidade | Requisitos relacionados |
-| -------- | ------ | -------------- | ----------------------- |
-| US01     |        |                |                         |
-| US02     | Cliente | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços. | RF-CAT01–RF-CAT05 |
-| US03     |        |                |                         |
-| US04     |        |                |                         |
-| US05     |        |                |                         |
-| US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias. | RF-CAT06–RF-CAT09 |
-| US07     |        |                |                         |
-| US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10 |
+| História | Perfil        | Funcionalidade                                                                                                                                         | Requisitos relacionados |
+| -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
+| US01     |               |                                                                                                                                                        |                         |
+| US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05       |
+| US03     |               |                                                                                                                                                        |                         |
+| US04     |               |                                                                                                                                                        |                         |
+| US05     |               |                                                                                                                                                        |                         |
+| US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09       |
+| US07     |               |                                                                                                                                                        |                         |
+| US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10                |
 
 ---
 
@@ -275,19 +275,6 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Catálogo (US02, US06 e US08)
 
-<<<<<<< HEAD
-| ID | Requisito funcional | História |
-|----|---------------------|----------|
-| RF-CAT01 | O sistema deve exibir o cardápio agrupado por categoria, com nome, descrição e preço em reais. | US02 |
-| RF-CAT02 | O sistema deve exibir no cardápio apenas os produtos disponíveis. | US02 |
-| RF-CAT03 | O sistema deve permitir filtrar os produtos por categoria. | US02 |
-| RF-CAT04 | O sistema deve informar que o cardápio está vazio quando não houver produtos disponíveis. | US02 |
-| RF-CAT05 | O sistema deve listar as categorias cadastradas. | US02 |
-| RF-CAT06 | O administrador deve poder cadastrar, consultar e editar produtos. | US06 |
-| RF-CAT07 | O administrador deve poder desativar um produto sem excluí-lo do banco. | US06 |
-| RF-CAT08 | O administrador deve poder cadastrar e editar categorias. | US06 |
-| RF-CAT09 | O sistema deve validar os dados de produtos e categorias antes de salvar. | US06 |
-=======
 | ID       | Requisito funcional                                                                                                                                               | História |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | RF-CAT01 | O sistema deve exibir o cardápio agrupado por categoria, com nome, descrição e preço em reais.                                                                    | US02     |
@@ -300,7 +287,6 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | RF-CAT08 | O administrador deve poder cadastrar e editar categorias.                                                                                                         | US06     |
 | RF-CAT09 | O sistema deve validar os dados de produtos e categorias antes de salvar.                                                                                         | US06     |
 | RF-CAT10 | O administrador deve poder informar e ajustar o estoque de produtos; o cardápio deve marcar produtos sem estoque como esgotados e impedir sua adição ao carrinho. | US08     |
->>>>>>> 0489df4 (docs: estruturação do arquivo README)
 
 ### Carrinho e finalização do pedido (US03)
 
@@ -350,16 +336,6 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Catálogo
 
-<<<<<<< HEAD
-| ID | Categoria | Requisito não funcional | Como verificar |
-|----|-----------|-------------------------|----------------|
-| RNF-CAT01 | Desempenho | A leitura do cardápio responde em até 1 s em 95% das requisições. | Medir com requisições repetidas no endpoint. |
-| RNF-CAT02 | Segurança | O cadastro e a edição de produtos e categorias só aceitam o perfil ADMIN (efetivo na Sprint 2, com o login real). | Teste em que outro perfil recebe acesso negado. |
-| RNF-CAT03 | Segurança | As credenciais do banco vêm de variáveis de ambiente, sem segredos no repositório. | `application.properties` usa `${DB_URL}`, `${DB_USER}` e `${DB_PASSWORD}`. |
-| RNF-CAT04 | Qualidade | As classes de serviço do catálogo têm pelo menos 70% de cobertura de testes. | Relatório JaCoCo no Jenkins. |
-| RNF-CAT05 | Integridade | Produtos desativados permanecem no banco, preservando o histórico de pedidos. | Teste que confirma que o produto desativado ainda existe. |
-| RNF-CAT06 | Manutenibilidade | O módulo separa model, repository, service e controller dentro do pacote do próprio módulo. | Estrutura de pastas do módulo. |
-=======
 | ID        | Categoria        | Requisito não funcional                                                                                           | Como verificar                                                                                |
 | --------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | RNF-CAT01 | Desempenho       | A leitura do cardápio responde em até 1 s em 95% das requisições.                                                 | Medir com requisições repetidas no endpoint.                                                  |
@@ -369,7 +345,6 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | RNF-CAT05 | Integridade      | Produtos desativados permanecem no banco, preservando o histórico de pedidos.                                     | Teste que confirma que o produto desativado ainda existe.                                     |
 | RNF-CAT06 | Manutenibilidade | O módulo separa model, repository, service e controller dentro do pacote do próprio módulo.                       | Estrutura de pastas do módulo.                                                                |
 | RNF-CAT07 | Integridade      | O estoque de um produto nunca pode ficar negativo, inclusive em atualizações concorrentes.                        | Testes de domínio cobrem baixa acima do estoque e a entidade usa controle otimista de versão. |
->>>>>>> 0489df4 (docs: estruturação do arquivo README)
 
 ### Autenticação e usuários
 
