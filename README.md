@@ -77,6 +77,11 @@ para o build ser reproduzível.
 2. Na pasta `backend`: `docker compose up --build -d`
 3. Logs: `docker compose logs -f backend`
 
+## Rodando o frontend
+
+1. Na pasta `frontend`, instale as dependências com `npm install` (somente na primeira vez).
+2. Inicie a interface com `npm run dev` e abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`).
+
 ---
 
 ## Requisitos Funcionais
