@@ -208,7 +208,24 @@ Transições permitidas: `CRIADO → EM_PREPARO | CANCELADO`, `EM_PREPARO → PR
 | `GET` | `/api/admin/resumo` | ADMIN | — | `200` `ResumoResponse` |
 
 ```json
-// ResumoResponse (dados do dia atual)
-{ "totalPedidos": 12, "faturamento": 356.40,
-  "pedidosPorStatus": { "CRIADO": 2, "EM_PREPARO": 1, "PRONTO": 0, "ENTREGUE": 8, "CANCELADO": 1 } }
+// ResumoResponse
+{
+  "pedidosHoje": 12,
+  "faturamentoHoje": 344.40,
+  "ticketMedio": 31.31,
+  "pedidosPorStatus": { "CRIADO": 2, "EM_PREPARO": 1, "PRONTO": 0, "ENTREGUE": 8, "CANCELADO": 1 },
+  "produtosAtivos": 32,
+  "usuariosCadastrados": 18,
+  "pedidosRecentes": [
+    { "id": 41, "cliente": "Maria", "status": "PRONTO", "total": 25.50, "criadoEm": "2026-11-12T19:30:00" }
+  ]
+}
 ```
+
+- **"Hoje"** é o dia no fuso de Brasília (`America/Sao_Paulo`), de 00:00 até 23:59. A aplicação inteira roda nesse fuso (`FusoHorarioConfig`), então a hora gravada nos pedidos também é a de Brasília, mesmo no Render (UTC).
+- `pedidosHoje` e `pedidosPorStatus` contam **todos** os pedidos do dia, inclusive os cancelados. `pedidosPorStatus` sempre traz os 5 status, com `0` quando não há pedidos.
+- `faturamentoHoje` e `ticketMedio` **não** contam os pedidos `CANCELADO`. Sem vendas no dia, o ticket médio é `0`.
+- `produtosAtivos`: produtos disponíveis no cardápio. `usuariosCadastrados`: todos os perfis, ativos e desativados.
+- `pedidosRecentes`: os 5 pedidos mais recentes de **qualquer dia**, do mais novo para o mais antigo, com o nome do cliente.
+- Erros: `401` sem token ou sem perfil · `403` quem chama não é ADMIN ativo.
+- A lista `produtosComEstoqueBaixo` (#56) entra quando o campo de estoque do produto estiver na `main`.

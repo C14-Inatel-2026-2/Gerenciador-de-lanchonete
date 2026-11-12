@@ -23,6 +23,11 @@ public class AuthorizationService {
         return ehAdminAtivo(userProfile);
     }
 
+    // Painel administrativo com o resumo do dia (US05)
+    public boolean podeVerPainelAdministrativo(UserProfile userProfile) {
+        return ehAdminAtivo(userProfile);
+    }
+
     // Fila da cozinha e mudança de status do pedido (RF-CIC06)
     public boolean podeOperarCozinha(UserProfile userProfile) {
         return podeAcessarRecursosProtegidos(userProfile)
