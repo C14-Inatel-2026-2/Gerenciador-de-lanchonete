@@ -27,3 +27,8 @@ export function itensDoMenu(role) {
       return [];
   }
 }
+
+/** Primeira página do menu do perfil: para onde vai quem acabou de entrar. */
+export function paginaInicial(role) {
+  return itensDoMenu(role)[0]?.path ?? "/login";
+}

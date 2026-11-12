@@ -7,6 +7,7 @@ import {
   limparSessao,
   salvarSessao,
 } from "./sessao";
+import { supabase } from "../services/supabase";
 
 /**
  * Guarda o usuário logado e o mantém salvo no localStorage.
@@ -18,11 +19,27 @@ import {
  *   sair()      encerra a sessão
  *   temPerfil(...roles)  true se o usuário logado tem uma das roles
  *
- * Hoje entrar() recebe o perfil já carregado (login provisório com X-Usuario-Id).
- * Na #42/#55, o login pelo Supabase chama entrar() com o perfil de GET /api/usuarios/me.
+ * As telas de Login e Cadastro (#42) chamam entrar() com o perfil devolvido pela
+ * API depois da autenticação no Supabase (services/autenticacao.js).
  */
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(() => lerSessao());
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+
+    // Perfil salvo sem token do Supabase (ex.: sessão do login provisório
+    // com X-Usuario-Id, ou token apagado): encerra para pedir login de novo.
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data?.session && lerSessao() !== null) limparSessao();
+    });
+
+    // O Supabase avisa quando a sessão acaba (ex.: não conseguiu renovar o token)
+    const { data } = supabase.auth.onAuthStateChange((evento) => {
+      if (evento === "SIGNED_OUT" && lerSessao() !== null) limparSessao();
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const sincronizar = () => setUsuario(lerSessao());

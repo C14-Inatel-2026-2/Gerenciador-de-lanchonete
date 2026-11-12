@@ -10,6 +10,10 @@ public interface UserProfileRepository extends Repository<UserProfile, Long> {
 
     boolean existsByEmail(String email);
 
+    boolean existsBySupabaseUserId(String supabaseUserId);
+
+    Optional<UserProfile> findBySupabaseUserId(String supabaseUserId);
+
     Optional<UserProfile> findById(Long id);
 
     List<UserProfile> findAllByOrderByNomeAsc();
