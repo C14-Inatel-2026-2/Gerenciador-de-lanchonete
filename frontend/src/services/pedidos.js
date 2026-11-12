@@ -1,5 +1,9 @@
 import { api } from "./api";
 
+export function listarMeusPedidos() {
+  return api("/api/pedidos/meus");
+}
+
 export function criarPedido(itens) {
   return api("/api/pedidos", {
     method: "POST",

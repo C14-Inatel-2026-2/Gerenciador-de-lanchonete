@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import MeusPedidos from "../pages/MeusPedidos";
+import { listarMeusPedidos } from "../services/pedidos";
+
+vi.mock("../services/pedidos", () => ({
+    listarMeusPedidos: vi.fn(),
+}));
 
 const pedidos = [
     {
@@ -22,11 +27,16 @@ const pedidos = [
 ];
 
 describe("MeusPedidos", () => {
-    it("lista pedidos com status e mostra os detalhes ao expandir", () => {
-        render(<MeusPedidos pedidosIniciais={pedidos} />);
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it("lista os pedidos retornados pela API e mostra detalhes ao expandir", async () => {
+        listarMeusPedidos.mockResolvedValue(pedidos);
+        render(<MeusPedidos />);
 
         expect(screen.getByRole("heading", { name: "Meus pedidos" })).toBeInTheDocument();
-        expect(screen.getByText("Pedido #12")).toBeInTheDocument();
+        expect(await screen.findByText("Pedido #12")).toBeInTheDocument();
         expect(screen.getByText("Em preparo")).toBeInTheDocument();
 
         fireEvent.click(screen.getByRole("button", { name: /Pedido #12/ }));
@@ -35,10 +45,33 @@ describe("MeusPedidos", () => {
         expect(screen.getAllByText(/R\$\s?49,80/)).toHaveLength(3);
     });
 
-    it("mostra uma mensagem quando não há pedidos", () => {
-        render(<MeusPedidos pedidosIniciais={[]} />);
+    it("mostra uma mensagem quando a API não retorna pedidos", async () => {
+        listarMeusPedidos.mockResolvedValue([]);
+        render(<MeusPedidos />);
 
-        expect(screen.getByText("Você ainda não tem pedidos")).toBeInTheDocument();
+        expect(await screen.findByText("Você ainda não tem pedidos")).toBeInTheDocument();
         expect(screen.getByText("0 pedidos")).toBeInTheDocument();
+    });
+
+    it("mostra o erro da API e permite tentar novamente", async () => {
+        listarMeusPedidos
+            .mockRejectedValueOnce(new Error("Não foi possível carregar os pedidos."))
+            .mockResolvedValueOnce(pedidos);
+        render(<MeusPedidos />);
+
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            "Não foi possível carregar os pedidos."
+        );
+        fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
+        expect(await screen.findByText("Pedido #12")).toBeInTheDocument();
+        expect(listarMeusPedidos).toHaveBeenCalledTimes(2);
+    });
+
+    it("indica enquanto os pedidos estão sendo carregados", () => {
+        listarMeusPedidos.mockReturnValue(new Promise(() => {}));
+        render(<MeusPedidos />);
+
+        expect(screen.getByRole("status")).toHaveTextContent("Carregando seus pedidos...");
     });
 });

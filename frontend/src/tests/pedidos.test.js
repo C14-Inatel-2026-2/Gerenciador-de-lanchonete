@@ -1,12 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api } from "../services/api";
-import { criarPedido } from "../services/pedidos";
+import { criarPedido, listarMeusPedidos } from "../services/pedidos";
 
 vi.mock("../services/api", () => ({
   api: vi.fn(),
 }));
 
 describe("criarPedido", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("envia somente o identificador e a quantidade dos itens", async () => {
     api.mockResolvedValue({ id: 17 });
     const itens = [
@@ -26,6 +30,16 @@ describe("criarPedido", () => {
       body: JSON.stringify({
         itens: [{ produtoId: 10, quantidade: 2 }],
       }),
+    });
+  });
+
+  describe("listarMeusPedidos", () => {
+    it("consulta os pedidos do cliente autenticado", async () => {
+      api.mockResolvedValue([]);
+
+      await expect(listarMeusPedidos()).resolves.toEqual([]);
+
+      expect(api).toHaveBeenCalledWith("/api/pedidos/meus");
     });
   });
 });
