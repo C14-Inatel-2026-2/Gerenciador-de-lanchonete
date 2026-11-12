@@ -48,6 +48,7 @@ function CartPage({ cart, total, onFinishOrder, onUpdateQuantity }) {
                                                 <span aria-live="polite">{item.quantidade}</span>
                                                 <button
                                                     aria-label={`Aumentar quantidade de ${item.nome}`}
+                                                    disabled={item.quantidade >= item.quantidadeEstoque}
                                                     onClick={() => onUpdateQuantity(item.id, item.quantidade + 1)}
                                                     type="button"
                                                 >+</button>

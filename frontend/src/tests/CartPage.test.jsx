@@ -9,6 +9,7 @@ const cart = [
         descricao: "Hambúrguer com queijo.",
         preco: 24.9,
         quantidade: 2,
+        quantidadeEstoque: 3,
     },
 ];
 
@@ -62,5 +63,18 @@ describe("CartPage", () => {
 
         expect(screen.getByText("Seu carrinho está vazio")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: /Finalizar pedido/ })).toBeDisabled();
+    });
+
+    it("desabilita aumentar quantidade quando o estoque foi atingido", () => {
+        render(
+            <CartPage
+                cart={[{ ...cart[0], quantidade: 3, quantidadeEstoque: 3 }]}
+                total={74.7}
+                onFinishOrder={vi.fn()}
+                onUpdateQuantity={vi.fn()}
+            />
+        );
+
+        expect(screen.getByRole("button", { name: "Aumentar quantidade de X-Burger" })).toBeDisabled();
     });
 });
