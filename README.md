@@ -204,3 +204,48 @@ para o build ser reproduzível.
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
+
+---
+
+## Uso de IA
+
+> O uso de IA foi permitido na disciplina. Declaramos como cada integrante usou, com exemplos reais do que foi aceito, ajustado ou descartado.
+
+### Visão geral do grupo
+
+| Integrante | Ferramentas | Principais usos |
+|---|---|---|
+| Lilyan | Claude e Gemini | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos |
+| Karolina | <!-- Karolina preenche --> | |
+| Beatriz | <!-- Beatriz preenche --> | |
+| Júlia | <!-- Júlia preenche --> | |
+| Yasmin | <!-- Yasmin preenche --> | |
+
+### Lilyan
+
+**Como usei:** individualmente, no Claude, num projeto com o histórico do repositório (PRs, issues e quadro). Combinei uma regra com a IA de que **ela lê e analisa o repositório sem executar nada além disso; todo comando, teste, código e pipeline eu rodo na minha máquina sem que a IA rode virtualmente** e confiro o resultado. Usei também para revisar as PRs das colegas e para entender os conceitos de Engenharia de Software que precisamos aplicar no projeto.
+
+**Exemplos reais**
+
+| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
+|---|---|---|---|
+| Montar o Jenkins local para a pipeline (#12) | Gerou um `docker-compose` com a imagem oficial do Jenkins. Depois de subir, era preciso pegar a senha inicial, instalar plugins, criar o usuário e o job e trocar a branch à mão | Comparei com o exemplo do monitor, "Jenkins como código", com imagem própria com Node e plugins pré-instalados, JCasC criando o usuário e o job multibranch sozinhos. Adaptei para o nosso projeto (Node em vez de Python, porta configurável, sem token por o repositório ser público). Depois, como montar do zero quebrava, fixei as versões e troquei para o JDK 21, porque o Jenkins não suporta mais o Java 17 (#18) | **Ajustado** |
+| Revisar a PR de refactorings da autenticação (#69) | Apontou que, depois do merge da `main`, o `podeGerenciarCatalogo` (que veio da PR #68) ficou com a regra de admin copiada, enquanto os outros métodos já usavam o `ehAdminAtivo`. Um conflito semântico, que o Git não acusa | Pedi o ajuste no review, e foi trocado para `ehAdminAtivo` | **Aceito** |
+| Revisar a PR do Spring Security (#73) | Sugeriu um teste "sem token - 401" em cada controller, porque todos os testes mandavam token e nenhum provava que a rota estava fechada | Levei a sugestão para o review e foi adicionado os testes | **Aceito** |
+| Revisar a configuração do Supabase (#73) | Levantou a suspeita de que as tabelas estavam abertas pela chave pública, porque estavam sem RLS | Conferi no banco (RLS desligado de fato) e testei com `curl` usando a chave pública, então o Supabase respondeu "permission denied". A suspeita não se confirmou | **Descartado** |
+
+**O que fiz sem IA:** rodei todos os comandos, testes e pipelines na minha máquina e conferi os resultados; testei manualmente as telas, rotas e todas as PRs analisadas; tomei as decisões de organização, como propor o Trello e depois criar o quadro no GitHub Projects; realizei a divisão dos stages do Jenkins entre as integrantes; criei a regra de proteção da `main`; revisei e reescrevi todo texto gerado. O código do meu módulo foi gerado com apoio da IA, e eu revisei cada parte.
+
+### Karolina
+<!-- Karolina: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+
+### Beatriz
+<!-- Beatriz: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+
+### Júlia
+<!-- Júlia: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+
+### Yasmin
+<!-- Yasmin: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+
+---
