@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/useAuth";
-import { alterarPerfil, desativarUsuario, listarUsuarios } from "../services/usuarios";
+import {
+  alterarPerfil,
+  desativarUsuario,
+  listarUsuarios,
+  reativarUsuario,
+} from "../services/usuarios";
 import { PERFIS, rotuloDoPerfil } from "../utils/perfis";
 import "./AdminUsuarios.css";
 
@@ -83,13 +88,24 @@ export default function AdminUsuarios() {
     );
   }
 
+  function reativar(usuario) {
+    const confirmou = window.confirm(
+      `Reativar ${usuario.nome}? A conta volta a ter acesso como ${rotuloDoPerfil(usuario.role)}.`
+    );
+    if (!confirmou) return;
+    executar(
+      () => reativarUsuario(usuario.id),
+      (atualizado) => `A conta de ${atualizado.nome} foi reativada.`
+    );
+  }
+
   return (
     <section className="usuarios-pagina">
       <header className="usuarios-cabecalho">
         <p className="usuarios-eyebrow">ADMINISTRAÇÃO</p>
         <h1>Usuários</h1>
         <p className="usuarios-descricao">
-          Altere o perfil de quem trabalha na lanchonete e desative contas que não devem mais entrar.
+          Altere o perfil de quem trabalha na lanchonete e desative ou reative contas.
         </p>
       </header>
 
@@ -157,6 +173,16 @@ export default function AdminUsuarios() {
                           onClick={() => desativar(usuario)}
                         >
                           Desativar
+                        </button>
+                      )}
+                      {!usuario.ativo && !ehVoce && (
+                        <button
+                          type="button"
+                          className="usuarios-botao-reativar"
+                          disabled={acaoEmAndamento}
+                          onClick={() => reativar(usuario)}
+                        >
+                          Reativar
                         </button>
                       )}
                     </td>

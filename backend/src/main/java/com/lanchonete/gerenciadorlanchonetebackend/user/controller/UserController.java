@@ -80,4 +80,11 @@ public class UserController {
                 userService.desativar(usuarioAtualProvider.obterUsuarioAtual(), id)
         );
     }
+
+    @PatchMapping("/{id}/reativar")
+    public UsuarioResponse reativar(@PathVariable Long id) {
+        return UsuarioResponse.de(
+                userService.reativar(usuarioAtualProvider.obterUsuarioAtual(), id)
+        );
+    }
 }

@@ -20,3 +20,9 @@ export function alterarPerfil(id, role) {
 export function desativarUsuario(id) {
   return api(`/api/usuarios/${id}/desativar`, { method: "PATCH" });
 }
+
+// PATCH /api/usuarios/{id}/reativar: devolve o acesso, com o mesmo perfil de antes.
+// Não existe exclusão de usuário: desativar e reativar preservam o perfil e os pedidos.
+export function reativarUsuario(id) {
+  return api(`/api/usuarios/${id}/reativar`, { method: "PATCH" });
+}

@@ -3,13 +3,19 @@ import { render, screen, fireEvent, within, waitFor } from "@testing-library/rea
 
 import AdminUsuarios from "../pages/AdminUsuarios";
 import { AuthContext } from "../contexts/useAuth";
-import { alterarPerfil, desativarUsuario, listarUsuarios } from "../services/usuarios";
+import {
+  alterarPerfil,
+  desativarUsuario,
+  listarUsuarios,
+  reativarUsuario,
+} from "../services/usuarios";
 
 // Troca o service por funções falsas: o teste não chama a API de verdade
 vi.mock("../services/usuarios", () => ({
   listarUsuarios: vi.fn(),
   alterarPerfil: vi.fn(),
   desativarUsuario: vi.fn(),
+  reativarUsuario: vi.fn(),
 }));
 
 const admin = { id: 1, nome: "Admin", email: "admin@admin.com", role: "ADMIN", ativo: true };
@@ -67,13 +73,48 @@ describe("AdminUsuarios", () => {
     expect(within(propria).queryByRole("button", { name: "Desativar" })).not.toBeInTheDocument();
   });
 
-  it("usuário desativado não tem ações", async () => {
+  it("usuário desativado só pode ser reativado", async () => {
     renderizar();
 
     await screen.findByText("Caio");
     const linha = linhaDe("Caio");
     expect(within(linha).getByRole("combobox")).toBeDisabled();
     expect(within(linha).queryByRole("button", { name: "Desativar" })).not.toBeInTheDocument();
+    expect(within(linha).getByRole("button", { name: "Reativar" })).toBeInTheDocument();
+  });
+
+  it("usuário ativo não tem o botão Reativar", async () => {
+    renderizar();
+
+    await screen.findByText("Bia");
+    expect(within(linhaDe("Bia")).queryByRole("button", { name: "Reativar" })).not.toBeInTheDocument();
+  });
+
+  it("reativar pede confirmação e, se cancelar, não chama a API", async () => {
+    const confirmar = vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderizar();
+
+    await screen.findByText("Caio");
+    fireEvent.click(within(linhaDe("Caio")).getByRole("button", { name: "Reativar" }));
+
+    expect(confirmar).toHaveBeenCalledWith("Reativar Caio? A conta volta a ter acesso como Cliente.");
+    expect(reativarUsuario).not.toHaveBeenCalled();
+  });
+
+  it("reativar confirmado devolve as ações à linha", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    reativarUsuario.mockResolvedValue({ ...desativado, ativo: true });
+    renderizar();
+
+    await screen.findByText("Caio");
+    fireEvent.click(within(linhaDe("Caio")).getByRole("button", { name: "Reativar" }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent("A conta de Caio foi reativada.");
+    expect(reativarUsuario).toHaveBeenCalledWith(3);
+    const linha = linhaDe("Caio");
+    expect(within(linha).getByText("Ativo")).toBeInTheDocument();
+    expect(within(linha).getByRole("combobox")).toBeEnabled();
+    expect(within(linha).getByRole("button", { name: "Desativar" })).toBeInTheDocument();
   });
 
   it("promover a funcionário pede confirmação, envia a nova role e atualiza a linha", async () => {
@@ -102,7 +143,7 @@ describe("AdminUsuarios", () => {
     expect(desativarUsuario).not.toHaveBeenCalled();
   });
 
-  it("desativar confirmado marca o usuário como desativado e tira as ações", async () => {
+  it("desativar confirmado marca o usuário como desativado e só deixa reativar", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     desativarUsuario.mockResolvedValue({ ...cliente, ativo: false });
     renderizar();
@@ -115,6 +156,7 @@ describe("AdminUsuarios", () => {
     const linha = linhaDe("Bia");
     expect(within(linha).getByText("Desativado")).toBeInTheDocument();
     expect(within(linha).queryByRole("button", { name: "Desativar" })).not.toBeInTheDocument();
+    expect(within(linha).getByRole("button", { name: "Reativar" })).toBeInTheDocument();
   });
 
   it("mostra a mensagem do backend quando a ação é recusada e mantém a linha", async () => {

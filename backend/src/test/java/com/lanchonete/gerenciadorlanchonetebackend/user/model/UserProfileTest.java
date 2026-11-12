@@ -43,6 +43,19 @@ class UserProfileTest {
     }
 
     @Test
+    void deveReativarUsuarioDesativadoSemMudarOsDados() {
+        UserProfile userProfile = new UserProfile(
+                "supabase-123", "Karolina", "karolina@email.com", UserRole.FUNCIONARIO
+        );
+        userProfile.desativar();
+
+        userProfile.reativar();
+
+        assertTrue(userProfile.isAtivo());
+        assertEquals(UserRole.FUNCIONARIO, userProfile.getRole());
+    }
+
+    @Test
     void deveAlterarRole() {
         UserProfile userProfile = new UserProfile(
                 "supabase-123", "Karolina", "karolina@email.com", UserRole.CLIENTE
