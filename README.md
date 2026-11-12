@@ -132,23 +132,23 @@ para o build ser reproduzível.
 
 Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicados e preencha os valores localmente:
 
-| Arquivo de exemplo | Variável | Uso |
-| ------------------ | -------- | --- |
-| [`backend/.env.example`](backend/.env.example) | `DB_URL` | URL JDBC do banco PostgreSQL. |
-| [`backend/.env.example`](backend/.env.example) | `DB_USERNAME` | Usuário do banco PostgreSQL. |
-| [`backend/.env.example`](backend/.env.example) | `DB_PASSWORD` | Senha do banco PostgreSQL. |
-| [`backend/.env.example`](backend/.env.example) | `CORS_ORIGENS` | Origens autorizadas a acessar a API, separadas por vírgula. |
-| `backend/.env.example` (após integração da [#55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55)) | `SUPABASE_URL` | URL do projeto Supabase usada pelo back-end. |
-| `backend/.env.example` (após integração da [#55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55)) | `ADMIN_EMAILS` | E-mails que recebem o perfil `ADMIN`, separados por vírgula. |
-| `backend/.env.example` (somente para HS256) | `SUPABASE_JWT_SECRET` | Segredo JWT legado; não necessário para projetos com chaves assimétricas. |
-| [`frontend/.env.example`](frontend/.env.example) | `VITE_API_URL` | URL base da API do back-end. |
-| [`frontend/.env.example`](frontend/.env.example) | `VITE_SUPABASE_URL` | Project URL do Supabase usada pelo front-end. |
-| [`frontend/.env.example`](frontend/.env.example) | `VITE_SUPABASE_ANON_KEY` | Chave anon/public do Supabase usada pelo front-end. |
-| [`.env.example`](.env.example) | `JENKINS_PORT` | Porta local do Jenkins. |
-| [`.env.example`](.env.example) | `JENKINS_ADMIN_ID` | Usuário administrador local do Jenkins. |
-| [`.env.example`](.env.example) | `JENKINS_ADMIN_PASSWORD` | Senha do administrador local do Jenkins. |
-| [`.env.example`](.env.example) | `RENDER_DEPLOY_HOOK` | Deploy Hook privado do Render, usado pelo Jenkins. |
-| [`.env.example`](.env.example) | `VERCEL_DEPLOY_HOOK` | Deploy Hook privado da Vercel, usado pelo Jenkins. |
+| Arquivo de exemplo                                                                                                          | Variável                 | Uso                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------- |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `DB_URL`                 | URL JDBC do banco PostgreSQL.                                             |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `DB_USERNAME`            | Usuário do banco PostgreSQL.                                              |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `DB_PASSWORD`            | Senha do banco PostgreSQL.                                                |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `CORS_ORIGENS`           | Origens autorizadas a acessar a API, separadas por vírgula.               |
+| `backend/.env.example` (após integração da [#55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55)) | `SUPABASE_URL`           | URL do projeto Supabase usada pelo back-end.                              |
+| `backend/.env.example` (após integração da [#55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55)) | `ADMIN_EMAILS`           | E-mails que recebem o perfil `ADMIN`, separados por vírgula.              |
+| `backend/.env.example` (somente para HS256)                                                                                 | `SUPABASE_JWT_SECRET`    | Segredo JWT legado; não necessário para projetos com chaves assimétricas. |
+| [`frontend/.env.example`](frontend/.env.example)                                                                            | `VITE_API_URL`           | URL base da API do back-end.                                              |
+| [`frontend/.env.example`](frontend/.env.example)                                                                            | `VITE_SUPABASE_URL`      | Project URL do Supabase usada pelo front-end.                             |
+| [`frontend/.env.example`](frontend/.env.example)                                                                            | `VITE_SUPABASE_ANON_KEY` | Chave anon/public do Supabase usada pelo front-end.                       |
+| [`.env.example`](.env.example)                                                                                              | `JENKINS_PORT`           | Porta local do Jenkins.                                                   |
+| [`.env.example`](.env.example)                                                                                              | `JENKINS_ADMIN_ID`       | Usuário administrador local do Jenkins.                                   |
+| [`.env.example`](.env.example)                                                                                              | `JENKINS_ADMIN_PASSWORD` | Senha do administrador local do Jenkins.                                  |
+| [`.env.example`](.env.example)                                                                                              | `RENDER_DEPLOY_HOOK`     | Deploy Hook privado do Render, usado pelo Jenkins.                        |
+| [`.env.example`](.env.example)                                                                                              | `VERCEL_DEPLOY_HOOK`     | Deploy Hook privado da Vercel, usado pelo Jenkins.                        |
 
 ---
 
@@ -158,7 +158,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Cliente
 
-<!-- Karolina: documentar cadastro/login; Beatriz: cardápio; Júlia: carrinho e finalização do pedido. -->
+<!-- Karolina: documentar cadastro/login; Júlia: documentar carrinho e finalização do pedido. -->
+
+**Cardápio (US02 e US08):**
+
+1. Acesse **Cardápio** para consultar os produtos disponíveis, agrupados por categoria, com descrição e preço.
+2. Use **Filtrar por categoria** para restringir a lista; selecione **Todas as categorias** para remover o filtro.
+3. Produtos sem estoque aparecem como **Esgotado** e não podem ser adicionados ao carrinho. Nos demais, selecione **Adicionar ao carrinho**.
 
 ### Cozinha (funcionário)
 
@@ -171,6 +177,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 1. **Criar o primeiro administrador:** antes do primeiro cadastro, configure `ADMIN_EMAILS` no ambiente do back-end com o e-mail que será usado (separado por vírgulas, quando houver mais de um). Cadastre-se no sistema com esse mesmo e-mail; o perfil correspondente deve receber a role `ADMIN`. Consulte [Segurança da API com Supabase Auth (JWT) e administrador inicial #55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55).
 2. **Promover alguém a funcionário:** entre com uma conta `ADMIN`, acesse o gerenciamento de usuários, selecione a pessoa e altere sua role para `FUNCIONARIO`.
 
+**Catálogo e produtos (US06 e US08):**
+
+1. Acesse **Gerenciar produtos** para consultar os produtos disponíveis.
+2. Para cadastrar um produto, informe nome, descrição, preço, categoria e quantidade em estoque e selecione **Cadastrar produto**. É necessário haver uma categoria cadastrada.
+3. Para alterar os dados, selecione **Editar**, ajuste os campos e escolha **Salvar alterações**. Para retirar um produto do cardápio sem excluí-lo, selecione **Desativar**.
+4. Para ajustar o estoque de um produto existente, informe uma quantidade inteira maior ou igual a zero em **Ajustar estoque** e selecione **Salvar estoque**. Estoque zero faz o produto aparecer como esgotado no cardápio.
+
 ---
 
 ## Funcionalidades
@@ -178,7 +191,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 <!-- Cada responsável: resumir as funcionalidades do módulo e relacioná-las às histórias de usuário. -->
 
 - **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
-- **Catálogo e produtos (US02, US06, US08):** <!-- Beatriz: cardápio, gestão de produtos/categorias e controle de estoque: exibir esgotados, impedir pedidos sem estoque, baixar no pedido e repor no cancelamento. Ver [Controle de estoque dos produtos (US08) #56](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/56). -->
+- **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos, além de cadastrar e editar categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
 - **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
 - **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
 - **Painel administrativo (US05):** <!-- Yasmin: preencher. -->
@@ -192,13 +205,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | História | Perfil | Funcionalidade | Requisitos relacionados |
 | -------- | ------ | -------------- | ----------------------- |
 | US01     |        |                |                         |
-| US02     |        |                |                         |
+| US02     | Cliente | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços. | RF-CAT01–RF-CAT05 |
 | US03     |        |                |                         |
 | US04     |        |                |                         |
 | US05     |        |                |                         |
-| US06     |        |                |                         |
+| US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias. | RF-CAT06–RF-CAT09 |
 | US07     |        |                |                         |
-| US08     |        |                |                         |
+| US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10 |
 
 ---
 
@@ -231,7 +244,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ## Uso de IA
 
-<!-- Cada integrante: registrar como utilizou ferramentas de IA no projeto. -->
+<!-- Registrar alguns exemplos de como utilizamos ferramentas de IA no projeto. -->
 
 ## Rodando o frontend
 
