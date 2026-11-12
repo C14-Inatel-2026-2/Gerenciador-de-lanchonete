@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { initialCart, mockOrders, mockProducts } from "../data/mockStore";
+import { mockOrders, mockProducts } from "../data/mockStore";
 
 describe("mockProducts", () => {
     it("segue o formato CardapioResponse documentado", () => {
@@ -14,14 +14,6 @@ describe("mockProducts", () => {
                 expect(Object.keys(produto).sort()).toEqual(["descricao", "id", "nome", "preco"]);
             }
         }
-    });
-
-    it("deriva o carrinho demonstrativo de produtos do mock do cardápio", () => {
-        expect(initialCart.map(({ id, quantidade }) => ({ id, quantidade }))).toEqual([
-            { id: 1, quantidade: 1 },
-            { id: 2, quantidade: 2 },
-        ]);
-        expect(initialCart.every((produto) => !("categoria" in produto))).toBe(true);
     });
 });
 

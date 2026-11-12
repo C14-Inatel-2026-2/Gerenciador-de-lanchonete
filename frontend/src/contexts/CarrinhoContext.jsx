@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { initialCart } from "../data/mockStore";
 import { CarrinhoContext } from "./useCarrinho";
 
 const CHAVE_CARRINHO = "lanchonete.carrinho";
@@ -25,22 +24,22 @@ function calcularTotal(itens) {
 
 function lerCarrinho() {
     const salvo = localStorage.getItem(CHAVE_CARRINHO);
-    if (salvo === null) return initialCart;
+    if (salvo === null) return [];
 
     let dadosSalvos;
     try {
         dadosSalvos = JSON.parse(salvo);
     } catch (error) {
-        console.error("Carrinho salvo inválido; usando o carrinho inicial.", error);
+        console.error("Carrinho salvo inválido; iniciando um carrinho vazio.", error);
         localStorage.removeItem(CHAVE_CARRINHO);
-        return initialCart;
+        return [];
     }
 
     const carrinho = Array.isArray(dadosSalvos) ? dadosSalvos : dadosSalvos?.itens;
     if (!Array.isArray(carrinho) || !carrinho.every(itemValido)) {
-        console.error("Carrinho salvo fora do formato esperado; usando o carrinho inicial.");
+        console.error("Carrinho salvo fora do formato esperado; iniciando um carrinho vazio.");
         localStorage.removeItem(CHAVE_CARRINHO);
-        return initialCart;
+        return [];
     }
 
     return carrinho;

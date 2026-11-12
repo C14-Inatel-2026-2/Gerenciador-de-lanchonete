@@ -46,12 +46,6 @@ export const mockProducts = {
     mensagem: null,
 };
 
-const produtosDoCardapio = mockProducts.categorias.flatMap((categoria) => categoria.produtos);
-
-export const initialCart = produtosDoCardapio
-    .filter((produto) => produto.id === 1 || produto.id === 2)
-    .map((produto) => ({ ...produto, quantidade: produto.id === 1 ? 1 : 2 }));
-
 const dateDaysAgo = (days, hour) => {
     const date = new Date();
     date.setDate(date.getDate() - days);
