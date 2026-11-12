@@ -81,7 +81,6 @@ para o build ser reproduzível.
 
 1. Na pasta `frontend`, instale as dependências com `npm install` (somente na primeira vez).
 2. Inicie a interface com `npm run dev` e abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`).
-3. Use a navegação no topo para acessar Carrinho, Pedidos e Painel administrativo. Carrinho e pedidos usam dados demonstrativos enquanto a API de compras não está disponível.
 
 ---
 
