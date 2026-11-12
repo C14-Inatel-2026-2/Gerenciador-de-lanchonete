@@ -21,6 +21,9 @@ public class Produto {
     @Column(nullable = false)
     private boolean disponivel = true;
 
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private int quantidadeEstoque;
+
     @ManyToOne
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
@@ -74,6 +77,14 @@ public class Produto {
 
     public void setDisponivel(boolean disponivel) {
         this.disponivel = disponivel;
+    }
+
+    public int getQuantidadeEstoque() {
+        return quantidadeEstoque;
+    }
+
+    public void setQuantidadeEstoque(int quantidadeEstoque) {
+        this.quantidadeEstoque = quantidadeEstoque;
     }
 
     public Categoria getCategoria() {

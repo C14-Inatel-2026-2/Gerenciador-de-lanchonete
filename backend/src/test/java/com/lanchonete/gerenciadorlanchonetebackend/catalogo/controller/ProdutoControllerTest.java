@@ -66,6 +66,7 @@ class ProdutoControllerTest {
         categoria.setId(1L);
         Produto produto = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), categoria);
         produto.setId(2L);
+        produto.setQuantidadeEstoque(8);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(produto));
 
         mockMvc.perform(get("/api/produtos/cardapio"))
@@ -75,7 +76,8 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.categorias[0].produtos[0].id").value(2))
                 .andExpect(jsonPath("$.categorias[0].produtos[0].nome").value("X-Burger"))
                 .andExpect(jsonPath("$.categorias[0].produtos[0].descricao").value("Pão, carne e queijo"))
-                .andExpect(jsonPath("$.categorias[0].produtos[0].preco").value(25));
+                .andExpect(jsonPath("$.categorias[0].produtos[0].preco").value(25))
+                .andExpect(jsonPath("$.categorias[0].produtos[0].quantidadeEstoque").value(8));
 
         verify(produtoRepository).findByDisponivelTrue();
     }
@@ -93,6 +95,7 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].nome").value("X-Burger"))
                 .andExpect(jsonPath("$[0].disponivel").value(true))
+                .andExpect(jsonPath("$[0].quantidadeEstoque").value(0))
                 .andExpect(jsonPath("$[0].categoriaId").value(1))
                 .andExpect(jsonPath("$[1]").doesNotExist());
 
@@ -149,7 +152,8 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.id").value(2))
                 .andExpect(jsonPath("$.nome").value("X-Burger"))
                 .andExpect(jsonPath("$.categoriaId").value(1))
-                .andExpect(jsonPath("$.disponivel").value(true));
+                .andExpect(jsonPath("$.disponivel").value(true))
+                .andExpect(jsonPath("$.quantidadeEstoque").value(0));
 
         verify(produtoRepository).save(any(Produto.class));
     }
@@ -255,6 +259,62 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.disponivel").value(false));
 
         verify(produtoRepository).save(produto);
+    }
+
+    @Test
+    void deveAtualizarEstoqueQuandoUsuarioForAdmin() throws Exception {
+        autorizarAdmin();
+        Produto produto = new Produto(
+                "X-Burger",
+                "Delicioso",
+                BigDecimal.valueOf(25),
+                categoriaAtiva()
+        );
+        produto.setId(2L);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(produtoRepository.save(produto)).thenReturn(produto);
+
+        mockMvc.perform(patch("/api/produtos/2/estoque")
+                        .contentType("application/json")
+                        .content("""
+                                {"quantidade":20}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.quantidadeEstoque").value(20));
+
+        verify(produtoRepository).save(produto);
+    }
+
+    @Test
+    void naoDeveAtualizarEstoqueComQuantidadeNegativa() throws Exception {
+        autorizarAdmin();
+
+        mockMvc.perform(patch("/api/produtos/2/estoque")
+                        .contentType("application/json")
+                        .content("""
+                                {"quantidade":-1}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.erro").value(
+                        "A quantidade em estoque deve ser um número não negativo."
+                ));
+
+        verify(produtoRepository, never()).save(any(Produto.class));
+    }
+
+    @Test
+    void naoDeveAtualizarEstoqueQuandoUsuarioNaoForAdmin() throws Exception {
+        autorizarCliente();
+
+        mockMvc.perform(patch("/api/produtos/2/estoque")
+                        .contentType("application/json")
+                        .content("""
+                                {"quantidade":20}
+                                """))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(produtoRepository, categoriaRepository);
     }
 
     @Test

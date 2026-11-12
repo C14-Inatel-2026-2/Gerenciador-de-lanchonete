@@ -2,6 +2,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.compras.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.service.ProdutoService;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.dto.ItemPedidoRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.dto.PedidoRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.CarrinhoCompras;
@@ -20,10 +21,16 @@ import java.util.Map;
 public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
+    private final ProdutoService produtoService;
 
-    public PedidoService(PedidoRepository pedidoRepository, ProdutoRepository produtoRepository) {
+    public PedidoService(
+            PedidoRepository pedidoRepository,
+            ProdutoRepository produtoRepository,
+            ProdutoService produtoService
+    ) {
         this.pedidoRepository = pedidoRepository;
         this.produtoRepository = produtoRepository;
+        this.produtoService = produtoService;
     }
 
     @Transactional
@@ -53,7 +60,9 @@ public class PedidoService {
         for (Map.Entry<Long, Integer> item : quantidadesPorProduto.entrySet()) {
             Produto produto = produtoRepository.findById(item.getKey())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
-            carrinho.adicionarItem(new ItemCarrinho(produto, item.getValue()));
+            ItemCarrinho itemCarrinho = new ItemCarrinho(produto, item.getValue());
+            produtoService.baixarEstoque(produto, item.getValue());
+            carrinho.adicionarItem(itemCarrinho);
         }
 
         return criarPedido(clienteId, carrinho);

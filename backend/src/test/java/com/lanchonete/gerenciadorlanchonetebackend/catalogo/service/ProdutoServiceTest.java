@@ -3,6 +3,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
@@ -171,8 +172,10 @@ public class ProdutoServiceTest {
 
         Produto xBurguer = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), lanches);
         xBurguer.setId(10L);
+        xBurguer.setQuantidadeEstoque(8);
         Produto suco = new Produto("Suco", "Suco natural", BigDecimal.valueOf(8), bebidas);
         suco.setId(11L);
+        suco.setQuantidadeEstoque(4);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(xBurguer, suco));
 
         CardapioResponse cardapio = produtoService.obterCardapio();
@@ -185,7 +188,8 @@ public class ProdutoServiceTest {
                         10L,
                         "X-Burger",
                         "Pão, carne e queijo",
-                        BigDecimal.valueOf(25)
+                        BigDecimal.valueOf(25),
+                        8
                 )),
                 cardapio.categorias().get(0).produtos()
         );
@@ -196,7 +200,8 @@ public class ProdutoServiceTest {
                         11L,
                         "Suco",
                         "Suco natural",
-                        BigDecimal.valueOf(8)
+                        BigDecimal.valueOf(8),
+                        4
                 )),
                 cardapio.categorias().get(1).produtos()
         );
@@ -211,6 +216,52 @@ public class ProdutoServiceTest {
 
         assertEquals(List.of(), cardapio.categorias());
         assertEquals("Cardápio vazio: não há produtos disponíveis.", cardapio.mensagem());
+    }
+
+    @Test
+    void baixarEstoqueAtualizaQuantidadeDoProduto() {
+        Produto produto = new Produto(
+                "Hamburguer",
+                "Produto de teste",
+                new BigDecimal("12.50"),
+                new Categoria("Lanches")
+        );
+        produto.setId(1L);
+        produto.setQuantidadeEstoque(5);
+        when(produtoRepository.save(produto)).thenReturn(produto);
+
+        Produto atualizado = produtoService.baixarEstoque(produto, 3);
+
+        assertEquals(2, atualizado.getQuantidadeEstoque());
+        verify(produtoRepository).save(produto);
+    }
+
+    @Test
+    void baixarEstoqueInsuficienteInformaNomeEnaoSalvaProduto() {
+        Produto produto = new Produto(
+                "Hamburguer",
+                "Produto de teste",
+                new BigDecimal("12.50"),
+                new Categoria("Lanches")
+        );
+        produto.setId(1L);
+        produto.setQuantidadeEstoque(1);
+
+        EstoqueInsuficienteException exception = assertThrows(
+                EstoqueInsuficienteException.class,
+                () -> produtoService.baixarEstoque(produto, 2)
+        );
+
+        assertEquals("Estoque insuficiente para o produto Hamburguer. Disponível: 1, solicitado: 2.",
+                exception.getMessage());
+        assertEquals(1, produto.getQuantidadeEstoque());
+        verify(produtoRepository, never()).save(any());
+    }
+
+    @Test
+    void atualizarEstoqueRejeitaQuantidadeNegativa() {
+        assertThrows(IllegalArgumentException.class, () -> produtoService.atualizarEstoque(1L, -1));
+        verifyNoInteractions(produtoRepository);
     }
 
     private Categoria categoriaComId(Long id) {

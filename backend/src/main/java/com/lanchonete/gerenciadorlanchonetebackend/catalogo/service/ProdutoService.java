@@ -3,6 +3,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
@@ -10,6 +11,7 @@ import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.Categoria
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -111,7 +113,8 @@ public class ProdutoService {
                             produto.getId(),
                             produto.getNome(),
                             produto.getDescricao(),
-                            produto.getPreco()
+                            produto.getPreco(),
+                            produto.getQuantidadeEstoque()
                     ));
         }
 
@@ -130,6 +133,38 @@ public class ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
         produto.setDisponivel(false);
+        return produtoRepository.save(produto);
+    }
+
+    @Transactional
+    public Produto baixarEstoque(Produto produto, int quantidade) {
+        if (produto == null) {
+            throw new IllegalArgumentException("Produto é obrigatório para baixar o estoque.");
+        }
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade a ser reduzida deve ser maior que zero.");
+        }
+        if (produto.getQuantidadeEstoque() < quantidade) {
+            throw new EstoqueInsuficienteException(
+                    "Estoque insuficiente para o produto " + produto.getNome()
+                            + ". Disponível: " + produto.getQuantidadeEstoque()
+                            + ", solicitado: " + quantidade + "."
+            );
+        }
+
+        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
+        return produtoRepository.save(produto);
+    }
+
+    @Transactional
+    public Produto atualizarEstoque(Long id, Integer quantidade) {
+        if (quantidade == null || quantidade < 0) {
+            throw new IllegalArgumentException("A quantidade em estoque deve ser um número não negativo.");
+        }
+
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
+        produto.setQuantidadeEstoque(quantidade);
         return produtoRepository.save(produto);
     }
 }

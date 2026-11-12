@@ -1,5 +1,6 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.controller;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.dto.ItemPedidoRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.dto.PedidoRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemPedido;
@@ -116,6 +117,21 @@ class PedidoControllerTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.erro").value("O produto deve estar disponível."));
+    }
+
+    @Test
+    void postComEstoqueInsuficienteRetorna409ComNomeDoProduto() throws Exception {
+        logarComoCliente(42L);
+        when(pedidoService.criarPedidoComItens(eq(42L), any(PedidoRequest.class)))
+                .thenThrow(new EstoqueInsuficienteException("Estoque insuficiente para o produto X-Burger"));
+
+        mockMvc.perform(post("/api/pedidos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"itens":[{"produtoId":10,"quantidade":2}]}
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro").value("Estoque insuficiente para o produto X-Burger"));
     }
 
     @Test
