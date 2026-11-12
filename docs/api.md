@@ -107,9 +107,11 @@ O perfil criado em `POST /api/usuarios` é sempre `CLIENTE`, mesmo que o corpo t
 - Usuário desativado continua no banco, mas perde o acesso às rotas protegidas (`403`).
 - Erros: `400` role ausente ou inválida · `403` quem chama não é ADMIN ativo · `404` usuário não encontrado.
 
-#### Passo a passo: criar um funcionário pelo `curl`
+#### Criar um funcionário
 
-Enquanto a tela `/admin/usuarios` não existe, a promoção é feita pela API (PowerShell):
+Pela tela **`/admin/usuarios`** (menu Usuários, só ADMIN): a pessoa se cadastra em `/cadastro` e o admin troca o perfil dela para **Funcionário** no seletor da tabela.
+
+Pela API, com `curl` (PowerShell):
 
 1. A pessoa se cadastra normalmente na tela `/cadastro` (ela nasce `CLIENTE`).
 2. Pegue o token de um **ADMIN** (ver [Testando com `curl`](#testando-com-curl)) e guarde numa variável:

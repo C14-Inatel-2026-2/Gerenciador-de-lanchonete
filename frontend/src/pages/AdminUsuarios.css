@@ -1,0 +1,170 @@
+/*
+ * Gerenciamento de usuários (#43). Segue a identidade visual do carrinho e dos
+ * pedidos (#59) e do login (#42): fundo creme, título serifado, painel branco e
+ * destaques em terracota. Classes com prefixo "usuarios-" para não colidir com
+ * as classes globais das outras telas.
+ */
+.usuarios-pagina {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 72px;
+  color: #39332d;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: left;
+}
+
+.usuarios-cabecalho {
+  margin-bottom: 28px;
+}
+
+.usuarios-eyebrow {
+  margin: 0 0 9px;
+  color: #cf6037;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.usuarios-cabecalho h1 {
+  margin: 0;
+  color: #28231f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 4vw, 46px);
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+
+.usuarios-descricao {
+  margin: 12px 0 0;
+  color: #827c74;
+  font-size: 14px;
+}
+
+.usuarios-painel {
+  overflow-x: auto;
+  border: 1px solid #eeeae5;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgb(52 37 25 / 3%);
+}
+
+.usuarios-tabela {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.usuarios-tabela th {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0ede9;
+  color: #938c83;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.usuarios-tabela td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f6f3ef;
+  vertical-align: middle;
+}
+
+.usuarios-tabela tr:last-child td {
+  border-bottom: 0;
+}
+
+.usuarios-inativo td {
+  color: #a49c93;
+}
+
+.usuarios-voce {
+  color: #938c83;
+  font-size: 12px;
+}
+
+.usuarios-tabela select {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #e8dfd5;
+  border-radius: 8px;
+  background: #fff;
+  color: #39332d;
+  font: inherit;
+}
+
+.usuarios-tabela select:focus {
+  border-color: #df704a;
+  outline: 3px solid rgb(232 161 129 / 35%);
+}
+
+.usuarios-tabela select:disabled {
+  background: #f8f4ef;
+  color: #a49c93;
+}
+
+.usuarios-tag {
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #f8f4ef;
+  color: #82786d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.usuarios-tag.ativo {
+  background: #eef5ea;
+  color: #568045;
+}
+
+.usuarios-botao-desativar {
+  padding: 6px 12px;
+  border: 1px solid #ecd2cf;
+  border-radius: 8px;
+  background: #fff;
+  color: #b44b47;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.usuarios-botao-desativar:hover:not(:disabled) {
+  background: #fbefee;
+}
+
+.usuarios-botao-desativar:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.usuarios-erro,
+.usuarios-aviso {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.usuarios-erro {
+  background: #fbefee;
+  color: #b44b47;
+}
+
+.usuarios-aviso {
+  background: #eef5ea;
+  color: #568045;
+}
+
+/* Texto só para leitor de tela */
+.usuarios-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
