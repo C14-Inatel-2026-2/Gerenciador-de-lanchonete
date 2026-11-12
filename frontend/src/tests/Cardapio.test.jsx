@@ -14,7 +14,9 @@ const produtos = [
     descricao: "Pão, carne e queijo",
     preco: 25,
     disponivel: true,
-    categoria: { id: 1, nome: "Lanches" },
+    categoriaId: 1,
+    quantidadeEstoque: 3,
+    esgotado: false,
   },
   {
     id: 11,
@@ -22,7 +24,9 @@ const produtos = [
     descricao: "Suco natural",
     preco: 8,
     disponivel: true,
-    categoria: { id: 2, nome: "Bebidas" },
+    categoriaId: 2,
+    quantidadeEstoque: 2,
+    esgotado: false,
   },
   {
     id: 12,
@@ -30,7 +34,19 @@ const produtos = [
     descricao: "",
     preco: 5,
     disponivel: false,
-    categoria: { id: 1, nome: "Lanches" },
+    categoriaId: 1,
+    quantidadeEstoque: 0,
+    esgotado: true,
+  },
+  {
+    id: 13,
+    nome: "Produto esgotado",
+    descricao: "",
+    preco: 30,
+    disponivel: true,
+    categoriaId: 1,
+    quantidadeEstoque: 0,
+    esgotado: true,
   },
 ];
 
@@ -76,6 +92,17 @@ describe("Cardapio", () => {
     expect(screen.getByText("R$ 25,00")).toBeInTheDocument();
     expect(screen.getByText("R$ 8,00")).toBeInTheDocument();
     expect(screen.queryByText("Produto indisponível")).not.toBeInTheDocument();
+    expect(screen.getByText("Esgotado")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "X-Burger" })
+        .closest("article")
+        .querySelector("button")
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("heading", { name: "Produto esgotado" })
+        .closest("article")
+        .querySelector("button")
+    ).toBeDisabled();
   });
 
   it("mostra mensagem quando não há produtos disponíveis", async () => {

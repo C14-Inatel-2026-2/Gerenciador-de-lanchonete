@@ -17,6 +17,8 @@ const produtos = [
     preco: 25,
     disponivel: true,
     categoriaId: 1,
+    quantidadeEstoque: 10,
+    esgotado: false,
   },
 ];
 
@@ -44,6 +46,7 @@ describe("AdminProdutos", () => {
     expect(await screen.findByText("X-Burger")).toBeInTheDocument();
     expect(screen.getByText("Categoria: Lanches")).toBeInTheDocument();
     expect(screen.getByText("R$ 25,00")).toBeInTheDocument();
+    expect(screen.getByText("Estoque: 10")).toBeInTheDocument();
     expect(api).toHaveBeenCalledWith("/api/produtos");
     expect(api).toHaveBeenCalledWith("/api/categorias");
   });
@@ -74,6 +77,7 @@ describe("AdminProdutos", () => {
           descricao: "Suco natural",
           preco: 8.5,
           categoriaId: 1,
+          quantidadeEstoque: 0,
         }),
       });
     });
@@ -97,6 +101,7 @@ describe("AdminProdutos", () => {
           descricao: "Pão, carne e queijo",
           preco: 25,
           categoriaId: 1,
+          quantidadeEstoque: 10,
         }),
       });
     });
@@ -120,6 +125,23 @@ describe("AdminProdutos", () => {
     });
     expect(screen.queryByText("X-Burger")).not.toBeInTheDocument();
     expect(screen.getByText('Produto "X-Burger" desativado.')).toBeInTheDocument();
+  });
+
+  it("ajusta o estoque usando PATCH", async () => {
+    render(<AdminProdutos />);
+
+    const estoque = await screen.findByLabelText("Ajustar estoque");
+    fireEvent.change(estoque, { target: { value: "14" } });
+    fireEvent.click(screen.getByRole("button", { name: "Salvar estoque" }));
+
+    await waitFor(() => {
+      expect(api).toHaveBeenCalledWith("/api/produtos/10/estoque", {
+        method: "PATCH",
+        body: JSON.stringify({ quantidade: 14 }),
+      });
+    });
+    expect(await screen.findByText('Estoque de "X-Burger" atualizado.')).toBeInTheDocument();
+    expect(screen.getByText("Estoque: 14")).toBeInTheDocument();
   });
 
   it("mostra erro retornado pela API", async () => {

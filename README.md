@@ -112,6 +112,7 @@ para o build ser reproduzível.
 | RF-CAT07 | O administrador deve poder desativar um produto sem excluí-lo do banco. | US06 |
 | RF-CAT08 | O administrador deve poder cadastrar e editar categorias. | US06 |
 | RF-CAT09 | O sistema deve validar os dados de produtos e categorias antes de salvar. | US06 |
+| RF-CAT10 | O administrador deve poder informar e ajustar o estoque de produtos; o cardápio deve marcar produtos sem estoque como esgotados e impedir sua adição ao carrinho. | US08 |
 
 ### Carrinho e finalização do pedido (US03)
 
@@ -167,6 +168,7 @@ para o build ser reproduzível.
 | RNF-CAT04 | Qualidade | As classes de serviço do catálogo têm pelo menos 70% de cobertura de testes. | Relatório JaCoCo no Jenkins. |
 | RNF-CAT05 | Integridade | Produtos desativados permanecem no banco, preservando o histórico de pedidos. | Teste que confirma que o produto desativado ainda existe. |
 | RNF-CAT06 | Manutenibilidade | O módulo separa model, repository, service e controller dentro do pacote do próprio módulo. | Estrutura de pastas do módulo. |
+| RNF-CAT07 | Integridade | O estoque de um produto nunca pode ficar negativo, inclusive em atualizações concorrentes. | Testes de domínio cobrem baixa acima do estoque e a entidade usa controle otimista de versão. |
 
 ### Autenticação e usuários
 

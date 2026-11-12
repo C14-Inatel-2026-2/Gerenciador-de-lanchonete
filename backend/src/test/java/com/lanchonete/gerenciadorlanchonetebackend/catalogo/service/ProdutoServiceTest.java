@@ -171,8 +171,10 @@ public class ProdutoServiceTest {
 
         Produto xBurguer = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), lanches);
         xBurguer.setId(10L);
+        xBurguer.setQuantidadeEstoque(4);
         Produto suco = new Produto("Suco", "Suco natural", BigDecimal.valueOf(8), bebidas);
         suco.setId(11L);
+        suco.setQuantidadeEstoque(0);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(xBurguer, suco));
 
         CardapioResponse cardapio = produtoService.obterCardapio();
@@ -185,7 +187,9 @@ public class ProdutoServiceTest {
                         10L,
                         "X-Burger",
                         "Pão, carne e queijo",
-                        BigDecimal.valueOf(25)
+                        BigDecimal.valueOf(25),
+                        4,
+                        false
                 )),
                 cardapio.categorias().get(0).produtos()
         );
@@ -196,7 +200,9 @@ public class ProdutoServiceTest {
                         11L,
                         "Suco",
                         "Suco natural",
-                        BigDecimal.valueOf(8)
+                        BigDecimal.valueOf(8),
+                        0,
+                        true
                 )),
                 cardapio.categorias().get(1).produtos()
         );
@@ -211,6 +217,42 @@ public class ProdutoServiceTest {
 
         assertEquals(List.of(), cardapio.categorias());
         assertEquals("Cardápio vazio: não há produtos disponíveis.", cardapio.mensagem());
+    }
+
+    @Test
+    void deveBaixarEstoqueDoProduto() {
+        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L));
+        produto.setId(2L);
+        produto.setQuantidadeEstoque(5);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(produtoRepository.saveAndFlush(produto)).thenReturn(produto);
+
+        Produto atualizado = produtoService.baixarEstoque(2L, 2);
+
+        assertEquals(3, atualizado.getQuantidadeEstoque());
+        verify(produtoRepository).saveAndFlush(produto);
+    }
+
+    @Test
+    void deveReporEstoqueDoProduto() {
+        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L));
+        produto.setId(2L);
+        produto.setQuantidadeEstoque(5);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(produtoRepository.saveAndFlush(produto)).thenReturn(produto);
+
+        Produto atualizado = produtoService.reporEstoque(2L, 2);
+
+        assertEquals(7, atualizado.getQuantidadeEstoque());
+        verify(produtoRepository).saveAndFlush(produto);
+    }
+
+    @Test
+    void deveRetornar404AoBaixarEstoqueDeProdutoInexistente() {
+        when(produtoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> produtoService.baixarEstoque(99L, 1));
+        verify(produtoRepository, never()).saveAndFlush(any());
     }
 
     private Categoria categoriaComId(Long id) {

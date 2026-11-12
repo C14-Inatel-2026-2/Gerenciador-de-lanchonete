@@ -7,6 +7,7 @@ const FORMULARIO_VAZIO = {
   descricao: "",
   preco: "",
   categoriaId: "",
+  quantidadeEstoque: "0",
 };
 
 export default function AdminProdutos() {
@@ -71,6 +72,7 @@ export default function AdminProdutos() {
       descricao: produto.descricao ?? "",
       preco: String(produto.preco),
       categoriaId: String(produto.categoriaId),
+      quantidadeEstoque: String(produto.quantidadeEstoque ?? 0),
     });
     setMensagem("");
     setErro("");
@@ -94,6 +96,7 @@ export default function AdminProdutos() {
       descricao: formulario.descricao.trim(),
       preco: Number(formulario.preco),
       categoriaId: Number(formulario.categoriaId),
+      quantidadeEstoque: Number(formulario.quantidadeEstoque),
     };
 
     try {
@@ -131,6 +134,41 @@ export default function AdminProdutos() {
         cancelarEdicao();
       }
       setMensagem(`Produto "${produto.nome}" desativado.`);
+    } catch (erroRequisicao) {
+      setErro(erroRequisicao.message);
+    }
+  }
+
+  async function ajustarEstoque(produto) {
+    setErro("");
+    setMensagem("");
+    if (String(produto.quantidadeEstoque).trim() === "") {
+      setErro("Estoque deve ser um número inteiro igual ou maior que zero.");
+      return;
+    }
+    const quantidade = Number(produto.quantidadeEstoque);
+    if (!Number.isInteger(quantidade) || quantidade < 0) {
+      setErro("Estoque deve ser um número inteiro igual ou maior que zero.");
+      return;
+    }
+
+    try {
+      const resposta = await api(`/api/produtos/${produto.id}/estoque`, {
+        method: "PATCH",
+        body: JSON.stringify({ quantidade }),
+      });
+      setProdutos((atuais) =>
+        atuais.map((item) =>
+          item.id === produto.id
+            ? {
+                ...item,
+                quantidadeEstoque: resposta?.quantidadeEstoque ?? quantidade,
+                esgotado: resposta?.esgotado ?? quantidade === 0,
+              }
+            : item
+        )
+      );
+      setMensagem(`Estoque de "${produto.nome}" atualizado.`);
     } catch (erroRequisicao) {
       setErro(erroRequisicao.message);
     }
@@ -201,6 +239,19 @@ export default function AdminProdutos() {
               ))}
             </select>
           </div>
+          <div className="admin-produtos__campo">
+            <label htmlFor="produto-estoque">Estoque</label>
+            <input
+              id="produto-estoque"
+              name="quantidadeEstoque"
+              type="number"
+              min="0"
+              step="1"
+              value={formulario.quantidadeEstoque}
+              onChange={atualizarCampo}
+              required
+            />
+          </div>
           <div className="admin-produtos__acoes">
             <button type="submit" disabled={salvando || categorias.length === 0}>
               {salvando
@@ -241,6 +292,28 @@ export default function AdminProdutos() {
                 {produto.descricao && <p>{produto.descricao}</p>}
                 <p>{formatCurrency(produto.preco)}</p>
                 <p>Categoria: {categoria?.nome ?? "Categoria indisponível"}</p>
+                <p>Estoque: {produto.quantidadeEstoque ?? 0}</p>
+                <label htmlFor={`estoque-${produto.id}`}>Ajustar estoque</label>
+                <input
+                  id={`estoque-${produto.id}`}
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={produto.quantidadeEstoque ?? 0}
+                  onChange={(evento) => {
+                    const quantidadeEstoque = evento.target.value;
+                    setProdutos((atuais) =>
+                      atuais.map((item) =>
+                        item.id === produto.id
+                          ? { ...item, quantidadeEstoque }
+                          : item
+                      )
+                    );
+                  }}
+                />
+                <button type="button" onClick={() => ajustarEstoque(produto)}>
+                  Salvar estoque
+                </button>
                 <div className="admin-produtos__item-acoes">
                   <button type="button" onClick={() => iniciarEdicao(produto)}>
                     Editar

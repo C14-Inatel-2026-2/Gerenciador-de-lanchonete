@@ -51,7 +51,7 @@ export default function Cardapio() {
     () =>
       categoriaSelecionada
         ? produtosDisponiveis.filter(
-            (produto) => String(produto.categoria?.id) === categoriaSelecionada
+            (produto) => String(produto.categoriaId) === categoriaSelecionada
           )
         : produtosDisponiveis,
     [categoriaSelecionada, produtosDisponiveis]
@@ -61,11 +61,11 @@ export default function Cardapio() {
     const grupos = new Map();
 
     for (const produto of produtosFiltrados) {
-      const categoriaId = produto.categoria?.id;
+      const categoriaId = produto.categoriaId;
       const categoria = categorias.find(
         (item) => String(item.id) === String(categoriaId)
       );
-      const nomeCategoria = categoria?.nome ?? produto.categoria?.nome ?? "Outros";
+      const nomeCategoria = categoria?.nome ?? "Outros";
 
       if (!grupos.has(categoriaId)) {
         grupos.set(categoriaId, { nome: nomeCategoria, produtos: [] });
@@ -146,9 +146,11 @@ export default function Cardapio() {
                         <h3>{produto.nome}</h3>
                         {produto.descricao && <p>{produto.descricao}</p>}
                         <p>{formatCurrency(produto.preco)}</p>
+                        {produto.esgotado && <p role="status">Esgotado</p>}
                         <button
                           type="button"
                           onClick={() => adicionarAoCarrinho(produto)}
+                          disabled={produto.esgotado}
                         >
                           Adicionar ao carrinho
                         </button>
