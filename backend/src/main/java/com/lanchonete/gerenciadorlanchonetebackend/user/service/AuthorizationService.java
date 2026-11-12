@@ -30,6 +30,11 @@ public class AuthorizationService {
                     || userProfile.getRole() == UserRole.ADMIN);
     }
 
+    public boolean podeRealizarPedidos(UserProfile userProfile) {
+        return podeAcessarRecursosProtegidos(userProfile)
+                && userProfile.getRole() == UserRole.CLIENTE;
+    }
+
     public boolean podeAcessarRecursosProtegidos(UserProfile userProfile) {
         return userProfile != null && userProfile.isAtivo();
     }

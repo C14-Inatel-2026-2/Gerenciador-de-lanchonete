@@ -14,4 +14,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     // Query derivada do nome do método: o Spring Data gera
     // WHERE status IN (...) ORDER BY criado_em ASC (RF-CIC05).
     List<Pedido> findByStatusInOrderByCriadoEmAsc(Collection<StatusPedido> status);
+
+    List<Pedido> findByClienteIdOrderByCriadoEmDesc(Long clienteId);
 }
