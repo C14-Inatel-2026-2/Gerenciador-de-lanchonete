@@ -1,8 +1,40 @@
+import { useEffect, useState } from "react";
 import { formatCurrency } from "../utils/formatCurrency";
+import { api } from "../services/api";
 import CardMetrica from "../components/CardMetrica";
 import TabelaPedidosRecentes from "../components/TabelaPedidosRecentes";
 
 function AdminDashboard() {
+    const [carregando, setCarregando] = useState(false);
+    const [erro, setErro] = useState("");
+    const [resumo, setResumo] = useState(null);
+
+    useEffect(() => {
+        async function carregarResumo() {
+            setCarregando(true);
+            setErro("");
+
+            try {
+                const dados = await api("/api/admin/resumo");
+                setResumo(dados);
+            } catch (error) {
+                setErro(error.message);
+            } finally {
+                setCarregando(false);
+            }
+        }
+
+        carregarResumo();
+    }, []);
+
+    if (carregando) {
+            return <p>Carregando painel...</p>;
+        }
+
+        if (erro) {
+            return <p>Erro: {erro}</p>;
+        }
+
     const pedidosHoje = 24;
     const faturamento = 1250.50;
     const produtosAtivos = 32;
