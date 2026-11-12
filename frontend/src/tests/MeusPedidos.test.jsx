@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import OrdersPage from "../pages/OrdersPage";
+import MeusPedidos from "../pages/MeusPedidos";
 
-const orders = [
+const pedidos = [
     {
         id: 12,
         clienteId: 1,
@@ -21,9 +21,9 @@ const orders = [
     },
 ];
 
-describe("OrdersPage", () => {
+describe("MeusPedidos", () => {
     it("lista pedidos com status e mostra os detalhes ao expandir", () => {
-        render(<OrdersPage orders={orders} />);
+        render(<MeusPedidos pedidosIniciais={pedidos} />);
 
         expect(screen.getByRole("heading", { name: "Meus pedidos" })).toBeInTheDocument();
         expect(screen.getByText("Pedido #12")).toBeInTheDocument();
@@ -36,7 +36,7 @@ describe("OrdersPage", () => {
     });
 
     it("mostra uma mensagem quando não há pedidos", () => {
-        render(<OrdersPage orders={[]} />);
+        render(<MeusPedidos pedidosIniciais={[]} />);
 
         expect(screen.getByText("Você ainda não tem pedidos")).toBeInTheDocument();
         expect(screen.getByText("0 pedidos")).toBeInTheDocument();

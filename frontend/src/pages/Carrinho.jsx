@@ -1,13 +1,53 @@
+import { useRef, useState } from "react";
+import { useCarrinho } from "../contexts/useCarrinho";
+import { criarPedido } from "../services/pedidos";
 import { formatCurrency } from "../utils/formatCurrency";
-import "./CartPage.css";
+import "./Carrinho.css";
 
-function CartPage({ cart, total, isSubmitting = false, onFinishOrder, onUpdateQuantity }) {
+function Carrinho() {
+    const { cart, total, atualizarQuantidade, limparCarrinho } = useCarrinho();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [notice, setNotice] = useState(null);
+    const checkoutInProgress = useRef(false);
+
+    const finalizarPedido = async () => {
+        if (cart.length === 0 || checkoutInProgress.current) return;
+
+        checkoutInProgress.current = true;
+        setIsSubmitting(true);
+        setNotice(null);
+
+        try {
+            const pedido = await criarPedido(cart);
+            if (pedido?.id == null) {
+                throw new Error("A API não retornou o número do pedido.");
+            }
+
+            limparCarrinho();
+            setNotice({ message: `Pedido #${pedido.id} criado com sucesso.`, type: "success" });
+        } catch (error) {
+            setNotice({
+                message: error instanceof Error ? error.message : "Não foi possível finalizar o pedido.",
+                type: "error",
+            });
+        } finally {
+            checkoutInProgress.current = false;
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="page-container">
             <section className="page-heading">
                 <h1>Meu carrinho</h1>
                 <p className="page-description">Confira seus itens e deixe tudo do seu jeito.</p>
             </section>
+
+            {notice && (
+                <p className="checkout-feedback" role={notice.type === "error" ? "alert" : "status"}>
+                    {notice.message}
+                </p>
+            )}
 
             <div className="cart-layout">
                 <section className="panel cart-panel" aria-label="Itens no carrinho">
@@ -42,18 +82,18 @@ function CartPage({ cart, total, isSubmitting = false, onFinishOrder, onUpdateQu
                                                 <button
                                                     aria-label={`Diminuir quantidade de ${item.nome}`}
                                                     disabled={item.quantidade <= 1}
-                                                    onClick={() => onUpdateQuantity(item.id, item.quantidade - 1)}
+                                                    onClick={() => atualizarQuantidade(item.id, item.quantidade - 1)}
                                                     type="button"
                                                 >−</button>
                                                 <span aria-live="polite">{item.quantidade}</span>
                                                 <button
                                                     aria-label={`Aumentar quantidade de ${item.nome}`}
                                                     disabled={item.quantidade >= item.quantidadeEstoque}
-                                                    onClick={() => onUpdateQuantity(item.id, item.quantidade + 1)}
+                                                    onClick={() => atualizarQuantidade(item.id, item.quantidade + 1)}
                                                     type="button"
                                                 >+</button>
                                             </div>
-                                            <button className="text-button remove-button" onClick={() => onUpdateQuantity(item.id, 0)} type="button">
+                                            <button className="text-button remove-button" onClick={() => atualizarQuantidade(item.id, 0)} type="button">
                                                 Remover
                                             </button>
                                         </div>
@@ -74,12 +114,7 @@ function CartPage({ cart, total, isSubmitting = false, onFinishOrder, onUpdateQu
                         <strong>Total</strong>
                         <strong>{formatCurrency(total)}</strong>
                     </div>
-                    <button
-                        className="primary-button checkout-button"
-                        disabled={cart.length === 0 || isSubmitting}
-                        onClick={onFinishOrder}
-                        type="button"
-                    >
+                    <button className="primary-button checkout-button" disabled={cart.length === 0 || isSubmitting} onClick={finalizarPedido} type="button">
                         {isSubmitting ? "Enviando pedido..." : "Finalizar pedido"}
                         {!isSubmitting && <span aria-hidden="true"> →</span>}
                     </button>
@@ -90,4 +125,4 @@ function CartPage({ cart, total, isSubmitting = false, onFinishOrder, onUpdateQu
     );
 }
 
-export default CartPage;
+export default Carrinho;
