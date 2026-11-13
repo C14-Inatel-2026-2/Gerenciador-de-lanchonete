@@ -13,7 +13,6 @@ import AdminUsuarios from "./pages/AdminUsuarios";
 import AdminDashboard from "./pages/AdminDashboard";
 import Carrinho from "./pages/Carrinho";
 import MeusPedidos from "./pages/MeusPedidos";
-import "./App.css";
 
 function AppRoutes() {
     return (
