@@ -23,11 +23,21 @@ public class AuthorizationService {
         return ehAdminAtivo(userProfile);
     }
 
+    // Painel administrativo com o resumo do dia (US05)
+    public boolean podeVerPainelAdministrativo(UserProfile userProfile) {
+        return ehAdminAtivo(userProfile);
+    }
+
     // Fila da cozinha e mudança de status do pedido (RF-CIC06)
     public boolean podeOperarCozinha(UserProfile userProfile) {
         return podeAcessarRecursosProtegidos(userProfile)
                 && (userProfile.getRole() == UserRole.FUNCIONARIO
                     || userProfile.getRole() == UserRole.ADMIN);
+    }
+
+    public boolean podeRealizarPedidos(UserProfile userProfile) {
+        return podeAcessarRecursosProtegidos(userProfile)
+                && userProfile.getRole() == UserRole.CLIENTE;
     }
 
     public boolean podeAcessarRecursosProtegidos(UserProfile userProfile) {

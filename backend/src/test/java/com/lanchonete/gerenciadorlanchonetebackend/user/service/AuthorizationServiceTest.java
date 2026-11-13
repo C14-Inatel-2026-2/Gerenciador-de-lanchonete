@@ -97,6 +97,25 @@ class AuthorizationServiceTest {
         assertFalse(service.podeOperarCozinha(userProfile));
     }
 
+    @Test
+    void adminAtivoDevePoderVerPainelAdministrativo() {
+        assertTrue(service.podeVerPainelAdministrativo(perfil(UserRole.ADMIN)));
+    }
+
+    @Test
+    void clienteEFuncionarioNaoDevemVerPainelAdministrativo() {
+        assertFalse(service.podeVerPainelAdministrativo(perfil(UserRole.CLIENTE)));
+        assertFalse(service.podeVerPainelAdministrativo(perfil(UserRole.FUNCIONARIO)));
+    }
+
+    @Test
+    void adminDesativadoNaoDeveVerPainelAdministrativo() {
+        UserProfile userProfile = perfil(UserRole.ADMIN);
+        userProfile.desativar();
+
+        assertFalse(service.podeVerPainelAdministrativo(userProfile));
+    }
+
     private UserProfile perfil(UserRole role) {
         return new UserProfile("supabase-123", "Usuário", "usuario@email.com", role);
     }

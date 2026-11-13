@@ -10,11 +10,10 @@
 // para manter a tela sincronizada.
 
 import { supabase } from "../services/supabase";
+import { ROLES } from "../utils/perfis";
 
 export const CHAVE_SESSAO = "lanchonete.usuario";
 export const EVENTO_SESSAO_ALTERADA = "lanchonete:sessao-alterada";
-
-const ROLES_VALIDAS = ["CLIENTE", "FUNCIONARIO", "ADMIN"];
 
 function usuarioValido(usuario) {
   return (
@@ -23,7 +22,7 @@ function usuarioValido(usuario) {
     usuario.id != null &&
     typeof usuario.nome === "string" &&
     usuario.nome.trim() !== "" &&
-    ROLES_VALIDAS.includes(usuario.role)
+    ROLES.includes(usuario.role)
   );
 }
 
