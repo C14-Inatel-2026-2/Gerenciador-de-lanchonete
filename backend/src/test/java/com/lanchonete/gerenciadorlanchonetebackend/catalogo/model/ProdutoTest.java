@@ -1,11 +1,13 @@
 package com.lanchonete.gerenciadorlanchonetebackend.catalogo.model;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ProdutoTest {
@@ -28,5 +30,44 @@ public class ProdutoTest {
         produto.setDisponivel(false);
 
         assertFalse(produto.isDisponivel());
+    }
+
+    @Test
+    void deveBaixarEstoqueAteZero() {
+        Produto produto = new Produto("Suco", "Laranja", BigDecimal.valueOf(8), new Categoria("Bebidas"));
+        produto.setQuantidadeEstoque(3);
+
+        produto.baixarEstoque(3);
+
+        assertEquals(0, produto.getQuantidadeEstoque());
+        assertTrue(produto.isEsgotado());
+    }
+
+    @Test
+    void naoDeveBaixarMaisDoQueOEstoqueDisponivel() {
+        Produto produto = new Produto("Suco", "Laranja", BigDecimal.valueOf(8), new Categoria("Bebidas"));
+        produto.setQuantidadeEstoque(2);
+
+        assertThrows(EstoqueInsuficienteException.class, () -> produto.baixarEstoque(3));
+
+        assertEquals(2, produto.getQuantidadeEstoque());
+    }
+
+    @Test
+    void deveReporEstoque() {
+        Produto produto = new Produto("Suco", "Laranja", BigDecimal.valueOf(8), new Categoria("Bebidas"));
+        produto.setQuantidadeEstoque(2);
+
+        produto.reporEstoque(4);
+
+        assertEquals(6, produto.getQuantidadeEstoque());
+    }
+
+    @Test
+    void naoDevePermitirEstoqueNegativo() {
+        Produto produto = new Produto("Suco", "Laranja", BigDecimal.valueOf(8), new Categoria("Bebidas"));
+
+        assertThrows(IllegalArgumentException.class, () -> produto.setQuantidadeEstoque(-1));
+        assertEquals(0, produto.getQuantidadeEstoque());
     }
 }
