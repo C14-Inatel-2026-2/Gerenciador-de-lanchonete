@@ -8,6 +8,8 @@ public record ProdutoResponse(
         String descricao,
         BigDecimal preco,
         boolean disponivel,
-        Long categoriaId
+        Long categoriaId,
+        int quantidadeEstoque,
+        boolean esgotado
 ) {
 }

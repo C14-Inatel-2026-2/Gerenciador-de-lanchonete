@@ -21,6 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -156,5 +157,44 @@ class UserServiceGerenciamentoTest {
         when(repository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(RecursoNaoEncontradoException.class, () -> service.desativar(admin, 99L));
+    }
+
+    // ---- reativar
+
+    @Test
+    void adminReativaUsuarioDesativadoComOMesmoPerfil() {
+        cliente.desativar();
+        when(repository.findById(2L)).thenReturn(Optional.of(cliente));
+        when(repository.save(cliente)).thenReturn(cliente);
+
+        UserProfile reativado = service.reativar(admin, 2L);
+
+        assertTrue(reativado.isAtivo());
+        assertEquals(UserRole.CLIENTE, reativado.getRole());
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = UserRole.class, names = {"CLIENTE", "FUNCIONARIO"})
+    void naoAdminNaoReativaUsuario(UserRole role) {
+        UserProfile solicitante = perfil(5L, "Outro", role);
+
+        assertThrows(AcessoNegadoException.class, () -> service.reativar(solicitante, 2L));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void adminDesativadoNaoReativaNinguem() {
+        // Inclusive a si mesmo: quem está desativado não usa as rotas protegidas
+        admin.desativar();
+
+        assertThrows(AcessoNegadoException.class, () -> service.reativar(admin, 1L));
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void reativarUsuarioInexistenteRetornaNaoEncontrado() {
+        when(repository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.reativar(admin, 99L));
     }
 }

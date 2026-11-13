@@ -23,19 +23,24 @@ Perfis de usuário: Cliente, Funcionário (cozinha) e Administrador.
 - **Gerenciador de Dependências:** Apache Maven
 - **Testes Unitários:** JUnit 5 + Mockito
 - **Banco de Dados & Autenticação:** Supabase (PostgreSQL + Auth API)
-- **Front-end:** React + TypeScript
+- **Front-end:** React + JavaScript
 - **CI/CD:** Jenkins (Pipeline multi-job)
 - **Hospedagem:** Render (Back-end) + Vercel (Front-end)
 
 ---
 
-## 🚀 Deploy e variáveis de ambiente
+## 🚀 Deploy
+
+### 🌐 Aplicação publicada
+
+- **Frontend (Vercel):** https://gerenciador-de-lanchonete.vercel.app
+- **Backend (Render):** https://gerenciador-de-lanchonete.onrender.com
 
 O deploy automático é executado pelo Jenkins somente na branch `main`, após a conclusão bem-sucedida das etapas de build e testes.
 
 Os Deploy Hooks do Render e da Vercel são credenciais privadas e devem ser configurados por quem administra o deploy no Jenkins.
 
-As variáveis necessárias são:
+Variáveis utilizadas pelo deploy:
 
 - `RENDER_DEPLOY_HOOK`
 - `VERCEL_DEPLOY_HOOK`
@@ -51,7 +56,7 @@ gerenciador-lanchonete/
  ├── backend/                 # Aplicação Java / Spring Boot
  │    ├── src/
  │    └── pom.xml
- ├── frontend/                # Aplicação React / TypeScript
+ ├── frontend/                # Aplicação React / JavaScript
  │    ├── src/
  │    └── package.json
  ├── Jenkinsfile              # Pipeline CI/CD
@@ -60,7 +65,53 @@ gerenciador-lanchonete/
 
 ---
 
-## ⚙️ CI/CD local (Jenkins)
+## Como instalar
+
+<!-- Grupo: consolidar os passos de instalação e configuração inicial. -->
+
+### Pré-requisitos
+
+- Java 17
+- Node.js 22
+- Docker
+
+### Instalação do back-end
+
+<!-- Responsável pelo back-end: preencher e validar. -->
+
+### Instalação do front-end
+
+<!-- Responsável pelo front-end: preencher e validar. -->
+
+---
+
+## Como executar
+
+<!-- Grupo: consolidar e testar os passos de execução; cada responsável documenta as variáveis do seu módulo. -->
+
+### Supabase (banco de dados e autenticação)
+
+<!-- Karolina: validar os passos de autenticação e administrador inicial. -->
+
+1. Crie um projeto Supabase para o ambiente local/de demonstração.
+2. No painel do projeto, habilite o provedor de autenticação por e-mail em **Authentication → Providers → Email**. Para demonstração, desative a confirmação de e-mail ou use endereços de e-mail reais.
+3. Em **Project Settings → API**, obtenha a **Project URL** e a **anon/public key**. Configure-as no arquivo `frontend/.env` usando os nomes indicados em `frontend/.env.example`.
+4. Em **Project Settings → Database**, obtenha os dados de conexão PostgreSQL e configure `DB_URL`, `DB_USERNAME` e `DB_PASSWORD` em `backend/.env`, conforme `backend/.env.example`.
+5. Se o projeto usar assinatura JWT legada HS256, configure também o segredo JWT no back-end. Projetos com chaves assimétricas validam os tokens pelo JWKS do projeto; não configure nem publique segredos que não sejam necessários.
+
+Não versione os arquivos `.env` nem compartilhe senhas ou segredos. A chave `service_role` do Supabase nunca deve ser usada no front-end.
+
+### Back-end
+
+1. Copie `backend/.env.example` para `backend/.env` e preencha os dados do banco.
+2. Na pasta `backend`: `docker compose up --build -d`
+3. Logs: `docker compose logs -f backend`
+
+### Front-end
+
+<!-- Responsável pelo front-end: documentar e validar os comandos de execução. -->
+
+### ⚙️ CI/CD local (Jenkins)
 
 O Jenkins roda em Docker, já configurado por código (`jenkins/casc.yaml`).
 Imagem e plugins têm versões fixas (`jenkins/Dockerfile` e `jenkins/plugins.txt`)
@@ -73,11 +124,125 @@ para o build ser reproduzível.
 4. O job **Gerenciador de Lanchonete** é criado automaticamente e roda o
    `Jenkinsfile` de cada branch do repositório.
 
-## Rodando o backend
+### Variáveis de ambiente
 
-1. Copie `backend/.env.example` para `backend/.env` e preencha os dados do banco.
-2. Na pasta `backend`: `docker compose up --build -d`
-3. Logs: `docker compose logs -f backend`
+<!-- Responsáveis por back-end, front-end e CI/CD: conferir esta lista com os exemplos e manter os arquivos sincronizados. -->
+
+Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicados e preencha os valores localmente:
+
+| Arquivo de exemplo                                                                                                          | Variável                 | Uso                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------- |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `DB_URL`                 | URL JDBC do banco PostgreSQL.                                             |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `DB_USERNAME`            | Usuário do banco PostgreSQL.                                              |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `DB_PASSWORD`            | Senha do banco PostgreSQL.                                                |
+| [`backend/.env.example`](backend/.env.example)                                                                              | `CORS_ORIGENS`           | Origens autorizadas a acessar a API, separadas por vírgula.               |
+| `backend/.env.example` (após integração da [#55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55)) | `SUPABASE_URL`           | URL do projeto Supabase usada pelo back-end.                              |
+| `backend/.env.example` (após integração da [#55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55)) | `ADMIN_EMAILS`           | E-mails que recebem o perfil `ADMIN`, separados por vírgula.              |
+| `backend/.env.example` (somente para HS256)                                                                                 | `SUPABASE_JWT_SECRET`    | Segredo JWT legado; não necessário para projetos com chaves assimétricas. |
+| [`frontend/.env.example`](frontend/.env.example)                                                                            | `VITE_API_URL`           | URL base da API do back-end.                                              |
+| [`frontend/.env.example`](frontend/.env.example)                                                                            | `VITE_SUPABASE_URL`      | Project URL do Supabase usada pelo front-end.                             |
+| [`frontend/.env.example`](frontend/.env.example)                                                                            | `VITE_SUPABASE_ANON_KEY` | Chave anon/public do Supabase usada pelo front-end.                       |
+| [`.env.example`](.env.example)                                                                                              | `JENKINS_PORT`           | Porta local do Jenkins.                                                   |
+| [`.env.example`](.env.example)                                                                                              | `JENKINS_ADMIN_ID`       | Usuário administrador local do Jenkins.                                   |
+| [`.env.example`](.env.example)                                                                                              | `JENKINS_ADMIN_PASSWORD` | Senha do administrador local do Jenkins.                                  |
+| [`.env.example`](.env.example)                                                                                              | `RENDER_DEPLOY_HOOK`     | Deploy Hook privado do Render, usado pelo Jenkins.                        |
+| [`.env.example`](.env.example)                                                                                              | `VERCEL_DEPLOY_HOOK`     | Deploy Hook privado da Vercel, usado pelo Jenkins.                        |
+
+---
+
+## Como usar
+
+<!-- Cada responsável: preencher o passo a passo do seu perfil. -->
+
+### Cliente
+
+<!-- Karolina: documentar cadastro/login; Júlia: documentar carrinho e finalização do pedido. -->
+
+**Cardápio (US02 e US08):**
+
+1. Acesse **Cardápio** para consultar os produtos disponíveis, agrupados por categoria, com descrição e preço.
+2. Use **Filtrar por categoria** para restringir a lista; selecione **Todas as categorias** para remover o filtro.
+3. Produtos sem estoque aparecem como **Esgotado** e não podem ser adicionados ao carrinho. Nos demais, selecione **Adicionar ao carrinho**.
+
+### Cozinha (funcionário)
+
+<!-- Lilyan: documentar consulta da fila, atualização de status e cancelamento. -->
+
+### Administrador
+
+<!-- Dividir por módulo: Karolina documenta usuários e promoção a funcionário; Beatriz, catálogo e estoque; Yasmin, painel e métricas. -->
+
+1. **Criar o primeiro administrador:** antes do primeiro cadastro, configure `ADMIN_EMAILS` no ambiente do back-end com o e-mail que será usado (separado por vírgulas, quando houver mais de um). Cadastre-se no sistema com esse mesmo e-mail; o perfil correspondente deve receber a role `ADMIN`. Consulte [Segurança da API com Supabase Auth (JWT) e administrador inicial #55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55).
+2. **Promover alguém a funcionário:** entre com uma conta `ADMIN`, acesse o gerenciamento de usuários, selecione a pessoa e altere sua role para `FUNCIONARIO`.
+
+**Catálogo e produtos (US06 e US08):**
+
+1. Acesse **Gerenciar produtos** para consultar os produtos disponíveis.
+2. Para cadastrar um produto, informe nome, descrição, preço, categoria e quantidade em estoque e selecione **Cadastrar produto**. É necessário haver uma categoria cadastrada.
+3. Para alterar os dados, selecione **Editar**, ajuste os campos e escolha **Salvar alterações**. Para retirar um produto do cardápio sem excluí-lo, selecione **Desativar**.
+4. Para ajustar o estoque de um produto existente, informe uma quantidade inteira maior ou igual a zero em **Ajustar estoque** e selecione **Salvar estoque**. Estoque zero faz o produto aparecer como esgotado no cardápio.
+
+---
+
+## Funcionalidades
+
+<!-- Cada responsável: resumir as funcionalidades do módulo e relacioná-las às histórias de usuário. -->
+
+- **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
+- **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos, além de cadastrar e editar categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
+- **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
+- **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
+- **Painel administrativo (US05):** <!-- Yasmin: preencher. -->
+
+---
+
+## Histórias de usuário
+
+<!-- Cada responsável pelo módulo: preencher a rastreabilidade entre suas histórias, funcionalidades e requisitos. -->
+
+| História | Perfil        | Funcionalidade                                                                                                                                         | Requisitos relacionados     |
+| -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
+| US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
+| US03     |               |                                                                                                                                                        |                             |
+| US04     |               |                                                                                                                                                        |                             |
+| US05     |               |                                                                                                                                                        |                             |
+| US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
+| US07     | Administrador | Listar usuários, alterar o perfil (promover a funcionário), desativar e reativar contas, sem alterar a própria role.                                   | RF-AUT06, RF-AUT08–RF-AUT12 |
+| US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10                    |
+
+---
+
+## Refactorings
+
+<!-- Cada integrante: preencher duas linhas com refactorings realizados. -->
+
+| Integrante | Code smell                                                                                                                                                                                               | Refactoring aplicado                                                                                                                                 | Por quê                                                                                     | PR                                                                            |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Karolina   | Código duplicado: `podeGerenciarUsuarios`, `podeAlterarRole` e `podeDesativarUsuario` (e depois `podeGerenciarCatalogo`) tinham o mesmo corpo no `AuthorizationService`                                  | Extrair método: `private boolean ehAdminAtivo(UserProfile)`, e as 4 permissões de ADMIN passaram a delegar para ele                                  | Se a regra de administrador mudar, muda em um lugar só                                      | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
+| Karolina   | Setup repetido: `new AuthorizationService()` em todos os testes do `AuthorizationServiceTest`; e nome enganoso `validarEmail` no `UserService` (validava **e** normalizava, com a regex solta no método) | Refatorar teste: campo `service` criado no `@BeforeEach`; renomear para `normalizarEValidarEmail` e extrair a regex para a constante `FORMATO_EMAIL` | Menos repetição, testes focados no que verificam, e o nome passa a dizer o que o método faz | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
+| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+
+---
+
+## Metodologia e Dinâmica de desenvolvimento
+
+<!-- Grupo: complementar, se necessário, a descrição da metodologia e da dinâmica. -->
+
+- [Metodologia de desenvolvimento](docs/METODOLOGIA.md)
+
+---
+
+## Uso de IA
+
+<!-- Registrar alguns exemplos de como utilizamos ferramentas de IA no projeto. -->
 
 ## Rodando o frontend
 
@@ -102,23 +267,25 @@ para o build ser reproduzível.
 | RF-AUT06 | O usuário logado deve poder consultar e atualizar os dados permitidos do próprio perfil, sem alterar a própria role.        | US01, US07 |
 | RF-AUT07 | O sistema deve negar o acesso às áreas protegidas a usuários desativados.                                                   | US01       |
 | RF-AUT08 | O administrador deve poder listar os usuários com nome, e-mail, perfil e situação (ativo ou desativado).                    | US07       |
-| RF-AUT09 | O administrador deve poder cadastrar funcionários.                                                                          | US07       |
+| RF-AUT09 | O administrador deve poder promover a funcionário um usuário que já se cadastrou, alterando o perfil dele para FUNCIONÁRIO. | US07       |
 | RF-AUT10 | O administrador deve poder alterar a role de um usuário.                                                                    | US07       |
 | RF-AUT11 | O administrador deve poder desativar um usuário sem excluí-lo do banco.                                                     | US07       |
+| RF-AUT12 | O administrador deve poder reativar um usuário desativado, que volta com o mesmo perfil de antes.                           | US07       |
 
-### Catálogo (US02 e US06)
+### Catálogo (US02, US06 e US08)
 
-| ID       | Requisito funcional                                                                            | História |
-| -------- | ---------------------------------------------------------------------------------------------- | -------- |
-| RF-CAT01 | O sistema deve exibir o cardápio agrupado por categoria, com nome, descrição e preço em reais. | US02     |
-| RF-CAT02 | O sistema deve exibir no cardápio apenas os produtos disponíveis.                              | US02     |
-| RF-CAT03 | O sistema deve permitir filtrar os produtos por categoria.                                     | US02     |
-| RF-CAT04 | O sistema deve informar que o cardápio está vazio quando não houver produtos disponíveis.      | US02     |
-| RF-CAT05 | O sistema deve listar as categorias cadastradas.                                               | US02     |
-| RF-CAT06 | O administrador deve poder cadastrar, consultar e editar produtos.                             | US06     |
-| RF-CAT07 | O administrador deve poder desativar um produto sem excluí-lo do banco.                        | US06     |
-| RF-CAT08 | O administrador deve poder cadastrar e editar categorias.                                      | US06     |
-| RF-CAT09 | O sistema deve validar os dados de produtos e categorias antes de salvar.                      | US06     |
+| ID       | Requisito funcional                                                                                                                                               | História |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| RF-CAT01 | O sistema deve exibir o cardápio agrupado por categoria, com nome, descrição e preço em reais.                                                                    | US02     |
+| RF-CAT02 | O sistema deve exibir no cardápio apenas os produtos disponíveis.                                                                                                 | US02     |
+| RF-CAT03 | O sistema deve permitir filtrar os produtos por categoria.                                                                                                        | US02     |
+| RF-CAT04 | O sistema deve informar que o cardápio está vazio quando não houver produtos disponíveis.                                                                         | US02     |
+| RF-CAT05 | O sistema deve listar as categorias cadastradas.                                                                                                                  | US02     |
+| RF-CAT06 | O administrador deve poder cadastrar, consultar e editar produtos.                                                                                                | US06     |
+| RF-CAT07 | O administrador deve poder desativar um produto sem excluí-lo do banco.                                                                                           | US06     |
+| RF-CAT08 | O administrador deve poder cadastrar e editar categorias.                                                                                                         | US06     |
+| RF-CAT09 | O sistema deve validar os dados de produtos e categorias antes de salvar.                                                                                         | US06     |
+| RF-CAT10 | O administrador deve poder informar e ajustar o estoque de produtos; o cardápio deve marcar produtos sem estoque como esgotados e impedir sua adição ao carrinho. | US08     |
 
 ### Carrinho e finalização do pedido (US03)
 
@@ -168,14 +335,15 @@ para o build ser reproduzível.
 
 ### Catálogo
 
-| ID        | Categoria        | Requisito não funcional                                                                                           | Como verificar                                                             |
-| --------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| RNF-CAT01 | Desempenho       | A leitura do cardápio responde em até 1 s em 95% das requisições.                                                 | Medir com requisições repetidas no endpoint.                               |
-| RNF-CAT02 | Segurança        | O cadastro e a edição de produtos e categorias só aceitam o perfil ADMIN (efetivo na Sprint 2, com o login real). | Teste em que outro perfil recebe acesso negado.                            |
-| RNF-CAT03 | Segurança        | As credenciais do banco vêm de variáveis de ambiente, sem segredos no repositório.                                | `application.properties` usa `${DB_URL}`, `${DB_USER}` e `${DB_PASSWORD}`. |
-| RNF-CAT04 | Qualidade        | As classes de serviço do catálogo têm pelo menos 70% de cobertura de testes.                                      | Relatório JaCoCo no Jenkins.                                               |
-| RNF-CAT05 | Integridade      | Produtos desativados permanecem no banco, preservando o histórico de pedidos.                                     | Teste que confirma que o produto desativado ainda existe.                  |
-| RNF-CAT06 | Manutenibilidade | O módulo separa model, repository, service e controller dentro do pacote do próprio módulo.                       | Estrutura de pastas do módulo.                                             |
+| ID        | Categoria        | Requisito não funcional                                                                                           | Como verificar                                                                                |
+| --------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| RNF-CAT01 | Desempenho       | A leitura do cardápio responde em até 1 s em 95% das requisições.                                                 | Medir com requisições repetidas no endpoint.                                                  |
+| RNF-CAT02 | Segurança        | O cadastro e a edição de produtos e categorias só aceitam o perfil ADMIN (efetivo na Sprint 2, com o login real). | Teste em que outro perfil recebe acesso negado.                                               |
+| RNF-CAT03 | Segurança        | As credenciais do banco vêm de variáveis de ambiente, sem segredos no repositório.                                | `application.properties` usa `${DB_URL}`, `${DB_USERNAME}` e `${DB_PASSWORD}`.                |
+| RNF-CAT04 | Qualidade        | As classes de serviço do catálogo têm pelo menos 70% de cobertura de testes.                                      | Relatório JaCoCo no Jenkins.                                                                  |
+| RNF-CAT05 | Integridade      | Produtos desativados permanecem no banco, preservando o histórico de pedidos.                                     | Teste que confirma que o produto desativado ainda existe.                                     |
+| RNF-CAT06 | Manutenibilidade | O módulo separa model, repository, service e controller dentro do pacote do próprio módulo.                       | Estrutura de pastas do módulo.                                                                |
+| RNF-CAT07 | Integridade      | O estoque de um produto nunca pode ficar negativo, inclusive em atualizações concorrentes.                        | Testes de domínio cobrem baixa acima do estoque e a entidade usa controle otimista de versão. |
 
 ### Autenticação e usuários
 

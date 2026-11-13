@@ -84,6 +84,16 @@ public class UserService {
         return userProfileRepository.save(usuario);
     }
 
+    // Não há exclusão de usuário: desativar e reativar preservam o perfil e os pedidos (US07)
+    public UserProfile reativar(UserProfile solicitante, Long usuarioId) {
+        if (!authorizationService.podeGerenciarUsuarios(solicitante)) {
+            throw new AcessoNegadoException(SOMENTE_ADMIN);
+        }
+        UserProfile usuario = buscarPorId(usuarioId);
+        usuario.reativar();
+        return userProfileRepository.save(usuario);
+    }
+
     private UserProfile buscarPorId(Long usuarioId) {
         return userProfileRepository.findById(usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
