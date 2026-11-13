@@ -2,13 +2,7 @@ import { useState } from "react";
 import { formatCurrency } from "../utils/formatCurrency";
 import "./OrdersPage.css";
 
-const statusLabels = {
-    CRIADO: "Recebido",
-    EM_PREPARO: "Em preparo",
-    PRONTO: "Pronto",
-    ENTREGUE: "Entregue",
-    CANCELADO: "Cancelado",
-};
+import { ROTULO_STATUS } from "../utils/statusPedido";
 
 const statusSteps = ["CRIADO", "EM_PREPARO", "PRONTO", "ENTREGUE"];
 
@@ -73,7 +67,7 @@ function OrdersPage({ orders }) {
                                             <strong>Pedido #{order.id}</strong>
                                             <span className={`status-badge status-${statusClass}`}>
                                                 <span className="status-dot" />
-                                                {statusLabels[order.status] ?? order.status}
+                                                {ROTULO_STATUS[order.status] ?? order.status}
                                             </span>
                                         </span>
                                         <span className="order-meta">{formatDate(order.criadoEm)} <span>·</span> {order.itens.length} produtos</span>
@@ -85,11 +79,11 @@ function OrdersPage({ orders }) {
                                 {isExpanded && (
                                     <div className="order-details" id={`order-details-${order.id}`}>
                                         {order.status !== "CANCELADO" && (
-                                            <div className="order-progress" aria-label={`Status: ${statusLabels[order.status]}`}>
+                                            <div className="order-progress" aria-label={`Status: ${ROTULO_STATUS[order.status]}`}>
                                                 {statusSteps.map((status, index) => (
                                                     <div className={`progress-step${index <= step ? " is-complete" : ""}`} key={status}>
                                                         <span className="progress-marker">{index < step ? "✓" : index + 1}</span>
-                                                        <span>{statusLabels[status]}</span>
+                                                        <span>{ROTULO_STATUS[status]}</span>
                                                     </div>
                                                 ))}
                                             </div>

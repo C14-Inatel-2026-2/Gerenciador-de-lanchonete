@@ -1,3 +1,5 @@
+import { ROTULO_STATUS } from "../utils/statusPedido";
+
 function TabelaPedidosRecentes({ pedidos }) {
     return (
         <>
@@ -17,7 +19,7 @@ function TabelaPedidosRecentes({ pedidos }) {
                         <tr key={pedido.id}>
                             <td>{pedido.id}</td>
                             <td>{pedido.cliente}</td>
-                            <td>{pedido.status}</td>
+                            <td>{ROTULO_STATUS[pedido.status] ?? pedido.status}</td>
                         </tr>
                     ))}
                 </tbody>
