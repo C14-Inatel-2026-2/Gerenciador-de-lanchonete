@@ -154,6 +154,7 @@ describe("Cardapio", () => {
             descricao: produtos[0].descricao,
             preco: produtos[0].preco,
             quantidade: 1,
+            quantidadeEstoque: 3,
           },
         ],
         total: produtos[0].preco,

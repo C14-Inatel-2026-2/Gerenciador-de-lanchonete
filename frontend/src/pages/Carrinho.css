@@ -211,12 +211,14 @@
   background: #d9d3cd;
   cursor: not-allowed;
 }
-.mock-note {
-  margin: 12px 0 0;
-  color: #aaa39b;
-  font-size: 10px;
-  line-height: 1.5;
-  text-align: center;
+.checkout-feedback {
+  margin: 0 0 16px;
+  color: #568045;
+  font-size: 13px;
+  font-weight: 600;
+}
+.checkout-feedback[role="alert"] {
+  color: #b44b47;
 }
 .empty-icon {
   width: 46px;
