@@ -28,35 +28,19 @@ function AdminDashboard() {
     }, []);
 
     if (carregando) {
-            return <p>Carregando painel...</p>;
-        }
+        return <p>Carregando painel...</p>;
+    }
 
-        if (erro) {
-            return <p>Erro: {erro}</p>;
-        }
+    if (erro) {
+        return <p>Erro: {erro}</p>;
+    }
 
-    const pedidosHoje = 24;
-    const faturamento = 1250.50;
-    const produtosAtivos = 32;
-    const usuarios = 18;
+    const pedidosHoje = resumo?.pedidosHoje ?? 0;
+    const faturamento = resumo?.faturamentoHoje ?? 0;
+    const produtosAtivos = resumo?.produtosAtivos ?? 0;
+    const usuarios = resumo?.usuariosCadastrados ?? 0;
 
-    const pedidosRecentes = [
-        {
-            id: 1,
-            cliente: "João",
-            status: "Preparando"
-        },
-        {
-            id: 2,
-            cliente: "Maria",
-            status: "Pronto"
-        },
-        {
-            id: 3,
-            cliente: "Carlos",
-            status: "Entregue"
-        }
-    ];
+    const pedidosRecentes = resumo?.pedidosRecentes ?? [];
 
     return (
         <main>
