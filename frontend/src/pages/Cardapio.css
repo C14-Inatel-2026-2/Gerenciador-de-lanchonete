@@ -1,0 +1,196 @@
+.cardapio .page-heading {
+  margin-bottom: 28px;
+}
+
+.cardapio-filter {
+  margin-bottom: 32px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cardapio-filter label {
+  color: #51483f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cardapio-filter select {
+  min-width: 210px;
+  min-height: 40px;
+  padding: 0 34px 0 12px;
+  border: 1px solid #e8e2db;
+  border-radius: 8px;
+  background: #fff;
+  color: #51483f;
+  font: inherit;
+  font-size: 12px;
+}
+
+.cardapio-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.cardapio-group__heading {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardapio-group__heading h2 {
+  margin: 0;
+  color: #39332d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.cardapio-group__heading > span {
+  color: #a0988f;
+  font-size: 11px;
+}
+
+.cardapio-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.cardapio-product {
+  min-height: 270px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.cardapio-product:hover {
+  transform: translateY(-2px);
+  border-color: #e8d7ca;
+  box-shadow: 0 10px 24px rgb(52 37 25 / 7%);
+}
+
+.cardapio-product__art {
+  min-height: 96px;
+  margin-bottom: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #fff5eb, #f8e9da);
+  color: #bd633d;
+  font-size: 34px;
+}
+
+.cardapio-product__details {
+  flex: 1;
+}
+
+.cardapio-product__details h3 {
+  margin: 0;
+  color: #39332d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cardapio-product__details p {
+  margin: 7px 0 0;
+  color: #8d867d;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.cardapio-product__sold-out {
+  margin-top: 9px;
+  padding: 5px 8px;
+  display: inline-flex;
+  border-radius: 20px;
+  background: #fbeceb;
+  color: #b44b47;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.cardapio-product__footer {
+  margin-top: 17px;
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #f0ede9;
+}
+
+.cardapio-product__footer > strong {
+  color: #c44e26;
+  font-size: 15px;
+}
+
+.cardapio-add-button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #dc5f32;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  transition: background 150ms ease;
+}
+
+.cardapio-add-button:hover:not(:disabled) {
+  background: #c94f25;
+}
+
+.cardapio-add-button:disabled {
+  background: #d9d3cd;
+  cursor: not-allowed;
+}
+
+.cardapio-empty {
+  padding: 52px 20px;
+}
+
+.cardapio-empty__icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff3ec;
+  font-size: 23px;
+}
+
+.cardapio-message {
+  margin: 0;
+  padding: 20px;
+  color: #71685f;
+  font-size: 13px;
+}
+
+.cardapio-message[role="alert"] {
+  color: #b44b47;
+}
+
+@media (max-width: 520px) {
+  .cardapio-filter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cardapio-filter select {
+    width: 100%;
+  }
+
+  .cardapio-products {
+    grid-template-columns: 1fr;
+  }
+}
