@@ -95,7 +95,6 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].nome").value("X-Burger"))
                 .andExpect(jsonPath("$[0].disponivel").value(true))
-                .andExpect(jsonPath("$[0].quantidadeEstoque").value(0))
                 .andExpect(jsonPath("$[0].categoriaId").value(1))
                 .andExpect(jsonPath("$[0].quantidadeEstoque").value(0))
                 .andExpect(jsonPath("$[0].esgotado").value(true))
@@ -279,24 +278,6 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.disponivel").value(false));
 
         verify(produtoRepository).save(produto);
-    }
-
-
-    @Test
-    void naoDeveAtualizarEstoqueComQuantidadeNegativa() throws Exception {
-        autorizarAdmin();
-
-        mockMvc.perform(patch("/api/produtos/2/estoque")
-                        .contentType("application/json")
-                        .content("""
-                                {"quantidade":-1}
-                                """))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.erro").value(
-                        "A quantidade em estoque deve ser um número não negativo."
-                ));
-
-        verify(produtoRepository, never()).save(any(Produto.class));
     }
 
     @Test

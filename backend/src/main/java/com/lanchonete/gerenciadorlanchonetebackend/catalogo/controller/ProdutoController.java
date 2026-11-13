@@ -1,6 +1,5 @@
 package com.lanchonete.gerenciadorlanchonetebackend.catalogo.controller;
 
-import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.AtualizarEstoqueRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoResponse;
@@ -98,18 +97,6 @@ public class ProdutoController {
     public ProdutoResponse desativarProduto(@PathVariable Long id) {
         validarAdministrador();
         return paraResposta(produtoService.desativar(id));
-    }
-
-    @PatchMapping("/{id}/estoque")
-    public ProdutoResponse atualizarEstoque(
-            @PathVariable Long id,
-            @RequestBody AtualizarEstoqueRequest request
-    ) {
-        validarAdministrador();
-        if (request == null) {
-            throw new IllegalArgumentException("Corpo da requisição é obrigatório");
-        }
-        return paraResposta(produtoService.atualizarEstoque(id, request.quantidade()));
     }
 
     private void validarAdministrador() {

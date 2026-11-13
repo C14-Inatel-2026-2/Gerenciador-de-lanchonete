@@ -5,7 +5,6 @@ import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapi
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
-import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
