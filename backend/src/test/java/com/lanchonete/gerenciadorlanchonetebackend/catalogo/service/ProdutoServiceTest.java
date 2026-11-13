@@ -10,6 +10,7 @@ import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,10 +37,17 @@ public class ProdutoServiceTest {
     @InjectMocks
     private ProdutoService produtoService;
 
+    private Categoria categoria;
+
+    @BeforeEach
+    void setUp() {
+        categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+    }
+
     @Test
     void excecaoParaPrecoNegativo() {
-        Categoria categoria = new Categoria("Lanches");
-        Produto produto = new Produto("X-Burguer", "Delicioso", BigDecimal.valueOf(-10), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(-10));
 
         assertThrows(IllegalArgumentException.class, () -> produtoService.salvar(produto));
         verify(produtoRepository, never()).save(any());
@@ -54,9 +62,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveSalvarProdutoValido() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(produtoRepository.save(produto)).thenReturn(produto);
 
@@ -68,8 +74,6 @@ public class ProdutoServiceTest {
 
     @Test
     void excecaoParaProdutoComNomeDuplicado(){
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
         Produto produto = new Produto(" x-burguer ", "Delicioso", BigDecimal.valueOf(15), categoria);
 
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -82,8 +86,6 @@ public class ProdutoServiceTest {
 
     @Test
     void deveApararNomeDoProdutoAoSalvar() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
         Produto produto = new Produto(" X-Burger ", "Delicioso", BigDecimal.valueOf(15), categoria);
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(produtoRepository.save(produto)).thenReturn(produto);
@@ -97,9 +99,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveEditarProdutoSemTratarSeuProprioNomeComoDuplicado() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -115,9 +115,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveApararNomeDoProdutoAoEditar() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -132,9 +130,7 @@ public class ProdutoServiceTest {
 
     @Test
     void naoDeveEditarProdutoComNomeDuplicadoIgnorandoMaiusculasMinusculas() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -156,7 +152,7 @@ public class ProdutoServiceTest {
         assertThrows(
                 RecursoNaoEncontradoException.class,
                 () -> produtoService.salvar(
-                        new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L))
+                        produtoComPreco(BigDecimal.valueOf(15))
                 )
         );
 
@@ -251,7 +247,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveBaixarEstoqueDoProduto() {
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L));
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         produto.setQuantidadeEstoque(5);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
@@ -265,7 +261,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveReporEstoqueDoProduto() {
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L));
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         produto.setQuantidadeEstoque(5);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
@@ -285,9 +281,7 @@ public class ProdutoServiceTest {
         verify(produtoRepository, never()).saveAndFlush(any());
     }
 
-    private Categoria categoriaComId(Long id) {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(id);
-        return categoria;
+    private Produto produtoComPreco(BigDecimal preco) {
+        return new Produto("X-Burger", "Delicioso", preco, categoria);
     }
 }
