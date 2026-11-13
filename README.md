@@ -30,6 +30,11 @@ Perfis de usuário: Cliente, Funcionário (cozinha) e Administrador.
 
 ## 🚀 Deploy e variáveis de ambiente
 
+### Aplicação publicada
+
+- **Frontend (Vercel):** https://gerenciador-de-lanchonete.vercel.app
+- **Backend (Render):** https://gerenciador-de-lanchonete.onrender.com
+
 O deploy automático é executado pelo Jenkins somente na branch `main`, após a conclusão bem-sucedida das etapas de build e testes.
 
 Os Deploy Hooks do Render e da Vercel são credenciais privadas e devem ser configurados por quem administra o deploy no Jenkins.
