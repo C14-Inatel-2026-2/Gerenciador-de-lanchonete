@@ -207,16 +207,16 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 <!-- Cada responsável pelo módulo: preencher a rastreabilidade entre suas histórias, funcionalidades e requisitos. -->
 
-| História | Perfil        | Funcionalidade                                                                                                                                         | Requisitos relacionados |
-| -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- |
-| US01     |               |                                                                                                                                                        |                         |
-| US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05       |
-| US03     |               |                                                                                                                                                        |                         |
-| US04     |               |                                                                                                                                                        |                         |
-| US05     |               |                                                                                                                                                        |                         |
-| US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09       |
-| US07     |               |                                                                                                                                                        |                         |
-| US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10                |
+| História | Perfil        | Funcionalidade                                                                                                                                         | Requisitos relacionados     |
+| -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
+| US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
+| US03     |               |                                                                                                                                                        |                             |
+| US04     |               |                                                                                                                                                        |                             |
+| US05     |               |                                                                                                                                                        |                             |
+| US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
+| US07     | Administrador | Listar usuários, alterar o perfil (promover a funcionário), desativar e reativar contas, sem alterar a própria role.                                   | RF-AUT06, RF-AUT08–RF-AUT12 |
+| US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10                    |
 
 ---
 
@@ -224,18 +224,18 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 <!-- Cada integrante: preencher duas linhas com refactorings realizados. -->
 
-| Integrante | Code smell | Refactoring aplicado | Por quê | PR  |
-| ---------- | ---------- | -------------------- | ------- | --- |
-| Karolina   |            |                      |         |     |
-| Karolina   |            |                      |         |     |
-| Beatriz    |            |                      |         |     |
-| Beatriz    |            |                      |         |     |
-| Júlia      |            |                      |         |     |
-| Júlia      |            |                      |         |     |
-| Lilyan     |            |                      |         |     |
-| Lilyan     |            |                      |         |     |
-| Yasmin     |            |                      |         |     |
-| Yasmin     |            |                      |         |     |
+| Integrante | Code smell                                                                                                                                                                                               | Refactoring aplicado                                                                                                                                 | Por quê                                                                                     | PR                                                                            |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Karolina   | Código duplicado: `podeGerenciarUsuarios`, `podeAlterarRole` e `podeDesativarUsuario` (e depois `podeGerenciarCatalogo`) tinham o mesmo corpo no `AuthorizationService`                                  | Extrair método: `private boolean ehAdminAtivo(UserProfile)`, e as 4 permissões de ADMIN passaram a delegar para ele                                  | Se a regra de administrador mudar, muda em um lugar só                                      | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
+| Karolina   | Setup repetido: `new AuthorizationService()` em todos os testes do `AuthorizationServiceTest`; e nome enganoso `validarEmail` no `UserService` (validava **e** normalizava, com a regex solta no método) | Refatorar teste: campo `service` criado no `@BeforeEach`; renomear para `normalizarEValidarEmail` e extrair a regex para a constante `FORMATO_EMAIL` | Menos repetição, testes focados no que verificam, e o nome passa a dizer o que o método faz | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
+| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 
 ---
 
@@ -274,9 +274,10 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | RF-AUT06 | O usuário logado deve poder consultar e atualizar os dados permitidos do próprio perfil, sem alterar a própria role.        | US01, US07 |
 | RF-AUT07 | O sistema deve negar o acesso às áreas protegidas a usuários desativados.                                                   | US01       |
 | RF-AUT08 | O administrador deve poder listar os usuários com nome, e-mail, perfil e situação (ativo ou desativado).                    | US07       |
-| RF-AUT09 | O administrador deve poder cadastrar funcionários.                                                                          | US07       |
+| RF-AUT09 | O administrador deve poder promover a funcionário um usuário que já se cadastrou, alterando o perfil dele para FUNCIONÁRIO. | US07       |
 | RF-AUT10 | O administrador deve poder alterar a role de um usuário.                                                                    | US07       |
 | RF-AUT11 | O administrador deve poder desativar um usuário sem excluí-lo do banco.                                                     | US07       |
+| RF-AUT12 | O administrador deve poder reativar um usuário desativado, que volta com o mesmo perfil de antes.                           | US07       |
 
 ### Catálogo (US02, US06 e US08)
 
@@ -386,8 +387,8 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 <!-- Yasmin: adicione suas linhas abaixo -->
 
-| ID | Categoria | Requisito não funcional | Como verificar |
-|----|-----------|-------------------------|----------------|
+| ID  | Categoria | Requisito não funcional | Como verificar |
+| --- | --------- | ----------------------- | -------------- |
 
 ---
 
@@ -397,13 +398,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Visão geral do grupo
 
-| Integrante | Ferramentas | Principais usos |
-|---|---|---|
-| Lilyan | Claude e Gemini | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos |
-| Karolina | <!-- Karolina preenche --> | |
-| Beatriz | <!-- Beatriz preenche --> | |
-| Júlia | <!-- Júlia preenche --> | |
-| Yasmin | <!-- Yasmin preenche --> | |
+| Integrante | Ferramentas                | Principais usos                                                                            |
+| ---------- | -------------------------- | ------------------------------------------------------------------------------------------ |
+| Lilyan     | Claude e Gemini            | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos |
+| Karolina   | <!-- Karolina preenche --> |                                                                                            |
+| Beatriz    | <!-- Beatriz preenche -->  |                                                                                            |
+| Júlia      | <!-- Júlia preenche -->    |                                                                                            |
+| Yasmin     | <!-- Yasmin preenche -->   |                                                                                            |
 
 ### Lilyan
 
@@ -411,25 +412,29 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 **Exemplos reais**
 
-| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
-|---|---|---|---|
-| Montar o Jenkins local para a pipeline (#12) | Gerou um `docker-compose` com a imagem oficial do Jenkins. Depois de subir, era preciso pegar a senha inicial, instalar plugins, criar o usuário e o job e trocar a branch à mão | Comparei com o exemplo do monitor, "Jenkins como código", com imagem própria com Node e plugins pré-instalados, JCasC criando o usuário e o job multibranch sozinhos. Adaptei para o nosso projeto (Node em vez de Python, porta configurável, sem token por o repositório ser público). Depois, como montar do zero quebrava, fixei as versões e troquei para o JDK 21, porque o Jenkins não suporta mais o Java 17 (#18) | **Ajustado** |
-| Revisar a PR de refactorings da autenticação (#69) | Apontou que, depois do merge da `main`, o `podeGerenciarCatalogo` (que veio da PR #68) ficou com a regra de admin copiada, enquanto os outros métodos já usavam o `ehAdminAtivo`. Um conflito semântico, que o Git não acusa | Pedi o ajuste no review, e foi trocado para `ehAdminAtivo` | **Aceito** |
-| Revisar a PR do Spring Security (#73) | Sugeriu um teste "sem token - 401" em cada controller, porque todos os testes mandavam token e nenhum provava que a rota estava fechada | Levei a sugestão para o review e foi adicionado os testes | **Aceito** |
-| Revisar a configuração do Supabase (#73) | Levantou a suspeita de que as tabelas estavam abertas pela chave pública, porque estavam sem RLS | Conferi no banco (RLS desligado de fato) e testei com `curl` usando a chave pública, então o Supabase respondeu "permission denied". A suspeita não se confirmou | **Descartado** |
+| Pedido à IA (resumido)                             | O que a IA respondeu                                                                                                                                                                                                         | O que eu fiz                                                                                                                                                                                                                                                                                                                                                                                                               | Resultado      |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| Montar o Jenkins local para a pipeline (#12)       | Gerou um `docker-compose` com a imagem oficial do Jenkins. Depois de subir, era preciso pegar a senha inicial, instalar plugins, criar o usuário e o job e trocar a branch à mão                                             | Comparei com o exemplo do monitor, "Jenkins como código", com imagem própria com Node e plugins pré-instalados, JCasC criando o usuário e o job multibranch sozinhos. Adaptei para o nosso projeto (Node em vez de Python, porta configurável, sem token por o repositório ser público). Depois, como montar do zero quebrava, fixei as versões e troquei para o JDK 21, porque o Jenkins não suporta mais o Java 17 (#18) | **Ajustado**   |
+| Revisar a PR de refactorings da autenticação (#69) | Apontou que, depois do merge da `main`, o `podeGerenciarCatalogo` (que veio da PR #68) ficou com a regra de admin copiada, enquanto os outros métodos já usavam o `ehAdminAtivo`. Um conflito semântico, que o Git não acusa | Pedi o ajuste no review, e foi trocado para `ehAdminAtivo`                                                                                                                                                                                                                                                                                                                                                                 | **Aceito**     |
+| Revisar a PR do Spring Security (#73)              | Sugeriu um teste "sem token - 401" em cada controller, porque todos os testes mandavam token e nenhum provava que a rota estava fechada                                                                                      | Levei a sugestão para o review e foi adicionado os testes                                                                                                                                                                                                                                                                                                                                                                  | **Aceito**     |
+| Revisar a configuração do Supabase (#73)           | Levantou a suspeita de que as tabelas estavam abertas pela chave pública, porque estavam sem RLS                                                                                                                             | Conferi no banco (RLS desligado de fato) e testei com `curl` usando a chave pública, então o Supabase respondeu "permission denied". A suspeita não se confirmou                                                                                                                                                                                                                                                           | **Descartado** |
 
 **O que fiz sem IA:** rodei todos os comandos, testes e pipelines na minha máquina e conferi os resultados; testei manualmente as telas, rotas e todas as PRs analisadas; tomei as decisões de organização, como propor o Trello e depois criar o quadro no GitHub Projects; realizei a divisão dos stages do Jenkins entre as integrantes; criei a regra de proteção da `main`; revisei e reescrevi todo texto gerado. O código do meu módulo foi gerado com apoio da IA, e eu revisei cada parte.
 
 ### Karolina
+
 <!-- Karolina: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
 
 ### Beatriz
+
 <!-- Beatriz: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
 
 ### Júlia
+
 <!-- Júlia: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
 
 ### Yasmin
+
 <!-- Yasmin: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
 
 ---
