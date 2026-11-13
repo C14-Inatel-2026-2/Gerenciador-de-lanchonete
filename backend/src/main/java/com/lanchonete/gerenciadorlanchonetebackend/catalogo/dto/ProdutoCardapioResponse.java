@@ -6,6 +6,8 @@ public record ProdutoCardapioResponse(
         Long id,
         String nome,
         String descricao,
-        BigDecimal preco
+        BigDecimal preco,
+        int quantidadeEstoque,
+        boolean esgotado
 ) {
 }
