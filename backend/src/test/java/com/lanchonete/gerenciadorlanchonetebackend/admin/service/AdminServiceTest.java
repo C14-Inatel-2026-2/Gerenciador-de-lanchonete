@@ -1,8 +1,11 @@
 package com.lanchonete.gerenciadorlanchonetebackend.admin.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.PedidoRecenteResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.ProdutoEstoqueBaixoResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.ResumoResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.ProdutoTestFactory;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
@@ -168,6 +171,62 @@ class AdminServiceTest {
 
         assertTrue(service.obterResumo().pedidosRecentes().isEmpty());
         verify(userProfileRepository, never()).findByIdIn(any());
+    }
+
+    // ---- estoque baixo (#56)
+
+    @Test
+    void produtoComEstoque3ApareceNoAlertaEComEstoque10Nao() {
+        pedidosDeHoje();
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(
+                produto(1L, "X-Burguer", 3),
+                produto(2L, "Batata frita", 10)));
+
+        List<ProdutoEstoqueBaixoResponse> alerta = service.obterResumo().produtosComEstoqueBaixo();
+
+        assertEquals(List.of(new ProdutoEstoqueBaixoResponse(1L, "X-Burguer", 3)), alerta);
+    }
+
+    @Test
+    void limiteDoAlertaE5Unidades() {
+        pedidosDeHoje();
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(
+                produto(1L, "Com cinco", 5),
+                produto(2L, "Com seis", 6)));
+
+        List<ProdutoEstoqueBaixoResponse> alerta = service.obterResumo().produtosComEstoqueBaixo();
+
+        assertEquals(1, alerta.size());
+        assertEquals("Com cinco", alerta.get(0).nome());
+    }
+
+    @Test
+    void esgotadosVemPrimeiroEDepoisPorNome() {
+        pedidosDeHoje();
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(
+                produto(1L, "Suco", 4),
+                produto(2L, "Refrigerante", 0),
+                produto(3L, "Açaí", 4)));
+
+        List<String> nomes = service.obterResumo().produtosComEstoqueBaixo().stream()
+                .map(ProdutoEstoqueBaixoResponse::nome)
+                .toList();
+
+        assertEquals(List.of("Refrigerante", "Açaí", "Suco"), nomes);
+    }
+
+    @Test
+    void semProdutosComEstoqueBaixoAListaVemVazia() {
+        pedidosDeHoje();
+        when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(produto(1L, "X-Burguer", 20)));
+
+        assertTrue(service.obterResumo().produtosComEstoqueBaixo().isEmpty());
+    }
+
+    private Produto produto(Long id, String nome, int estoque) {
+        Produto produto = ProdutoTestFactory.produto(id, nome, "10.00");
+        produto.setQuantidadeEstoque(estoque);
+        return produto;
     }
 
     private Pedido pedido(Long id, Long clienteId, String total, StatusPedido status) {
