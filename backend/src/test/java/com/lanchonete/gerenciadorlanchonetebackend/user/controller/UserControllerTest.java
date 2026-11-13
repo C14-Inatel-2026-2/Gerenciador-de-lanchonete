@@ -307,4 +307,33 @@ class UserControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.erro").value("Usuário não encontrado"));
     }
+
+    @Test
+    void adminReativaUsuario() throws Exception {
+        cliente.desativar();
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(admin);
+        when(repository.findById(2L)).thenReturn(Optional.of(cliente));
+        when(repository.save(cliente)).thenReturn(cliente);
+
+        mockMvc.perform(patch("/api/usuarios/2/reativar").with(jwt()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ativo").value(true))
+                .andExpect(jsonPath("$.role").value("CLIENTE"));
+    }
+
+    @Test
+    void funcionarioRecebe403AoReativar() throws Exception {
+        when(usuarioAtualProvider.obterUsuarioAtual()).thenReturn(perfil(3L, "Func", UserRole.FUNCIONARIO));
+
+        mockMvc.perform(patch("/api/usuarios/2/reativar").with(jwt()))
+                .andExpect(status().isForbidden());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void reativarSemTokenRetorna401() throws Exception {
+        mockMvc.perform(patch("/api/usuarios/2/reativar"))
+                .andExpect(status().isUnauthorized());
+        verify(repository, never()).save(any());
+    }
 }

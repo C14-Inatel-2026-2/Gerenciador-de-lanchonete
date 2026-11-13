@@ -5,11 +5,13 @@ import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapi
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class ProdutoService {
 
     public Produto salvar(Produto produto) {
         validarDados(produto.getNome(), produto.getPreco(), produto.getCategoria());
+        validarEstoque(produto.getQuantidadeEstoque());
         produto.setNome(produto.getNome().trim());
         produto.setCategoria(obterCategoriaAtiva(produto.getCategoria().getId()));
         if (produtoRepository.existsByNomeIgnoreCase(produto.getNome())) {
@@ -43,9 +46,23 @@ public class ProdutoService {
     }
 
     public Produto editar(Long id, String nome, String descricao, BigDecimal preco, Long categoriaId) {
+        return editar(id, nome, descricao, preco, categoriaId, null);
+    }
+
+    public Produto editar(
+            Long id,
+            String nome,
+            String descricao,
+            BigDecimal preco,
+            Long categoriaId,
+            Integer quantidadeEstoque
+    ) {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
         validarDados(nome, preco, categoriaId);
+        if (quantidadeEstoque != null) {
+            validarEstoque(quantidadeEstoque);
+        }
         String nomeNormalizado = nome.trim();
         Categoria categoria = obterCategoriaAtiva(categoriaId);
         if (produtoRepository.existsByNomeIgnoreCaseAndIdNot(nomeNormalizado, id)) {
@@ -56,6 +73,34 @@ public class ProdutoService {
         produto.setDescricao(descricao);
         produto.setPreco(preco);
         produto.setCategoria(categoria);
+        if (quantidadeEstoque != null) {
+            produto.setQuantidadeEstoque(quantidadeEstoque);
+        }
+        return produtoRepository.save(produto);
+    }
+
+    @Transactional
+    public Produto baixarEstoque(Long produtoId, int quantidade) {
+        Produto produto = obterProduto(produtoId);
+        produto.baixarEstoque(quantidade);
+        return salvarComControleDeConcorrencia(produto);
+    }
+
+    @Transactional
+    public Produto reporEstoque(Long produtoId, int quantidade) {
+        Produto produto = obterProduto(produtoId);
+        produto.reporEstoque(quantidade);
+        return salvarComControleDeConcorrencia(produto);
+    }
+
+    @Transactional
+    public Produto atualizarEstoque(Long produtoId, Integer quantidade) {
+        if (quantidade == null) {
+            throw new IllegalArgumentException("Quantidade de estoque é obrigatória");
+        }
+        validarEstoque(quantidade);
+        Produto produto = obterProduto(produtoId);
+        produto.setQuantidadeEstoque(quantidade);
         return produtoRepository.save(produto);
     }
 
@@ -114,7 +159,8 @@ public class ProdutoService {
                             produto.getNome(),
                             produto.getDescricao(),
                             produto.getPreco(),
-                            produto.getQuantidadeEstoque()
+                            produto.getQuantidadeEstoque(),
+                            produto.isEsgotado()
                     ));
         }
 
@@ -130,41 +176,29 @@ public class ProdutoService {
     }
 
     public Produto desativar(Long id) {
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
+        Produto produto = obterProduto(id);
         produto.setDisponivel(false);
         return produtoRepository.save(produto);
     }
 
-    @Transactional
-    public Produto baixarEstoque(Produto produto, int quantidade) {
-        if (produto == null) {
-            throw new IllegalArgumentException("Produto é obrigatório para baixar o estoque.");
-        }
-        if (quantidade <= 0) {
-            throw new IllegalArgumentException("A quantidade a ser reduzida deve ser maior que zero.");
-        }
-        if (produto.getQuantidadeEstoque() < quantidade) {
-            throw new EstoqueInsuficienteException(
-                    "Estoque insuficiente para o produto " + produto.getNome()
-                            + ". Disponível: " + produto.getQuantidadeEstoque()
-                            + ", solicitado: " + quantidade + "."
-            );
-        }
-
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
-        return produtoRepository.save(produto);
+    private Produto obterProduto(Long produtoId) {
+        return produtoRepository.findById(produtoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
     }
 
-    @Transactional
-    public Produto atualizarEstoque(Long id, Integer quantidade) {
-        if (quantidade == null || quantidade < 0) {
-            throw new IllegalArgumentException("A quantidade em estoque deve ser um número não negativo.");
+    private void validarEstoque(int quantidadeEstoque) {
+        if (quantidadeEstoque < 0) {
+            throw new IllegalArgumentException("Estoque do produto não pode ser negativo");
         }
+    }
 
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
-        produto.setQuantidadeEstoque(quantidade);
-        return produtoRepository.save(produto);
+    private Produto salvarComControleDeConcorrencia(Produto produto) {
+        try {
+            return produtoRepository.saveAndFlush(produto);
+        } catch (OptimisticLockingFailureException ex) {
+            throw new EstoqueInsuficienteException(
+                    "O estoque foi alterado por outra operação; atualize e tente novamente"
+            );
+        }
     }
 }

@@ -16,7 +16,6 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CartPage from "./pages/CartPage";
 import OrdersPage from "./pages/OrdersPage";
 import { mockOrders } from "./data/mockStore";
-import "./App.css";
 
 function AppRoutes() {
     const navigate = useNavigate();

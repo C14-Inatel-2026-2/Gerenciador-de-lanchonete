@@ -4,6 +4,7 @@ import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.AtualizarEstoque
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoEstoqueRequest;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.service.ProdutoService;
@@ -60,6 +61,9 @@ public class ProdutoController {
         Categoria categoria = new Categoria();
         categoria.setId(request.categoriaId());
         Produto produto = new Produto(request.nome(), request.descricao(), request.preco(), categoria);
+        if (request.quantidadeEstoque() != null) {
+            produto.setQuantidadeEstoque(request.quantidadeEstoque());
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(paraResposta(produtoService.salvar(produto)));
     }
 
@@ -72,9 +76,22 @@ public class ProdutoController {
                 request.nome(),
                 request.descricao(),
                 request.preco(),
-                request.categoriaId()
+                request.categoriaId(),
+                request.quantidadeEstoque()
         );
         return paraResposta(produto);
+    }
+
+    @PatchMapping("/{id}/estoque")
+    public ProdutoResponse atualizarEstoque(
+            @PathVariable Long id,
+            @RequestBody ProdutoEstoqueRequest request
+    ) {
+        validarAdministrador();
+        if (request == null) {
+            throw new IllegalArgumentException("Corpo da requisição é obrigatório");
+        }
+        return paraResposta(produtoService.atualizarEstoque(id, request.quantidade()));
     }
 
     @PatchMapping("/{id}/desativar")
@@ -116,7 +133,8 @@ public class ProdutoController {
                 produto.getPreco(),
                 produto.isDisponivel(),
                 produto.getCategoria().getId(),
-                produto.getQuantidadeEstoque()
+                produto.getQuantidadeEstoque(),
+                produto.isEsgotado()
         );
     }
 }

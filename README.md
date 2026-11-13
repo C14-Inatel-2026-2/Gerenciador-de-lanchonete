@@ -30,6 +30,11 @@ Perfis de usuário: Cliente, Funcionário (cozinha) e Administrador.
 
 ## 🚀 Deploy e variáveis de ambiente
 
+### Aplicação publicada
+
+- **Frontend (Vercel):** https://gerenciador-de-lanchonete.vercel.app
+- **Backend (Render):** https://gerenciador-de-lanchonete.onrender.com
+
 O deploy automático é executado pelo Jenkins somente na branch `main`, após a conclusão bem-sucedida das etapas de build e testes.
 
 Os Deploy Hooks do Render e da Vercel são credenciais privadas e devem ser configurados por quem administra o deploy no Jenkins.
@@ -117,6 +122,7 @@ para o build ser reproduzível.
 | RF-CAT07 | O administrador deve poder desativar um produto sem excluí-lo do banco. | US06 |
 | RF-CAT08 | O administrador deve poder cadastrar e editar categorias. | US06 |
 | RF-CAT09 | O sistema deve validar os dados de produtos e categorias antes de salvar. | US06 |
+| RF-CAT10 | O administrador deve poder informar e ajustar o estoque de produtos; o cardápio deve marcar produtos sem estoque como esgotados e impedir sua adição ao carrinho. | US08 |
 
 ### Carrinho e finalização do pedido (US03)
 
@@ -172,6 +178,7 @@ para o build ser reproduzível.
 | RNF-CAT04 | Qualidade | As classes de serviço do catálogo têm pelo menos 70% de cobertura de testes. | Relatório JaCoCo no Jenkins. |
 | RNF-CAT05 | Integridade | Produtos desativados permanecem no banco, preservando o histórico de pedidos. | Teste que confirma que o produto desativado ainda existe. |
 | RNF-CAT06 | Manutenibilidade | O módulo separa model, repository, service e controller dentro do pacote do próprio módulo. | Estrutura de pastas do módulo. |
+| RNF-CAT07 | Integridade | O estoque de um produto nunca pode ficar negativo, inclusive em atualizações concorrentes. | Testes de domínio cobrem baixa acima do estoque e a entidade usa controle otimista de versão. |
 
 ### Autenticação e usuários
 
@@ -209,3 +216,58 @@ para o build ser reproduzível.
 
 | ID | Categoria | Requisito não funcional | Como verificar |
 |----|-----------|-------------------------|----------------|
+
+---
+
+## Uso de IA
+
+> O uso de IA foi permitido na disciplina. Declaramos como cada integrante usou, com exemplos reais do que foi aceito, ajustado ou descartado.
+
+### Visão geral do grupo
+
+| Integrante | Ferramentas | Principais usos |
+|---|---|---|
+| Lilyan | Claude e Gemini | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos |
+| Karolina | <!-- Karolina preenche --> | |
+| Beatriz | <!-- Beatriz preenche --> | |
+| Júlia | Copilot e ChatGPT | Código e testes, investigação de erros, revisão do que era feito, questionamento sobre conceitos e ferramentas |
+| Yasmin | <!-- Yasmin preenche --> | |
+
+### Lilyan
+
+**Como usei:** individualmente, no Claude, num projeto com o histórico do repositório (PRs, issues e quadro). Combinei uma regra com a IA de que **ela lê e analisa o repositório sem executar nada além disso; todo comando, teste, código e pipeline eu rodo na minha máquina sem que a IA rode virtualmente** e confiro o resultado. Usei também para revisar as PRs das colegas e para entender os conceitos de Engenharia de Software que precisamos aplicar no projeto.
+
+**Exemplos reais**
+
+| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
+|---|---|---|---|
+| Montar o Jenkins local para a pipeline (#12) | Gerou um `docker-compose` com a imagem oficial do Jenkins. Depois de subir, era preciso pegar a senha inicial, instalar plugins, criar o usuário e o job e trocar a branch à mão | Comparei com o exemplo do monitor, "Jenkins como código", com imagem própria com Node e plugins pré-instalados, JCasC criando o usuário e o job multibranch sozinhos. Adaptei para o nosso projeto (Node em vez de Python, porta configurável, sem token por o repositório ser público). Depois, como montar do zero quebrava, fixei as versões e troquei para o JDK 21, porque o Jenkins não suporta mais o Java 17 (#18) | **Ajustado** |
+| Revisar a PR de refactorings da autenticação (#69) | Apontou que, depois do merge da `main`, o `podeGerenciarCatalogo` (que veio da PR #68) ficou com a regra de admin copiada, enquanto os outros métodos já usavam o `ehAdminAtivo`. Um conflito semântico, que o Git não acusa | Pedi o ajuste no review, e foi trocado para `ehAdminAtivo` | **Aceito** |
+| Revisar a PR do Spring Security (#73) | Sugeriu um teste "sem token - 401" em cada controller, porque todos os testes mandavam token e nenhum provava que a rota estava fechada | Levei a sugestão para o review e foi adicionado os testes | **Aceito** |
+| Revisar a configuração do Supabase (#73) | Levantou a suspeita de que as tabelas estavam abertas pela chave pública, porque estavam sem RLS | Conferi no banco (RLS desligado de fato) e testei com `curl` usando a chave pública, então o Supabase respondeu "permission denied". A suspeita não se confirmou | **Descartado** |
+
+**O que fiz sem IA:** rodei todos os comandos, testes e pipelines na minha máquina e conferi os resultados; testei manualmente as telas, rotas e todas as PRs analisadas; tomei as decisões de organização, como propor o Trello e depois criar o quadro no GitHub Projects; realizei a divisão dos stages do Jenkins entre as integrantes; criei a regra de proteção da `main`; revisei e reescrevi todo texto gerado. O código do meu módulo foi gerado com apoio da IA, e eu revisei cada parte.
+
+### Karolina
+<!-- Karolina: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+
+### Beatriz
+<!-- Beatriz: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+
+### Júlia
+**Como usei:** utilizei majoritariamente o Copilot, que podia acessar os arquivos locais sem esgotar após poucas requisições e facilitava a análise. No início, o histórico das conversas não era mantido quando eu fechava a IDE. Dessa forma, sempre que iniciava um novo chat, definia que deveria primeiro análisar os arquivos considerando a minha pergunta e me entregar um plano de ação antes de qualquer execução, que só poderia ocorrer se fosse explicitamente solicitada. Também utilizei para compreender melhor o código das minhas colegas e algumas das minhas tarefas, reforçar comandos git e tirar dúvidas sobre as ferramentas utilizadas e sobre Engenharia de Software.
+
+**Exemplos reais**
+
+| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
+|---|---|---|---|
+| Analisar os métodos iniciais e verificar quais outros poderiam ser introduzidos no carrinho e nos pedidos. | Sugeriu, por exemplo, um método para a validação dos itens e outro para a verificação da presença ou não de item específico no carrinho. | Avaliei o que tinha até o momento e se fazia sentido com nosso planejamento inicial. | **Aceito** |
+| Fazer testes para o frontend a fim de verificar elementos que considerei necessários naquele momento. | Criou os métodos específicos que solicitei e mais alguns. | Como não sabia como os testes para frontend eram feitos, pedi para que me explicasse a ideia geral e como foi feito em cada teste. Analisei se faziam sentido e se seriam adequados ao planejamento. | **Aceito** |
+| Solicitei que me auxiliasse a implementar as adaptações recomendadas após a avaliação da [PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59). | Como o frontend do cardápio ainda não estava implementado, uma das sugestões foi que eu fizesse uma parcela dessa implementação. | Analisei se minha parte realmente precisaria disso e, entendendo que sim, mas sabendo que outra integrante estava encarregada deste módulo, optei por não fazer e apenas adaptar o mock utilizado para seguir o padrão da API. | **Ajustado** |
+
+**O que fiz sem IA:** executei localmente os comandos e testes e conferi os resultados. Também naveguei pelas telas para procurar problemas que os testes não cobriam. Revisei e reescrevi, quando necessário, o código gerado com apoio da IA.
+
+### Yasmin
+<!-- Yasmin: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+
+---

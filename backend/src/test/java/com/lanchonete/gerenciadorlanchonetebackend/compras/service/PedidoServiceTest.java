@@ -94,7 +94,7 @@ class PedidoServiceTest {
 
         assertEquals(new BigDecimal("12.50"), pedido.getItens().get(0).getPrecoUnitario());
         assertEquals(new BigDecimal("25.00"), pedido.getTotal());
-        verify(produtoService).baixarEstoque(produto, 2);
+        verify(produtoService).baixarEstoque(1L, 2);
         verify(produtoRepository).findById(1L);
         verify(pedidoRepository).save(any(Pedido.class));
     }
@@ -115,7 +115,7 @@ class PedidoServiceTest {
 
         assertEquals(1, pedido.getItens().size());
         assertEquals(5, pedido.getItens().get(0).getQuantidade());
-        verify(produtoService).baixarEstoque(produto, 5);
+        verify(produtoService).baixarEstoque(1L, 5);
         verify(pedidoRepository).save(any(Pedido.class));
     }
 
@@ -124,8 +124,8 @@ class PedidoServiceTest {
         Produto produto = ProdutoTestFactory.produto(1L, "Hamburguer", "12.50");
         produto.setQuantidadeEstoque(1);
         when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
-        doThrow(new EstoqueInsuficienteException("Estoque insuficiente para o produto Hamburguer"))
-                .when(produtoService).baixarEstoque(produto, 2);
+        doThrow(new EstoqueInsuficienteException("Estoque insuficiente para o produto       Hamburguer"))
+            .when(produtoService).baixarEstoque(1L, 2);
         PedidoRequest request = new PedidoRequest(List.of(new ItemPedidoRequest(1L, 2)));
 
         assertThrows(
@@ -133,7 +133,7 @@ class PedidoServiceTest {
                 () -> pedidoService.criarPedidoComItens(10L, request)
         );
 
-        verify(produtoService).baixarEstoque(produto, 2);
+        verify(produtoService).baixarEstoque(1L, 2);
         verify(pedidoRepository, never()).save(any(Pedido.class));
     }
 

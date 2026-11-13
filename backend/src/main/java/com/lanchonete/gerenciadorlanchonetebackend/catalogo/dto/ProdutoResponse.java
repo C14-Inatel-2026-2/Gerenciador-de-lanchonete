@@ -9,6 +9,7 @@ public record ProdutoResponse(
         BigDecimal preco,
         boolean disponivel,
         Long categoriaId,
-        int quantidadeEstoque
+        int quantidadeEstoque,
+        boolean esgotado
 ) {
 }

@@ -61,7 +61,7 @@ public class PedidoService {
             Produto produto = produtoRepository.findById(item.getKey())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
             ItemCarrinho itemCarrinho = new ItemCarrinho(produto, item.getValue());
-            produtoService.baixarEstoque(produto, item.getValue());
+            produtoService.baixarEstoque(item.getKey(), item.getValue());
             carrinho.adicionarItem(itemCarrinho);
         }
 

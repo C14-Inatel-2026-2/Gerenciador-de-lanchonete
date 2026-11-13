@@ -172,10 +172,10 @@ public class ProdutoServiceTest {
 
         Produto xBurguer = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), lanches);
         xBurguer.setId(10L);
-        xBurguer.setQuantidadeEstoque(8);
+        xBurguer.setQuantidadeEstoque(4);
         Produto suco = new Produto("Suco", "Suco natural", BigDecimal.valueOf(8), bebidas);
         suco.setId(11L);
-        suco.setQuantidadeEstoque(4);
+        suco.setQuantidadeEstoque(0);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(xBurguer, suco));
 
         CardapioResponse cardapio = produtoService.obterCardapio();
@@ -189,7 +189,8 @@ public class ProdutoServiceTest {
                         "X-Burger",
                         "Pão, carne e queijo",
                         BigDecimal.valueOf(25),
-                        8
+                        4,
+                        false
                 )),
                 cardapio.categorias().get(0).produtos()
         );
@@ -201,7 +202,8 @@ public class ProdutoServiceTest {
                         "Suco",
                         "Suco natural",
                         BigDecimal.valueOf(8),
-                        4
+                        0,
+                        true
                 )),
                 cardapio.categorias().get(1).produtos()
         );
@@ -219,25 +221,7 @@ public class ProdutoServiceTest {
     }
 
     @Test
-    void baixarEstoqueAtualizaQuantidadeDoProduto() {
-        Produto produto = new Produto(
-                "Hamburguer",
-                "Produto de teste",
-                new BigDecimal("12.50"),
-                new Categoria("Lanches")
-        );
-        produto.setId(1L);
-        produto.setQuantidadeEstoque(5);
-        when(produtoRepository.save(produto)).thenReturn(produto);
-
-        Produto atualizado = produtoService.baixarEstoque(produto, 3);
-
-        assertEquals(2, atualizado.getQuantidadeEstoque());
-        verify(produtoRepository).save(produto);
-    }
-
-    @Test
-    void baixarEstoqueInsuficienteInformaNomeEnaoSalvaProduto() {
+    void baixarEstoqueInsuficienteNaoSalvaProduto() {
         Produto produto = new Produto(
                 "Hamburguer",
                 "Produto de teste",
@@ -246,22 +230,59 @@ public class ProdutoServiceTest {
         );
         produto.setId(1L);
         produto.setQuantidadeEstoque(1);
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
 
         EstoqueInsuficienteException exception = assertThrows(
                 EstoqueInsuficienteException.class,
-                () -> produtoService.baixarEstoque(produto, 2)
+                () -> produtoService.baixarEstoque(1L, 2)
         );
 
-        assertEquals("Estoque insuficiente para o produto Hamburguer. Disponível: 1, solicitado: 2.",
+        assertEquals("Estoque insuficiente: disponível 1, solicitado 2",
                 exception.getMessage());
         assertEquals(1, produto.getQuantidadeEstoque());
-        verify(produtoRepository, never()).save(any());
+        verify(produtoRepository, never()).saveAndFlush(any());
     }
 
     @Test
     void atualizarEstoqueRejeitaQuantidadeNegativa() {
         assertThrows(IllegalArgumentException.class, () -> produtoService.atualizarEstoque(1L, -1));
         verifyNoInteractions(produtoRepository);
+    }
+
+    @Test
+    void deveBaixarEstoqueDoProduto() {
+        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L));
+        produto.setId(2L);
+        produto.setQuantidadeEstoque(5);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(produtoRepository.saveAndFlush(produto)).thenReturn(produto);
+
+        Produto atualizado = produtoService.baixarEstoque(2L, 2);
+
+        assertEquals(3, atualizado.getQuantidadeEstoque());
+        verify(produtoRepository).saveAndFlush(produto);
+    }
+
+    @Test
+    void deveReporEstoqueDoProduto() {
+        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L));
+        produto.setId(2L);
+        produto.setQuantidadeEstoque(5);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(produtoRepository.saveAndFlush(produto)).thenReturn(produto);
+
+        Produto atualizado = produtoService.reporEstoque(2L, 2);
+
+        assertEquals(7, atualizado.getQuantidadeEstoque());
+        verify(produtoRepository).saveAndFlush(produto);
+    }
+
+    @Test
+    void deveRetornar404AoBaixarEstoqueDeProdutoInexistente() {
+        when(produtoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> produtoService.baixarEstoque(99L, 1));
+        verify(produtoRepository, never()).saveAndFlush(any());
     }
 
     private Categoria categoriaComId(Long id) {

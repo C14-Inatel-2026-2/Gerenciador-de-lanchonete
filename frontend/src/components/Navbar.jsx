@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import { itensDoMenu } from "../utils/itensDoMenu";
+import "./Navbar.css";
 
 export default function Navbar() {
   const { usuario, sair } = useAuth();
@@ -14,11 +15,11 @@ export default function Navbar() {
   }
 
   return (
-    <nav>
-      <ul>
+    <nav className="site-nav" aria-label="Navegação principal">
+      <ul className="site-nav__links">
         {menu.map((item) => (
           <li key={item.path}>
-            <NavLink to={item.path}>
+            <NavLink to={item.path} end>
               {item.label}
             </NavLink>
           </li>
@@ -26,12 +27,12 @@ export default function Navbar() {
       </ul>
 
       {usuario && (
-        <p>
-          Olá, {usuario.nome}{" "}
-          <button type="button" onClick={aoSair}>
+        <div className="site-nav__user">
+          <span>Olá, {usuario.nome}</span>
+          <button className="site-nav__logout" type="button" onClick={aoSair}>
             Sair
           </button>
-        </p>
+        </div>
       )}
     </nav>
   );

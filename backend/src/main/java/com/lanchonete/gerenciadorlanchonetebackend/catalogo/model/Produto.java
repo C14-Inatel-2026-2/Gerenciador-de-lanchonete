@@ -1,7 +1,9 @@
 package com.lanchonete.gerenciadorlanchonetebackend.catalogo.model;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "produto")
@@ -21,8 +23,13 @@ public class Produto {
     @Column(nullable = false)
     private boolean disponivel = true;
 
-    @Column(nullable = false, columnDefinition = "integer default 0")
+    @Column(nullable = false)
+    @ColumnDefault("0")
     private int quantidadeEstoque;
+
+    @Version
+    @ColumnDefault("0")
+    private Long version;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id", nullable = false)
@@ -84,7 +91,32 @@ public class Produto {
     }
 
     public void setQuantidadeEstoque(int quantidadeEstoque) {
+        if (quantidadeEstoque < 0) {
+            throw new IllegalArgumentException("Estoque do produto não pode ser negativo");
+        }
         this.quantidadeEstoque = quantidadeEstoque;
+    }
+
+    public boolean isEsgotado() {
+        return quantidadeEstoque == 0;
+    }
+
+    public void baixarEstoque(int quantidade) {
+        validarQuantidadePositiva(quantidade);
+        if (quantidade > quantidadeEstoque) {
+            throw new EstoqueInsuficienteException(
+                    "Estoque insuficiente: disponível " + quantidadeEstoque + ", solicitado " + quantidade
+            );
+        }
+        quantidadeEstoque -= quantidade;
+    }
+
+    public void reporEstoque(int quantidade) {
+        validarQuantidadePositiva(quantidade);
+        if (quantidade > Integer.MAX_VALUE - quantidadeEstoque) {
+            throw new IllegalArgumentException("Quantidade de estoque excede o limite permitido");
+        }
+        quantidadeEstoque += quantidade;
     }
 
     public Categoria getCategoria() {
@@ -93,5 +125,11 @@ public class Produto {
 
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
+    }
+
+    private static void validarQuantidadePositiva(int quantidade) {
+        if (quantidade <= 0) {
+            throw new IllegalArgumentException("Quantidade deve ser maior que zero");
+        }
     }
 }

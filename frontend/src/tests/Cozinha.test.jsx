@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 
 import Cozinha from "../pages/Cozinha";
 import { listarFila, atualizarStatus } from "../services/cozinha";
@@ -24,6 +24,10 @@ function pedido(id, status) {
 describe("Cozinha", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("mostra só os botões das transições válidas de cada pedido", async () => {
@@ -69,5 +73,29 @@ describe("Cozinha", () => {
     render(<Cozinha />);
 
     expect(await screen.findByText("Nenhum pedido na fila.")).toBeInTheDocument();
+  });
+
+  it("se a fila não carrega, mostra só o erro, sem dizer que a fila está vazia", async () => {
+    listarFila.mockRejectedValue(new Error("Falha de rede"));
+
+    render(<Cozinha />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Falha de rede");
+    expect(screen.queryByText("Nenhum pedido na fila.")).not.toBeInTheDocument();
+  });
+
+  it("atualiza a fila sozinha a cada 10 segundos", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    listarFila.mockResolvedValue([]);
+
+    render(<Cozinha />);
+    await screen.findByText("Nenhum pedido na fila.");
+    expect(listarFila).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    await waitFor(() => expect(listarFila).toHaveBeenCalledTimes(2));
   });
 });

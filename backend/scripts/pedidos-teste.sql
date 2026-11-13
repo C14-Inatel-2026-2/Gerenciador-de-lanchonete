@@ -17,3 +17,8 @@ SELECT id, 3, '[TESTE] Suco natural', 8.50, 3 FROM novos WHERE status = 'PRONTO'
 SELECT p.id, p.status, p.criado_em, i.nome, i.quantidade
 FROM pedido p JOIN item_pedido i ON i.pedido_id = p.id
 WHERE i.nome LIKE '[TESTE]%' ORDER BY p.criado_em;
+
+-- Para apagar os pedidos de teste (antes da entrega):
+-- WITH ids AS (SELECT DISTINCT pedido_id FROM item_pedido WHERE nome LIKE '[TESTE]%'),
+--      itens AS (DELETE FROM item_pedido WHERE pedido_id IN (SELECT pedido_id FROM ids))
+-- DELETE FROM pedido WHERE id IN (SELECT pedido_id FROM ids);
