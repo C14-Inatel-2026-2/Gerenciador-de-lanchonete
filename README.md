@@ -256,6 +256,7 @@ para o build ser reproduzível.
 |---|---|---|---|
 | Analisar os métodos iniciais e verificar quais outros poderiam ser introduzidos no carrinho e nos pedidos. | Sugeriu, por exemplo, um método para a validação dos itens e outro para a verificação da presença ou não de item específico no carrinho. | Avaliei o que tinha até o momento e se fazia sentido com nosso planejamento inicial. | **Aceito** |
 | Fazer testes para o frontend a fim de verificar elementos que considerei necessários naquele momento. | Criou os métodos específicos que solicitei e mais alguns. | Como não sabia como os testes para frontend eram feitos, pedi para que me explicasse a ideia geral e como foi feito em cada teste. Analisei se faziam sentido e se seriam adequados ao planejamento. | **Aceito** |
+| Solicitei que me auxiliasse a implementar as adaptações recomendadas após a avaliação da [PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59). | Como o frontend do cardápio ainda não estava implementado, uma das sugestões foi que eu fizesse uma parcela dessa implementação. | Analisei se minha parte realmente precisaria disso e, entendendo que sim, mas sabendo que outra integrante estava encarregada deste módulo, optei por não fazer e apenas adaptar o mock utilizado para seguir o padrão da API. | **Ajustado** |
 
 **O que fiz sem IA:** executei localmente os comandos e testes e conferi os resultados. Também naveguei pelas telas para procurar problemas que os testes não cobriam. Revisei e reescrevi, quando necessário, o código gerado com apoio da IA.
 
