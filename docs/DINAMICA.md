@@ -45,7 +45,6 @@ Durante o desenvolvimento, ocorreram casos em que os arquivos presentes no PR co
 
 - [PR #29](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/29): o GitHub descartava o merge devido a "merge-base changed", pois a branch que tentávamos integrar havia sido criada a partir de outra, mergeada primeiro. Quando isso aconteceu, a "base" deste PR mudou e o GitHub continuou com a referência antiga. Isso porque o repositório tem uma regra que descarta aprovações quando o código muda depois de aprovado, a fim de evitar a aprovação de uma versão e merge de outra. Dessa forma, a plataforma entendia que tudo havia sido alterado e descartaca as aprovações. Para solucionar a questão, a Karolina trouxe a main atual para sua própria branch e deu o comando `git push`. Assim, ambas as branches partiam da main mais recente e as aprovações foram aceitas.
 
-Karol
 - [PR #30](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/30): 
 
 - [PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59): com o merge de novas PRs à main, este PR apresentou conflitos de código e de cumprimento de requisitos. Para solucionar o problema, foram resolvidos os conflitos de código e, então, analisados os pontos levantados no comentário de avaliação da PR. Por fim, verificou-se a existência de outros pontos a serem considerados.
