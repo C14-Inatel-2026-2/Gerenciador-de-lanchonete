@@ -152,7 +152,9 @@ class PedidoControllerTest {
     void postComEstoqueInsuficienteRetorna409ComNomeDoProduto() throws Exception {
         logarComoCliente(42L);
         when(pedidoService.criarPedidoComItens(eq(42L), any(PedidoRequest.class)))
-                .thenThrow(new EstoqueInsuficienteException("Estoque insuficiente para o produto X-Burger"));
+                .thenThrow(new EstoqueInsuficienteException(
+                        "Produto X-Burger: Estoque insuficiente: disponível 1, solicitado 2"
+                ));
 
         mockMvc.perform(post("/api/pedidos")
                         .with(jwtDoUsuario(42L))
@@ -161,7 +163,9 @@ class PedidoControllerTest {
                                 {"itens":[{"produtoId":10,"quantidade":2}]}
                                 """))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.erro").value("Estoque insuficiente para o produto X-Burger"));
+                .andExpect(jsonPath("$.erro").value(
+                        "Produto X-Burger: Estoque insuficiente: disponível 1, solicitado 2"
+                ));
     }
 
     @Test

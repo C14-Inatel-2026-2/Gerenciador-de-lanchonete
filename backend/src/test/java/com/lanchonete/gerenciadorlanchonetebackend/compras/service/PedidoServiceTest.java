@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -124,15 +123,19 @@ class PedidoServiceTest {
         Produto produto = ProdutoTestFactory.produto(1L, "Hamburguer", "12.50");
         produto.setQuantidadeEstoque(1);
         when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
-        doThrow(new EstoqueInsuficienteException("Estoque insuficiente para o produto       Hamburguer"))
-            .when(produtoService).baixarEstoque(1L, 2);
+        when(produtoService.baixarEstoque(1L, 2))
+                .thenThrow(new EstoqueInsuficienteException(
+                        "Estoque insuficiente: disponível 1, solicitado 2"
+                ));
         PedidoRequest request = new PedidoRequest(List.of(new ItemPedidoRequest(1L, 2)));
 
-        assertThrows(
+        EstoqueInsuficienteException exception = assertThrows(
                 EstoqueInsuficienteException.class,
                 () -> pedidoService.criarPedidoComItens(10L, request)
         );
 
+        assertEquals("Produto Hamburguer: Estoque insuficiente: disponível 1, solicitado 2",
+                exception.getMessage());
         verify(produtoService).baixarEstoque(1L, 2);
         verify(pedidoRepository, never()).save(any(Pedido.class));
     }

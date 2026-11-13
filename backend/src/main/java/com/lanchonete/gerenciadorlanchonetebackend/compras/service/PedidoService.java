@@ -1,5 +1,6 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.service;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.service.ProdutoService;
@@ -61,7 +62,11 @@ public class PedidoService {
             Produto produto = produtoRepository.findById(item.getKey())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado"));
             ItemCarrinho itemCarrinho = new ItemCarrinho(produto, item.getValue());
-            produtoService.baixarEstoque(item.getKey(), item.getValue());
+            try {
+                produtoService.baixarEstoque(item.getKey(), item.getValue());
+            } catch (EstoqueInsuficienteException ex) {
+                throw new EstoqueInsuficienteException("Produto " + produto.getNome() + ": " + ex.getMessage());
+            }
             carrinho.adicionarItem(itemCarrinho);
         }
 
