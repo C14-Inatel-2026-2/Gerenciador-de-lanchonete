@@ -5,6 +5,7 @@ import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.TransicaoStatusInvalidaException;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.service.PedidoLifecycleService;
+import com.lanchonete.gerenciadorlanchonetebackend.config.SecurityConfig;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.UsuarioNaoAutenticadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.user.model.UserProfile;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 
@@ -25,6 +27,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,8 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 // Teste de controller: sobe só a camada web (controller + GlobalExceptionHandler),
 // sem banco. O service e o usuário logado são mocks; a regra de permissão é a real.
+// A segurança também é a real: jwt() simula um token válido do Supabase.
 @WebMvcTest(CozinhaController.class)
-@Import(AuthorizationService.class)
+@Import({AuthorizationService.class, SecurityConfig.class})
 class CozinhaControllerTest {
 
     @Autowired
@@ -45,12 +49,15 @@ class CozinhaControllerTest {
     @MockBean
     private UsuarioAtualProvider usuarioAtualProvider;
 
+    @MockBean
+    private JwtDecoder jwtDecoder;
+
     @Test
     void filaRetornaPedidosNoFormatoDoContratoParaFuncionario() throws Exception {
         logarComo(UserRole.FUNCIONARIO);
         when(lifecycleService.listarFila()).thenReturn(List.of(pedido(5L), pedido(6L)));
 
-        mockMvc.perform(get("/api/pedidos/fila"))
+        mockMvc.perform(get("/api/pedidos/fila").with(jwt()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].id").value(5))
@@ -68,7 +75,7 @@ class CozinhaControllerTest {
         logarComo(UserRole.ADMIN);
         when(lifecycleService.listarFila()).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/pedidos/fila"))
+        mockMvc.perform(get("/api/pedidos/fila").with(jwt()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.length()").value(0));
     }
@@ -77,7 +84,7 @@ class CozinhaControllerTest {
     void filaNegadaParaClienteSemConsultarPedidos() throws Exception {
         logarComo(UserRole.CLIENTE);
 
-        mockMvc.perform(get("/api/pedidos/fila"))
+        mockMvc.perform(get("/api/pedidos/fila").with(jwt()))
             .andExpect(status().isForbidden())
             .andExpect(jsonPath("$.erro").value("Acesso restrito a funcionários e administradores"));
 
@@ -85,13 +92,34 @@ class CozinhaControllerTest {
     }
 
     @Test
-    void filaSemUsuarioIdentificadoRetorna401() throws Exception {
-        when(usuarioAtualProvider.obterUsuarioAtual())
-            .thenThrow(new UsuarioNaoAutenticadoException("Usuário não autenticado"));
-
+    void filaSemTokenRetorna401SemChamarOService() throws Exception {
         mockMvc.perform(get("/api/pedidos/fila"))
             .andExpect(status().isUnauthorized())
             .andExpect(jsonPath("$.erro").value("Usuário não autenticado"));
+
+        verifyNoInteractions(lifecycleService);
+    }
+
+    @Test
+    void patchSemTokenRetorna401SemAlterarPedido() throws Exception {
+        mockMvc.perform(patch("/api/pedidos/{id}/status", 5L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"status\": \"EM_PREPARO\" }"))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.erro").value("Usuário não autenticado"));
+
+        verifyNoInteractions(lifecycleService);
+    }
+
+    @Test
+    void filaComTokenValidoMasSemPerfilRetorna401() throws Exception {
+        // Token do Supabase válido, mas a pessoa ainda não concluiu o cadastro na API
+        when(usuarioAtualProvider.obterUsuarioAtual())
+            .thenThrow(new UsuarioNaoAutenticadoException("Perfil não encontrado. Conclua o cadastro."));
+
+        mockMvc.perform(get("/api/pedidos/fila").with(jwt()))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.erro").value("Perfil não encontrado. Conclua o cadastro."));
 
         verifyNoInteractions(lifecycleService);
     }
@@ -166,7 +194,8 @@ class CozinhaControllerTest {
     private RequestBuilder patchStatus(Long id, String json) {
         return patch("/api/pedidos/{id}/status", id)
             .contentType(MediaType.APPLICATION_JSON)
-            .content(json);
+            .content(json)
+            .with(jwt());
     }
 
     private void logarComo(UserRole role) {

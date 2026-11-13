@@ -33,7 +33,10 @@ function formatarHora(dataHora) {
 export default function Cozinha() {
   const [pedidos, setPedidos] = useState([]);
   const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState("");
+  // Falha ao buscar a fila: some quando uma busca seguinte der certo
+  const [erroFila, setErroFila] = useState("");
+  // Falha ao mudar o status (ex.: 409): fica até a próxima ação do usuário
+  const [erroAcao, setErroAcao] = useState("");
   const [pedidoEmAtualizacao, setPedidoEmAtualizacao] = useState(null);
   // Muda de valor para pedir uma nova busca da fila
   const [versaoDaFila, setVersaoDaFila] = useState(0);
@@ -44,10 +47,12 @@ export default function Cozinha() {
 
     listarFila()
       .then((fila) => {
-        if (ativo) setPedidos(fila ?? []);
+        if (!ativo) return;
+        setPedidos(fila ?? []);
+        setErroFila("");
       })
       .catch((e) => {
-        if (ativo) setErro(e.message);
+        if (ativo) setErroFila(e.message);
       })
       .finally(() => {
         if (ativo) setCarregando(false);
@@ -58,13 +63,22 @@ export default function Cozinha() {
     };
   }, [versaoDaFila]);
 
+  // Atualiza a fila sozinha a cada 10 segundos (#46)
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      setVersaoDaFila((versao) => versao + 1);
+    }, 10000);
+
+    return () => clearInterval(intervalo);
+  }, []);
+
   async function mudarStatus(id, novoStatus) {
-    setErro("");
+    setErroAcao("");
     setPedidoEmAtualizacao(id);
     try {
       await atualizarStatus(id, novoStatus);
     } catch (e) {
-      setErro(e.message);
+      setErroAcao(e.message);
     } finally {
       setPedidoEmAtualizacao(null);
       // Recarrega mesmo com erro: num 409, a fila passa a mostrar o status atual
@@ -80,10 +94,11 @@ export default function Cozinha() {
     <section>
       <h1>Fila da cozinha</h1>
 
-      {erro && <p role="alert">{erro}</p>}
+      {erroAcao && <p role="alert">{erroAcao}</p>}
+      {erroFila && <p role="alert">Não foi possível carregar a fila: {erroFila}</p>}
 
       {pedidos.length === 0 ? (
-        <p>Nenhum pedido na fila.</p>
+        !erroFila && <p>Nenhum pedido na fila.</p>
       ) : (
         <ul>
           {pedidos.map((pedido) => (

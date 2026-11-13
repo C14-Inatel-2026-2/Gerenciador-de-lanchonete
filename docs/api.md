@@ -12,34 +12,44 @@ Qualquer mudança de rota ou de formato deve ser atualizada aqui **no mesmo PR**
 
 ### Usuário logado
 
-Os controllers obtêm o usuário logado pela interface `UsuarioAtualProvider` (RNF-AUT06), nunca lendo headers diretamente.
+Login, cadastro e senha ficam no **Supabase Auth**. Toda rota que não é pública exige o token do Supabase (#55):
 
-| Fase | Como o front identifica o usuário |
-|---|---|
-| **Provisória (agora)** | Header `X-Usuario-Id: <id do UserProfile>` (`HeaderUsuarioAtualProvider`). |
-| **Definitiva (#55)** | Header `Authorization: Bearer <access_token do Supabase>` (`SupabaseJwtUsuarioAtualProvider`). |
-
-A troca não altera nenhum controller: só a implementação da interface.
-
-#### Usuários de teste (fase provisória)
-
-Com o header provisório, não dá para criar perfis pela API (o cadastro depende do token do Supabase). Para testar as rotas protegidas, rode o script [`backend/scripts/usuarios-teste.sql`](../backend/scripts/usuarios-teste.sql) no **SQL Editor** do Supabase. Ele cria:
-
-| Id no banco do grupo | Usuário | E-mail | Perfil | Uso |
-|---|---|---|---|---|
-| `1` | Cliente Teste | `cliente.teste@lanchonete.com` | `CLIENTE` | Rotas de cliente (pedidos, perfil) |
-| `2` | Funcionário Teste | `funcionario.teste@lanchonete.com` | `FUNCIONARIO` | Fila da cozinha e status do pedido |
-| `3` | Admin Teste | `admin.teste@lanchonete.com` | `ADMIN` | Gestão de produtos, usuários e painel |
-| `4` | Desativado Teste | `desativado.teste@lanchonete.com` | `CLIENTE` (inativo) | Conferir que o acesso é negado (`403`) |
-
-**No banco compartilhado do grupo (Supabase), o script já foi rodado e os ids são os da tabela acima.** Em outro banco, os ids são gerados de novo e podem ser diferentes: confira pelo `SELECT` no fim do script. Exemplo:
-
-```powershell
-# Agindo como o Cliente Teste
-curl.exe -i http://localhost:8080/api/usuarios/me -H "X-Usuario-Id: 1"
+```
+Authorization: Bearer <access_token da sessão do Supabase>
 ```
 
-Depois da #55, esses perfis deixam de servir para login e podem ser removidos com o `DELETE` comentado no fim do script.
+- O `SecurityConfig` valida o token **antes** de chegar ao controller: assinatura (chave pública do projeto, via JWKS), emissor (`<SUPABASE_URL>/auth/v1`), audiência `authenticated` e expiração. Sem token ou com token inválido → `401`.
+- **Rotas públicas** (sem token): `GET /api/categorias`, `GET /api/produtos`, `GET /api/produtos/cardapio` e `GET /actuator/health`.
+- Os controllers obtêm o usuário pela interface `UsuarioAtualProvider` (RNF-AUT06). A implementação `SupabaseJwtUsuarioAtualProvider` busca o perfil pelo `sub` do token: token válido sem perfil → `401`; perfil desativado → `403`.
+- Quem é o usuário é decidido **só pelo token**. Ids enviados em header ou no corpo não dão acesso a nada (o header provisório `X-Usuario-Id` foi removido).
+
+#### Primeiro administrador
+
+Todo cadastro nasce `CLIENTE`. Os e-mails da variável `ADMIN_EMAILS` (separados por vírgula) nascem `ADMIN`, e esse admin promove os demais em `PATCH /api/usuarios/{id}/role`.
+
+#### Variáveis do backend
+
+| Variável | Exemplo | Uso |
+|---|---|---|
+| `SUPABASE_URL` | `https://<projeto>.supabase.co` | Validar o token. Sem ela, a aplicação não sobe. |
+| `ADMIN_EMAILS` | `admin@admin.com` | E-mails que nascem ADMIN. |
+
+Não há segredo do Supabase no backend: o token é validado com a chave **pública** do projeto.
+
+#### Testando com `curl`
+
+Pegue um token fazendo login direto no Supabase (a `anon key` é a *publishable key* do painel):
+
+```powershell
+curl.exe -s -X POST "https://<projeto>.supabase.co/auth/v1/token?grant_type=password" `
+  -H "apikey: <anon key>" -H "Content-Type: application/json" `
+  -d '{\"email\":\"voce@email.com\",\"password\":\"sua-senha\"}'
+# copie o "access_token" da resposta (vale 1 hora)
+
+curl.exe -i http://localhost:8080/api/usuarios/me -H "Authorization: Bearer <access_token>"
+```
+
+Os usuários de teste do script [`backend/scripts/usuarios-teste.sql`](../backend/scripts/usuarios-teste.sql) não têm conta no Supabase e **não servem mais para login**. Podem ser removidos com o `DELETE` comentado no fim do script.
 
 ### Erros
 
@@ -52,7 +62,7 @@ Toda resposta de erro tem o mesmo corpo:
 | Status | Quando | Exceção |
 |---|---|---|
 | `400` | Dados inválidos (validação de domínio, JSON malformado) | `IllegalArgumentException`, `UserValidationException` |
-| `401` | Usuário não identificado (header/token ausente ou inválido) | `UsuarioNaoAutenticadoException` |
+| `401` | Token ausente, inválido ou expirado, ou usuário sem perfil | `SecurityConfig`, `UsuarioNaoAutenticadoException` |
 | `403` | Usuário sem permissão ou desativado | `AcessoNegadoException` |
 | `404` | Recurso não existe | `RecursoNaoEncontradoException` |
 | `409` | Conflito com o estado atual | `EmailJaCadastradoException`, `TransicaoStatusInvalidaException`, `EstoqueInsuficienteException` |
@@ -66,11 +76,13 @@ Toda resposta de erro tem o mesmo corpo:
 
 ## Autenticação e perfil (US01 · #42)
 
-Login, senha e recuperação de senha são feitos direto no **Supabase Auth** pelo front-end (#55). O back-end guarda apenas o perfil.
+Login, senha e recuperação de senha são feitos direto no **Supabase Auth** pelo front-end. O back-end guarda apenas o perfil.
+
+Fluxo do cadastro: o front chama `supabase.auth.signUp`, e com o token recebido chama `POST /api/usuarios`. No login: `signInWithPassword` e depois `GET /api/usuarios/me`.
 
 | Método | Rota | Acesso | Corpo | Resposta |
 |---|---|---|---|---|
-| `POST` | `/api/usuarios` | Usuário autenticado sem perfil | `{ "nome" }` | `201` `UsuarioResponse` · `409` se o perfil/e-mail já existe |
+| `POST` | `/api/usuarios` | Token do Supabase (ainda sem perfil) | `{ "nome" }` | `201` `UsuarioResponse` · `409` se o perfil/e-mail já existe |
 | `GET` | `/api/usuarios/me` | Logado | — | `200` `UsuarioResponse` |
 | `PATCH` | `/api/usuarios/me` | Logado | `{ "nome" }` | `200` `UsuarioResponse` (a role **nunca** é alterada aqui) |
 
@@ -88,12 +100,39 @@ O perfil criado em `POST /api/usuarios` é sempre `CLIENTE`, mesmo que o corpo t
 | `GET` | `/api/usuarios` | ADMIN | — | `200` `UsuarioResponse[]` |
 | `PATCH` | `/api/usuarios/{id}/role` | ADMIN | `{ "role": "FUNCIONARIO" }` | `200` `UsuarioResponse` |
 | `PATCH` | `/api/usuarios/{id}/desativar` | ADMIN | — | `200` `UsuarioResponse` (`ativo: false`) |
+| `PATCH` | `/api/usuarios/{id}/reativar` | ADMIN | — | `200` `UsuarioResponse` (`ativo: true`, mesmo perfil de antes) |
 
 - `GET /api/usuarios` traz ativos e desativados, em ordem de nome.
 - Para cadastrar um funcionário, ele se cadastra normalmente e o ADMIN muda a role dele para `FUNCIONARIO`.
 - O ADMIN **não pode** alterar a própria role nem desativar a si mesmo → `403`.
 - Usuário desativado continua no banco, mas perde o acesso às rotas protegidas (`403`).
+- **Não existe exclusão de usuário.** Desativar é a forma de tirar o acesso: o perfil e os pedidos antigos continuam no banco, e `PATCH /reativar` devolve o acesso com o mesmo perfil. A conta (e a senha) no Supabase não é alterada.
 - Erros: `400` role ausente ou inválida · `403` quem chama não é ADMIN ativo · `404` usuário não encontrado.
+
+#### Criar um funcionário
+
+Pela tela **`/admin/usuarios`** (menu Usuários, só ADMIN): a pessoa se cadastra em `/cadastro` e o admin troca o perfil dela para **Funcionário** no seletor da tabela.
+
+Pela API, com `curl` (PowerShell):
+
+1. A pessoa se cadastra normalmente na tela `/cadastro` (ela nasce `CLIENTE`).
+2. Pegue o token de um **ADMIN** (ver [Testando com `curl`](#testando-com-curl)) e guarde numa variável:
+   ```powershell
+   $token = "<access_token do admin>"
+   $api = "http://localhost:8080"   # ou a URL do backend publicado
+   ```
+3. Descubra o `id` da pessoa:
+   ```powershell
+   curl.exe -s "$api/api/usuarios" -H "Authorization: Bearer $token"
+   ```
+4. Mude a role para `FUNCIONARIO` (troque `7` pelo id):
+   ```powershell
+   curl.exe -i -X PATCH "$api/api/usuarios/7/role" `
+     -H "Authorization: Bearer $token" -H "Content-Type: application/json" `
+     -d '{\"role\":\"FUNCIONARIO\"}'
+   ```
+   A resposta `200` já mostra `"role": "FUNCIONARIO"`.
+5. A pessoa precisa **sair e entrar de novo** no site: o perfil (e o menu) é carregado no login.
 
 ## Catálogo (US02 e US06 · #44, estoque #56)
 
@@ -173,7 +212,24 @@ Transições permitidas: `CRIADO → EM_PREPARO | CANCELADO`, `EM_PREPARO → PR
 | `GET` | `/api/admin/resumo` | ADMIN | — | `200` `ResumoResponse` |
 
 ```json
-// ResumoResponse (dados do dia atual)
-{ "totalPedidos": 12, "faturamento": 356.40,
-  "pedidosPorStatus": { "CRIADO": 2, "EM_PREPARO": 1, "PRONTO": 0, "ENTREGUE": 8, "CANCELADO": 1 } }
+// ResumoResponse
+{
+  "pedidosHoje": 12,
+  "faturamentoHoje": 344.40,
+  "ticketMedio": 31.31,
+  "pedidosPorStatus": { "CRIADO": 2, "EM_PREPARO": 1, "PRONTO": 0, "ENTREGUE": 8, "CANCELADO": 1 },
+  "produtosAtivos": 32,
+  "usuariosCadastrados": 18,
+  "pedidosRecentes": [
+    { "id": 41, "cliente": "Maria", "status": "PRONTO", "total": 25.50, "criadoEm": "2026-11-12T19:30:00" }
+  ]
+}
 ```
+
+- **"Hoje"** é o dia no fuso de Brasília (`America/Sao_Paulo`), de 00:00 até 23:59. A aplicação inteira roda nesse fuso (`FusoHorarioConfig`), então a hora gravada nos pedidos também é a de Brasília, mesmo no Render (UTC).
+- `pedidosHoje` e `pedidosPorStatus` contam **todos** os pedidos do dia, inclusive os cancelados. `pedidosPorStatus` sempre traz os 5 status, com `0` quando não há pedidos.
+- `faturamentoHoje` e `ticketMedio` **não** contam os pedidos `CANCELADO`. Sem vendas no dia, o ticket médio é `0`.
+- `produtosAtivos`: produtos disponíveis no cardápio. `usuariosCadastrados`: todos os perfis, ativos e desativados.
+- `pedidosRecentes`: os 5 pedidos mais recentes de **qualquer dia**, do mais novo para o mais antigo, com o nome do cliente.
+- Erros: `401` sem token ou sem perfil · `403` quem chama não é ADMIN ativo.
+- A lista `produtosComEstoqueBaixo` (#56) entra quando o campo de estoque do produto estiver na `main`.

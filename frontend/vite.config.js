@@ -9,6 +9,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.js',
+    // Sem Supabase de verdade nos testes, mesmo com o .env.local preenchido:
+    // quem testa login usa vi.mock("../services/supabase")
+    env: {
+      VITE_SUPABASE_URL: '',
+      VITE_SUPABASE_ANON_KEY: '',
+    },
     reporters: ['default', 'junit'],
     outputFile: {
       junit: './junit.xml',

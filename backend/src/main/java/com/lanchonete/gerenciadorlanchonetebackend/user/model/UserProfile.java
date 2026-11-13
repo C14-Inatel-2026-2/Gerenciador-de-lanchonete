@@ -74,6 +74,15 @@ public class UserProfile {
         this.ativo = false;
     }
 
+    /** Devolve o acesso a quem foi desativado. Nada é apagado ao desativar, então volta como estava. */
+    public void reativar() {
+        this.ativo = true;
+    }
+
+    public void alterarNome(String novoNome) {
+        this.nome = novoNome;
+    }
+
     public void alterarRole(UserRole novaRole) {
         if (novaRole == null) {
             throw new UserValidationException("Role é obrigatória");
