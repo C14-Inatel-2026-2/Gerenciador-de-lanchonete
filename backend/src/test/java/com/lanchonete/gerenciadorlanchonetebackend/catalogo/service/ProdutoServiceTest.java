@@ -3,6 +3,7 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
@@ -217,6 +218,35 @@ public class ProdutoServiceTest {
 
         assertEquals(List.of(), cardapio.categorias());
         assertEquals("Cardápio vazio: não há produtos disponíveis.", cardapio.mensagem());
+    }
+
+    @Test
+    void baixarEstoqueInsuficienteNaoSalvaProduto() {
+        Produto produto = new Produto(
+                "Hamburguer",
+                "Produto de teste",
+                new BigDecimal("12.50"),
+                new Categoria("Lanches")
+        );
+        produto.setId(1L);
+        produto.setQuantidadeEstoque(1);
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstoqueInsuficienteException exception = assertThrows(
+                EstoqueInsuficienteException.class,
+                () -> produtoService.baixarEstoque(1L, 2)
+        );
+
+        assertEquals("Estoque insuficiente: disponível 1, solicitado 2",
+                exception.getMessage());
+        assertEquals(1, produto.getQuantidadeEstoque());
+        verify(produtoRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void atualizarEstoqueRejeitaQuantidadeNegativa() {
+        assertThrows(IllegalArgumentException.class, () -> produtoService.atualizarEstoque(1L, -1));
+        verifyNoInteractions(produtoRepository);
     }
 
     @Test
