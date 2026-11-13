@@ -28,6 +28,7 @@ public class Produto {
     private int quantidadeEstoque;
 
     @Version
+    @ColumnDefault("0")
     private Long version;
 
     @ManyToOne

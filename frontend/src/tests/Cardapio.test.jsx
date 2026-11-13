@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import Cardapio, { EVENTO_ADICIONAR_CARRINHO } from "../pages/Cardapio";
+import { CarrinhoProvider } from "../contexts/CarrinhoContext";
+import Cardapio from "../pages/Cardapio";
+
+const CHAVE_CARRINHO = "lanchonete.carrinho";
 
 const categorias = [
   { id: 1, nome: "Lanches", ativo: true },
@@ -73,17 +76,27 @@ function configurarFetch(dadosProdutos = produtos) {
   );
 }
 
+function renderCardapio() {
+  return render(
+    <CarrinhoProvider>
+      <Cardapio />
+    </CarrinhoProvider>
+  );
+}
+
 describe("Cardapio", () => {
   beforeEach(() => {
+    localStorage.removeItem(CHAVE_CARRINHO);
     configurarFetch();
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    localStorage.removeItem(CHAVE_CARRINHO);
   });
 
   it("agrupa produtos disponíveis por categoria e formata os preços", async () => {
-    render(<Cardapio />);
+    renderCardapio();
 
     expect(await screen.findByRole("heading", { name: "Lanches" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Bebidas" })).toBeInTheDocument();
@@ -107,7 +120,7 @@ describe("Cardapio", () => {
 
   it("mostra mensagem quando não há produtos disponíveis", async () => {
     configurarFetch([]);
-    render(<Cardapio />);
+    renderCardapio();
 
     expect(
       await screen.findByText("Cardápio vazio: não há produtos disponíveis.")
@@ -116,7 +129,7 @@ describe("Cardapio", () => {
   });
 
   it("filtra produtos pela categoria escolhida", async () => {
-    render(<Cardapio />);
+    renderCardapio();
 
     const filtro = await screen.findByLabelText("Filtrar por categoria");
     fireEvent.change(filtro, { target: { value: "2" } });
@@ -125,20 +138,26 @@ describe("Cardapio", () => {
     expect(screen.queryByText("X-Burger")).not.toBeInTheDocument();
   });
 
-  it("emite evento para adicionar o produto ao carrinho", async () => {
-    const aoAdicionar = vi.fn();
-    window.addEventListener(EVENTO_ADICIONAR_CARRINHO, aoAdicionar);
-    render(<Cardapio />);
+  it("adiciona o produto selecionado ao carrinho", async () => {
+    renderCardapio();
 
     fireEvent.click(
       (await screen.findAllByRole("button", { name: "Adicionar ao carrinho" }))[0]
     );
 
-    await waitFor(() => expect(aoAdicionar).toHaveBeenCalledOnce());
-    expect(aoAdicionar.mock.calls[0][0].detail).toEqual({
-      produto: produtos[0],
-      quantidade: 1,
+    await waitFor(() => {
+      expect(JSON.parse(localStorage.getItem(CHAVE_CARRINHO))).toEqual({
+        itens: [
+          {
+            id: produtos[0].id,
+            nome: produtos[0].nome,
+            descricao: produtos[0].descricao,
+            preco: produtos[0].preco,
+            quantidade: 1,
+          },
+        ],
+        total: produtos[0].preco,
+      });
     });
-    window.removeEventListener(EVENTO_ADICIONAR_CARRINHO, aoAdicionar);
   });
 });
