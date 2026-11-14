@@ -29,16 +29,9 @@ Perfis de usuário: Cliente, Funcionário (cozinha) e Administrador.
 
 ---
 
-## 🌐 Aplicação publicada
+## 🚀 Deploy
 
-<!-- Responsável pelo deploy: preencher as URLs publicadas do front-end e do back-end. -->
-
-- **Front-end:** _URL a preencher_
-- **Back-end:** _URL a preencher_
-
-### 🚀 Deploy
-
-### Aplicação publicada
+### 🌐 Aplicação publicada
 
 - **Frontend (Vercel):** https://gerenciador-de-lanchonete.vercel.app
 - **Backend (Render):** https://gerenciador-de-lanchonete.onrender.com
@@ -398,13 +391,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Visão geral do grupo
 
-| Integrante | Ferramentas | Principais usos |
-|---|---|---|
-| Lilyan | Claude e Gemini | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos |
-| Karolina | <!-- Karolina preenche --> | |
-| Beatriz | <!-- Beatriz preenche --> | |
-| Júlia | Copilot e ChatGPT | Código e testes, investigação de erros, revisão do que era feito, questionamento sobre conceitos e ferramentas |
-| Yasmin | <!-- Yasmin preenche --> | |
+| Integrante | Ferramentas                | Principais usos                                                                                                            |
+| ---------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Lilyan     | Claude e Gemini            | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos                                 |
+| Karolina   | <!-- Karolina preenche --> |                                                                                                                            |
+| Beatriz    | Claude e Copilot           | Códigos e testes, compreensão de novos conceitos e ferramentas, investigação de erros, entendimento de Git, revisão de PRs |
+| Júlia      | Copilot e ChatGPT          | Código e testes, investigação de erros, revisão do que era feito, questionamento sobre conceitos e ferramentas             |
+| Yasmin     | <!-- Yasmin preenche -->   |                                                                                                                            |
 
 ### Lilyan
 
@@ -427,18 +420,31 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Beatriz
 
-<!-- Beatriz: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+**Como usei:** usei dois assistentes, o Copilot e o Claude, em papéis diferentes. O Copilot ficou mais próximo do código, porque enxergava os arquivos do projeto. Então eu usei para entender melhor os comentários de revisão das PRs, investigar testes que falhavam, aplicar ajustes pontuais no catálogo e entender o código das minhas colegas. O Claude usei mais para complementar a explicação de cada etapa, principalmente em configuração de ambiente, pipeline e Git. Como foi a minha primeira vez com branches, PRs e merges, muitas das minhas perguntas foram sobre esse fluxo.
+
+**Exemplos reais**
+
+| Pedido à IA (resumido)                                                                                 | O que a IA respondeu                                                                                                                                         | O que eu fiz                                                                                                                                                                                                              | Resultado    |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| Pedi ajuda para corrigir algumas implementações solicitadas na PR #68.                                 | Retornou possíveis correções para as implementações. Também ajudou a resolver o conflito no AuthorizationService, mantendo os métodos de catálogo e cozinha. | Revisei as sugestões e mantive as alterações dentro do escopo combinado. Rodei os testes relacionados e eles passaram.                                                                                                    | **Aceito**   |
+| Corrigir os testes iniciais para o `CategoriaService` que eu havia feito.                              | Sugeriu correções para salvar categoria válida, rejeitar nome nulo, vazio, em branco ou duplicado e listar categorias.                                       | Avaliei os cenários, pedi para que me explicasse melhor os erros e suas respectivas correções no código que eu iniciei. Fiz as mudanças que estavam de acordo com o escopo e rodei os testes para validar.                | **Ajustado** |
+| Como guardar o trabalho do filtro por categoria, ainda incompleto, para trocar de branch sem commitar. | Explicou o `git stash` para guardar as alterações e `git stash pop` para recuperá-las depois, e sugeriu manter um backup do trabalho.                        | Guardei o trabalho (`backup-wip-filtro`) e voltei a ele depois de terminar os controllers.                                                                                                                                | **Aceito**   |
+| Como juntar os ajustes pedidos nas PRs #64, #67 e #68 sem abrir várias PRs novas.                      | Explicou o fluxo: fazer os ajustes na branch da #68, mergear só ela e fechar as outras como já incluídas.                                                    | Combinei com a colega, fiz os ajustes na branch da #68 e, depois do merge, fechei a #67 como incluída.                                                                                                                    | **Aceito**   |
+| Montar o stage de testes do pipeline (JaCoCo + relatório JUnit), explicando cada ponto.                | Indicou como configurar o JaCoCo no `pom.xml` e o stage "Testes Backend" no Jenkinsfile, explicando cada trecho.                                             | Segui as etapas, executei o pipeline no meu Jenkins local, verifiquei o relatório e a cobertura (87,46%) e abri a PR #14 com prints como evidência. Também ajustei os relatórios dos testes Backend e Frontend no Jenkins | **Aceito**   |
+
+**O que fiz sem IA:** rodei localmente os comandos e os testes e conferi os resultados; revisei cada sugestão, decidi quais eram adequadas ao escopo do projeto e reescrevi o código gerado com apoio da IA, quando necessário; testei as telas do meu módulo.
 
 ### Júlia
+
 **Como usei:** utilizei majoritariamente o Copilot, que podia acessar os arquivos locais sem esgotar após poucas requisições e facilitava a análise. No início, o histórico das conversas não era mantido quando eu fechava a IDE. Dessa forma, sempre que iniciava um novo chat, definia que deveria primeiro análisar os arquivos considerando a minha pergunta e me entregar um plano de ação antes de qualquer execução, que só poderia ocorrer se fosse explicitamente solicitada. Também utilizei para compreender melhor o código das minhas colegas e algumas das minhas tarefas, reforçar comandos git e tirar dúvidas sobre as ferramentas utilizadas e sobre Engenharia de Software.
 
 **Exemplos reais**
 
-| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
-|---|---|---|---|
-| Analisar os métodos iniciais e verificar quais outros poderiam ser introduzidos no carrinho e nos pedidos. | Sugeriu, por exemplo, um método para a validação dos itens e outro para a verificação da presença ou não de item específico no carrinho. | Avaliei o que tinha até o momento e se fazia sentido com nosso planejamento inicial. | **Aceito** |
-| Fazer testes para o frontend a fim de verificar elementos que considerei necessários naquele momento. | Criou os métodos específicos que solicitei e mais alguns. | Como não sabia como os testes para frontend eram feitos, pedi para que me explicasse a ideia geral e como foi feito em cada teste. Analisei se faziam sentido e se seriam adequados ao planejamento. | **Aceito** |
-| Solicitei que me auxiliasse a implementar as adaptações recomendadas após a avaliação da [PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59). | Como o frontend do cardápio ainda não estava implementado, uma das sugestões foi que eu fizesse uma parcela dessa implementação. | Analisei se minha parte realmente precisaria disso e, entendendo que sim, mas sabendo que outra integrante estava encarregada deste módulo, optei por não fazer e apenas adaptar o mock utilizado para seguir o padrão da API. | **Ajustado** |
+| Pedido à IA (resumido)                                                                                                                                                     | O que a IA respondeu                                                                                                                     | O que eu fiz                                                                                                                                                                                                                   | Resultado    |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| Analisar os métodos iniciais e verificar quais outros poderiam ser introduzidos no carrinho e nos pedidos.                                                                 | Sugeriu, por exemplo, um método para a validação dos itens e outro para a verificação da presença ou não de item específico no carrinho. | Avaliei o que tinha até o momento e se fazia sentido com nosso planejamento inicial.                                                                                                                                           | **Aceito**   |
+| Fazer testes para o frontend a fim de verificar elementos que considerei necessários naquele momento.                                                                      | Criou os métodos específicos que solicitei e mais alguns.                                                                                | Como não sabia como os testes para frontend eram feitos, pedi para que me explicasse a ideia geral e como foi feito em cada teste. Analisei se faziam sentido e se seriam adequados ao planejamento.                           | **Aceito**   |
+| Solicitei que me auxiliasse a implementar as adaptações recomendadas após a avaliação da [PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59). | Como o frontend do cardápio ainda não estava implementado, uma das sugestões foi que eu fizesse uma parcela dessa implementação.         | Analisei se minha parte realmente precisaria disso e, entendendo que sim, mas sabendo que outra integrante estava encarregada deste módulo, optei por não fazer e apenas adaptar o mock utilizado para seguir o padrão da API. | **Ajustado** |
 
 **O que fiz sem IA:** executei localmente os comandos e testes e conferi os resultados. Também naveguei pelas telas para procurar problemas que os testes não cobriam. Revisei e reescrevi, quando necessário, o código gerado com apoio da IA.
 
