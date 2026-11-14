@@ -468,6 +468,16 @@ Adicione algum produto da nossa seleção para começar."
 
 ### Yasmin
 
-<!-- Yasmin: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+**Como usei:** utilizei principalmente o ChatGPT como ferramenta de apoio para compreender conceitos, esclarecer dúvidas sobre as tecnologias utilizadas no projeto e auxiliar na investigação e resolução de erros. Também utilizei para revisar alterações antes de abrir Pull Requests, organizar a documentação do projeto (README e histórias de usuário), entender melhor o funcionamento do Git, Jenkins, Render, Vercel e React, além de receber sugestões de testes automatizados e refatorações. Todas as sugestões foram analisadas antes da implementação e adaptadas quando necessário para seguir os padrões definidos pelo grupo e os requisitos da disciplina.
+
+**Exemplos reais**
+
+| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
+| ----------------------- | -------------------- | ------------ | ---------- |
+| Auxiliar na implementação do painel administrativo consumindo os dados da API e na criação dos testes do frontend. | Sugeriu a estrutura para consumo da API, organização dos componentes e testes utilizando Vitest e Testing Library. | Analisei as sugestões, adaptei o código ao padrão do projeto, revisei os testes e validei localmente antes de enviar a Pull Request. | **Aceito** |
+| Auxiliar na revisão do README, dos requisitos funcionais e não funcionais, das histórias de usuário e da rastreabilidade das entregas. | Gerou textos iniciais e sugeriu formas de organizar a documentação. | Revisei todas as descrições, adaptei o conteúdo para refletir exatamente o que foi implementado no projeto e ajustei a documentação conforme as revisões da equipe. | **Ajustado** |
+| Auxiliar na resolução de conflitos de merge e na organização das branches durante a integração das Pull Requests. | Explicou a origem dos conflitos, orientou quais alterações deveriam ser mantidas e sugeriu a sequência correta de comandos do Git para concluir o merge com segurança. | Analisei as orientações, conferi o conteúdo dos arquivos envolvidos, resolvi os conflitos manualmente e validei o resultado antes de realizar o commit e o push. | **Aceito** |
+
+**O que fiz sem IA:** Realizei a integração com as alterações das demais integrantes, executei e validei os testes localmente, resolvi conflitos de merge, organizei as branches e Pull Requests, configurei e validei a pipeline com Jenkins, Render e Vercel, testei de forma manual as PRs que analisei, além de revisar o código e a documentação antes de cada entrega.
 
 ---
