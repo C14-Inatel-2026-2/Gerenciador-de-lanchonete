@@ -84,6 +84,57 @@ describe("AdminProdutos", () => {
     expect(await screen.findByText("Produto cadastrado com sucesso.")).toBeInTheDocument();
   });
 
+  it("cadastra categoria enviando o nome para a API", async () => {
+    render(<AdminProdutos />);
+
+    await screen.findByText("X-Burger");
+    fireEvent.change(screen.getByLabelText("Nome da categoria"), {
+      target: { value: "Sobremesas" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar categoria" }));
+
+    await waitFor(() => {
+      expect(api).toHaveBeenCalledWith("/api/categorias", {
+        method: "POST",
+        body: JSON.stringify({ nome: "Sobremesas" }),
+      });
+    });
+    expect(await screen.findByText("Categoria cadastrada com sucesso.")).toBeInTheDocument();
+  });
+
+  it("edita categoria enviando o novo nome para a API", async () => {
+    render(<AdminProdutos />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Editar categoria" }));
+    fireEvent.change(screen.getByLabelText("Nome da categoria"), {
+      target: { value: "Lanches e sanduíches" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Salvar categoria" }));
+
+    await waitFor(() => {
+      expect(api).toHaveBeenCalledWith("/api/categorias/1", {
+        method: "PUT",
+        body: JSON.stringify({ nome: "Lanches e sanduíches" }),
+      });
+    });
+    expect(await screen.findByText("Categoria atualizada com sucesso.")).toBeInTheDocument();
+  });
+
+  it("desativa categoria e remove da lista de categorias ativas", async () => {
+    render(<AdminProdutos />);
+
+    expect(await screen.findByRole("heading", { name: "Lanches" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Desativar categoria" }));
+
+    await waitFor(() => {
+      expect(api).toHaveBeenCalledWith("/api/categorias/1/desativar", {
+        method: "PATCH",
+      });
+    });
+    expect(screen.queryByRole("heading", { name: "Lanches" })).not.toBeInTheDocument();
+    expect(screen.getByText('Categoria "Lanches" desativada.')).toBeInTheDocument();
+  });
+
   it("edita produto selecionado usando PUT", async () => {
     render(<AdminProdutos />);
 
