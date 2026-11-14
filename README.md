@@ -164,6 +164,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 2. Use **Filtrar por categoria** para restringir a lista; selecione **Todas as categorias** para remover o filtro.
 3. Produtos sem estoque aparecem como **Esgotado** e não podem ser adicionados ao carrinho. Nos demais, selecione **Adicionar ao carrinho**.
 
+**Carrinho e finalização do pedido (US03):**
+
+1. Acesse **Carrinho** para consultar o estado atual do seu carrinho de compras, com os itens do pedido, quantidade, preço unitário e preço total. Caso esteja vazio, apresenta a mensagem "Seu carrinho está vazio.
+Adicione algum produto da nossa seleção para começar."
+2. Se o carrinho não estiver vazio, o botão **Finalizar pedido** é habilitado e deve ser utilizado para concluir o pedido.
+3. Após finalizar o pedido com sucesso, o carrinho exibe o número do pedido e é esvaziado. Para acompanhar o histórico, o status, a data e o valor dos pedidos, acesse Meus pedidos pelo menu superior. Cada pedido pode ser expandido para ver os itens e o progresso do status. Caso ainda não tenha feito pedidos, a tela informa isso.
+
 ### Cozinha (funcionário)
 
 <!-- Lilyan: documentar consulta da fila, atualização de status e cancelamento. -->
