@@ -1,6 +1,7 @@
 package com.lanchonete.gerenciadorlanchonetebackend.admin.controller;
 
 import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.PedidoRecenteResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.ProdutoEstoqueBaixoResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.ResumoResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.admin.service.AdminService;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
@@ -65,7 +66,10 @@ class AdminControllerTest {
             .andExpect(jsonPath("$.pedidosRecentes[0].cliente").value("Maria"))
             .andExpect(jsonPath("$.pedidosRecentes[0].status").value("PRONTO"))
             .andExpect(jsonPath("$.pedidosRecentes[0].total").value(25.0))
-            .andExpect(jsonPath("$.pedidosRecentes[0].criadoEm").value("2026-11-12T19:30:00"));
+            .andExpect(jsonPath("$.pedidosRecentes[0].criadoEm").value("2026-11-12T19:30:00"))
+            .andExpect(jsonPath("$.produtosComEstoqueBaixo[0].id").value(4))
+            .andExpect(jsonPath("$.produtosComEstoqueBaixo[0].nome").value("Suco natural"))
+            .andExpect(jsonPath("$.produtosComEstoqueBaixo[0].quantidadeEstoque").value(3));
     }
 
     @Test
@@ -140,6 +144,7 @@ class AdminControllerTest {
         return new ResumoResponse(
                 3, new BigDecimal("50.00"), new BigDecimal("25.00"), porStatus, 32, 18,
                 List.of(new PedidoRecenteResponse(8L, "Maria", StatusPedido.PRONTO,
-                        new BigDecimal("25.00"), LocalDateTime.of(2026, 11, 12, 19, 30))));
+                        new BigDecimal("25.00"), LocalDateTime.of(2026, 11, 12, 19, 30))),
+                List.of(new ProdutoEstoqueBaixoResponse(4L, "Suco natural", 3)));
     }
 }

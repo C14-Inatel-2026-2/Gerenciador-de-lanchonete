@@ -12,8 +12,11 @@ function itemValido(item) {
         (item.descricao === null || typeof item.descricao === "string") &&
         Number.isFinite(item.preco) &&
         item.preco >= 0 &&
+        Number.isInteger(item.quantidadeEstoque) &&
+        item.quantidadeEstoque >= 0 &&
         Number.isInteger(item.quantidade) &&
-        item.quantidade > 0
+        item.quantidade > 0 &&
+        item.quantidade <= item.quantidadeEstoque
     );
 }
 
@@ -53,7 +56,9 @@ function produtoValido(produto) {
         typeof produto.nome === "string" &&
         (produto.descricao === null || typeof produto.descricao === "string") &&
         Number.isFinite(produto.preco) &&
-        produto.preco >= 0
+        produto.preco >= 0 &&
+        Number.isInteger(produto.quantidadeEstoque) &&
+        produto.quantidadeEstoque >= 0
     );
 }
 
@@ -86,10 +91,17 @@ export function CarrinhoProvider({ children }) {
 
         setCart((carrinhoAtual) => {
             const existente = carrinhoAtual.find((item) => item.id === produto.id);
+            if (produto.quantidadeEstoque === 0) {
+                return carrinhoAtual.filter((item) => item.id !== produto.id);
+            }
             if (existente) {
                 return carrinhoAtual.map((item) =>
                     item.id === produto.id
-                        ? { ...item, quantidade: item.quantidade + 1 }
+                        ? {
+                            ...item,
+                            quantidadeEstoque: produto.quantidadeEstoque,
+                            quantidade: Math.min(item.quantidade + 1, produto.quantidadeEstoque),
+                        }
                         : item
                 );
             }
@@ -101,6 +113,7 @@ export function CarrinhoProvider({ children }) {
                     nome: produto.nome,
                     descricao: produto.descricao,
                     preco: produto.preco,
+                    quantidadeEstoque: produto.quantidadeEstoque,
                     quantidade: 1,
                 },
             ];
@@ -113,7 +126,10 @@ export function CarrinhoProvider({ children }) {
         }
 
         setCart((carrinhoAtual) => carrinhoAtual
-            .map((item) => item.id === productId ? { ...item, quantidade: quantity } : item)
+            .map((item) => item.id === productId
+                ? { ...item, quantidade: Math.min(quantity, item.quantidadeEstoque) }
+                : item
+            )
             .filter((item) => item.quantidade > 0));
     }, []);
 
