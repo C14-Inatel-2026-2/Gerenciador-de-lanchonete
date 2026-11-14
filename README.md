@@ -215,7 +215,7 @@ Adicione algum produto da nossa seleção para começar."
 | -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
 | US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
 | US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
-| US03     |               |                                                                                                                                                        |                             |
+| US03     | Cliente       | Adicionar produtos ao carrinho, alterar quantidades, acompanhar o subtotal e o total, finalizar pedidos e consultar o histórico e o status dos pedidos. | RF-CAR01–RF-CAR08           |
 | US04     |               |                                                                                                                                                        |                             |
 | US05     |               |                                                                                                                                                        |                             |
 | US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
