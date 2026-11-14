@@ -7,7 +7,6 @@ import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import Cardapio from "./pages/Cardapio";
 import Cozinha from "./pages/Cozinha";
-import Admin from "./pages/Admin";
 import AdminProdutos from "./pages/AdminProdutos";
 import AdminUsuarios from "./pages/AdminUsuarios";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -32,10 +31,9 @@ function AppRoutes() {
                     <Route path="/carrinho" element={<Carrinho />} />
                     <Route path="/meus-pedidos" element={<MeusPedidos />} />
                     <Route path="/cozinha" element={<Cozinha />} />
-                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/produtos" element={<AdminProdutos />} />
                     <Route path="/admin/usuarios" element={<AdminUsuarios />} />
-                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 </Route>
 
                 <Route path="*" element={<Login />} />
