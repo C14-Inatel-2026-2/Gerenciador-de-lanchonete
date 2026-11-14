@@ -66,6 +66,7 @@ class ProdutoControllerTest {
         categoria.setId(1L);
         Produto produto = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), categoria);
         produto.setId(2L);
+        produto.setQuantidadeEstoque(8);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(produto));
 
         mockMvc.perform(get("/api/produtos/cardapio"))
@@ -75,7 +76,8 @@ class ProdutoControllerTest {
                 .andExpect(jsonPath("$.categorias[0].produtos[0].id").value(2))
                 .andExpect(jsonPath("$.categorias[0].produtos[0].nome").value("X-Burger"))
                 .andExpect(jsonPath("$.categorias[0].produtos[0].descricao").value("Pão, carne e queijo"))
-                .andExpect(jsonPath("$.categorias[0].produtos[0].preco").value(25));
+                .andExpect(jsonPath("$.categorias[0].produtos[0].preco").value(25))
+                .andExpect(jsonPath("$.categorias[0].produtos[0].quantidadeEstoque").value(8));
 
         verify(produtoRepository).findByDisponivelTrue();
     }

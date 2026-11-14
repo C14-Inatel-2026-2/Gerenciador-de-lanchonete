@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { atualizarStatus, listarFila } from "../services/cozinha";
 import { formatCurrency } from "../utils/formatCurrency";
+import { ROTULO_STATUS } from "../utils/statusPedido";
 
 // Mesmas transições da máquina de estados do backend (Pedido.alterarStatus).
 // O front só mostra os botões válidos; quem garante a regra é o backend (409).
@@ -8,12 +9,6 @@ const PROXIMOS_STATUS = {
   CRIADO: ["EM_PREPARO", "CANCELADO"],
   EM_PREPARO: ["PRONTO", "CANCELADO"],
   PRONTO: ["ENTREGUE"],
-};
-
-const ROTULO_STATUS = {
-  CRIADO: "Recebido",
-  EM_PREPARO: "Em preparo",
-  PRONTO: "Pronto",
 };
 
 const ROTULO_ACAO = {

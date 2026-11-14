@@ -39,6 +39,7 @@ function AdminDashboard() {
     const faturamento = resumo?.faturamentoHoje ?? 0;
     const produtosAtivos = resumo?.produtosAtivos ?? 0;
     const usuarios = resumo?.usuariosCadastrados ?? 0;
+    const produtosComEstoqueBaixo = resumo?.produtosComEstoqueBaixo ?? [];
 
     const pedidosRecentes = resumo?.pedidosRecentes ?? [];
 
@@ -68,8 +69,20 @@ function AdminDashboard() {
                 />
             </section>
 
-            <TabelaPedidosRecentes pedidos={pedidosRecentes} />
+            {produtosComEstoqueBaixo.length > 0 && (
+                <div className="alerta-estoque-baixo" role="alert">
+                    <strong>⚠️ Estoque baixo:</strong>
+                    <ul>
+                        {produtosComEstoqueBaixo.map((produto) => (
+                            <li key={produto.id}>
+                                {`${produto.nome}: ${produto.quantidadeEstoque === 0 ? "esgotado" : `${produto.quantidadeEstoque} un.`}`}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
+            <TabelaPedidosRecentes pedidos={pedidosRecentes} />
         </main>
     );
 }
