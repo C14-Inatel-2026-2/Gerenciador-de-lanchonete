@@ -109,7 +109,8 @@ Não versione os arquivos `.env` nem compartilhe senhas ou segredos. A chave `se
 
 ### Front-end
 
-<!-- Responsável pelo front-end: documentar e validar os comandos de execução. -->
+1. Na pasta `frontend`, instale as dependências com `npm install` (somente na primeira vez).
+2. Inicie a interface com `npm run dev` e abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`).
 
 ### ⚙️ CI/CD local (Jenkins)
 
@@ -166,7 +167,10 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Cozinha (funcionário)
 
-<!-- Lilyan: documentar consulta da fila, atualização de status e cancelamento. -->
+1. Entre com uma conta de **funcionário** (ou admin) e acesse **Cozinha**.
+2. A fila mostra os pedidos **Recebidos**, **Em preparo** e **Prontos**, do mais antigo para o mais novo, com itens, total e horário. A tela se atualiza sozinha a cada 10 segundos.
+3. Use os botões de cada pedido: **Iniciar preparo** → **Marcar como pronto** → **Entregar**. Pedidos entregues saem da fila.
+4. Para cancelar, use **Cancelar** (disponível só enquanto o pedido está Recebido ou Em preparo). Os itens voltam para o estoque.
 
 ### Administrador
 
@@ -191,7 +195,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 - **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
 - **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos, além de cadastrar e editar categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
 - **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
-- **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
+- **Fila da cozinha e status do pedido (US04):** o funcionário (ou admin) vê a fila da cozinha com os pedidos Recebidos, Em preparo e Prontos, do mais antigo para o mais novo, atualizada a cada 10 segundos. Cada pedido mostra só os botões das transições válidas (Iniciar preparo, Marcar como pronto, Entregar, Cancelar). A regra da máquina de estados fica no backend, sendo que uma transição inválida é recusada com 409 e o status não muda. Cancelar só é permitido enquanto o pedido está Recebido ou Em preparo. Ao cancelar, as quantidades dos itens voltam para o estoque.
 - **Painel administrativo (US05):** <!-- Yasmin: preencher. -->
 
 ---
@@ -205,7 +209,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
 | US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
 | US03     |               |                                                                                                                                                        |                             |
-| US04     |               |                                                                                                                                                        |                             |
+| US04     | Funcionário   | Ver a fila da cozinha (pedidos Recebidos, Em preparo e Prontos, do mais antigo para o mais novo) e avançar ou cancelar o pedido seguindo a máquina de estados; transições inválidas são recusadas e o cancelamento devolve o estoque. | RF-CIC01–RF-CIC06           |
 | US05     |               |                                                                                                                                                        |                             |
 | US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
 | US07     | Administrador | Listar usuários, alterar o perfil (promover a funcionário), desativar e reativar contas, sem alterar a própria role.                                   | RF-AUT06, RF-AUT08–RF-AUT12 |
@@ -225,8 +229,8 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Lilyan     | Código duplicado: a regra de transição de status era validada no `PedidoLifecycleService.atualizarStatus` e de novo em `Pedido.alterarStatus`; e `Pedido.setStatus` era público, sem uso, e permitia pular a máquina de estados | Remover a validação duplicada do service (a regra fica só em `Pedido.alterarStatus`) e remover o `setStatus` sem uso | A regra de transição fica em um lugar só, e não sobra um caminho para mudar o status sem validação | [#21](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/21) |
+| Lilyan     | Código morto: `avancarParaPreparo`, `marcarComoPronto`, `entregar` e `cancelarPedido` no `PedidoLifecycleService` não eram usados (a API usa só `atualizarStatusPorId`) | Remover os 4 métodos sem uso; os testes passaram a exercitar o fluxo real por `atualizarStatus` | Menos código para manter e para confundir: há um único caminho para mudar o status | [#84](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/84) |
 | Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 
@@ -237,17 +241,6 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 <!-- Grupo: complementar, se necessário, a descrição da metodologia e da dinâmica. -->
 
 - [Metodologia de desenvolvimento](docs/METODOLOGIA.md)
-
----
-
-## Uso de IA
-
-<!-- Registrar alguns exemplos de como utilizamos ferramentas de IA no projeto. -->
-
-## Rodando o frontend
-
-1. Na pasta `frontend`, instale as dependências com `npm install` (somente na primeira vez).
-2. Inicie a interface com `npm run dev` e abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`).
 
 ---
 
