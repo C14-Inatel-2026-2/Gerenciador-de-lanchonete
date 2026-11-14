@@ -156,7 +156,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Cliente
 
-<!-- Karolina: documentar cadastro/login; Júlia: documentar carrinho e finalização do pedido. -->
+<!-- Karolina: documentar cadastro/login -->
 
 **Cardápio (US02 e US08):**
 
@@ -196,9 +196,13 @@ Adicione algum produto da nossa seleção para começar."
 <!-- Cada responsável: resumir as funcionalidades do módulo e relacioná-las às histórias de usuário. -->
 
 - **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
+
 - **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos, além de cadastrar e editar categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
-- **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
+
+- **Carrinho e pedidos (US03):** o cliente adiciona produtos do cardápio ao carrinho, altera ou remove quantidades, acompanha o total e mantém o carrinho salvo no navegador. A quantidade respeita o estoque informado pelo catálogo (US08). Ao finalizar, o sistema cria o pedido para o cliente autenticado com status inicial `CRIADO`, valida preços e estoque no backend e, se houver erro, preserva o carrinho. Após o sucesso, exibe o número do pedido e limpa o carrinho. Em **Meus pedidos**, o cliente consulta seu histórico e os status retornados pela API, atualizados pelo fluxo da cozinha (US04).
+
 - **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
+
 - **Painel administrativo (US05):** <!-- Yasmin: preencher. -->
 
 ---
