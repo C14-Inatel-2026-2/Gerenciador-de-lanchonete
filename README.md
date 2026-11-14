@@ -29,16 +29,9 @@ Perfis de usuário: Cliente, Funcionário (cozinha) e Administrador.
 
 ---
 
-## 🌐 Aplicação publicada
+## 🚀 Deploy
 
-<!-- Responsável pelo deploy: preencher as URLs publicadas do front-end e do back-end. -->
-
-- **Front-end:** _URL a preencher_
-- **Back-end:** _URL a preencher_
-
-### 🚀 Deploy
-
-### Aplicação publicada
+### 🌐 Aplicação publicada
 
 - **Frontend (Vercel):** https://gerenciador-de-lanchonete.vercel.app
 - **Backend (Render):** https://gerenciador-de-lanchonete.onrender.com
@@ -199,7 +192,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 - **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos, além de cadastrar e editar categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
 - **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
 - **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
-- **Painel administrativo (US05):** <!-- Yasmin: preencher. -->
+- **Painel administrativo (US05):** o administrador visualiza um painel com o resumo do funcionamento da lanchonete, incluindo a quantidade de pedidos do dia, o faturamento diário (desconsiderando pedidos cancelados), a quantidade de produtos ativos e de usuários cadastrados. O painel também apresenta a lista de pedidos recentes com seus respectivos status e destaca quando existem produtos com estoque baixo. O acesso ao painel é restrito ao perfil ADMIN.
 
 ---
 
@@ -208,12 +201,12 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 <!-- Cada responsável pelo módulo: preencher a rastreabilidade entre suas histórias, funcionalidades e requisitos. -->
 
 | História | Perfil        | Funcionalidade                                                                                                                                         | Requisitos relacionados     |
-| -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| -------- | ------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------| --------------------------- |
 | US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
 | US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
 | US03     |               |                                                                                                                                                        |                             |
 | US04     |               |                                                                                                                                                        |                             |
-| US05     |               |                                                                                                                                                        |                             |
+| US05     | Administrador | Visualizar um painel administrativo com resumo do dia. Acesso restrito a administradores.                                                              | RF-ADM01–RF-ADM07           |
 | US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
 | US07     | Administrador | Listar usuários, alterar o perfil (promover a funcionário), desativar e reativar contas, sem alterar a própria role.                                   | RF-AUT06, RF-AUT08–RF-AUT12 |
 | US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10                    |
@@ -225,7 +218,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 <!-- Cada integrante: preencher duas linhas com refactorings realizados. -->
 
 | Integrante | Code smell                                                                                                                                                                                               | Refactoring aplicado                                                                                                                                 | Por quê                                                                                     | PR                                                                            |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| ---------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Karolina   | Código duplicado: `podeGerenciarUsuarios`, `podeAlterarRole` e `podeDesativarUsuario` (e depois `podeGerenciarCatalogo`) tinham o mesmo corpo no `AuthorizationService`                                  | Extrair método: `private boolean ehAdminAtivo(UserProfile)`, e as 4 permissões de ADMIN passaram a delegar para ele                                  | Se a regra de administrador mudar, muda em um lugar só                                      | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
 | Karolina   | Setup repetido: `new AuthorizationService()` em todos os testes do `AuthorizationServiceTest`; e nome enganoso `validarEmail` no `UserService` (validava **e** normalizava, com a regex solta no método) | Refatorar teste: campo `service` criado no `@BeforeEach`; renomear para `normalizarEValidarEmail` e extrair a regex para a constante `FORMATO_EMAIL` | Menos repetição, testes focados no que verificam, e o nome passa a dizer o que o método faz | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
 | Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
@@ -234,8 +227,8 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Yasmin     | Código duplicado: os rótulos de status dos pedidos eram mantidos em mais de um componente (AdminDashboard, Cozinha e OrdersPage).                                                                        | Extrair constante compartilhada ROTULO_STATUS para utils/statusPedido.js e reutilizar o mesmo mapeamento nos componentes.                            | Evita duplicação de código, mantém os rótulos consistentes entre as telas e facilita futuras alterações em um único lugar.                                 | #48                                                                              |
+| Yasmin     | Componente AdminDashboard concentrava responsabilidades de exibição das métricas e da tabela de pedidos em um único arquivo.                                                                                                                                                                                                         | Extrair os componentes CardMetrica e TabelaPedidosRecentes, deixando o AdminDashboard responsável apenas pela composição da tela.     |  Melhora a organização do código, aumenta a reutilização dos componentes e facilita testes e manutenção.                                                                                           | #48                                                                              |
 
 ---
 
@@ -320,7 +313,15 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Painel administrativo (US05)
 
-<!-- Yasmin: adicione suas linhas abaixo -->
+| ID | Requisito funcional | História |
+|----|---------------------|----------|
+| RF-ADM01 | O sistema deve permitir que apenas usuários com perfil ADMIN acessem o painel administrativo. | US05 |
+| RF-ADM02 | O painel deve exibir a quantidade de pedidos realizados no dia. | US05 |
+| RF-ADM03 | O painel deve exibir o faturamento do dia desconsiderando pedidos cancelados. | US05 |
+| RF-ADM04 | O painel deve exibir a quantidade de produtos ativos cadastrados. | US05 |
+| RF-ADM05 | O painel deve exibir a quantidade de usuários cadastrados. | US05 |
+| RF-ADM06 | O painel deve listar os pedidos mais recentes com seus respectivos status. | US05 |
+| RF-ADM07 | O painel deve destacar quando existirem produtos com estoque baixo. | US05 |
 
 | ID  | Requisito funcional | História |
 | --- | ------------------- | -------- |
@@ -385,7 +386,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Painel administrativo
 
-<!-- Yasmin: adicione suas linhas abaixo -->
+| ID | Categoria | Requisito não funcional | Como verificar |
+|----|-----------|-------------------------|----------------|
+| RNF-ADM01 | Desempenho | O painel administrativo deve carregar o resumo do dia em até 1 segundo em condições normais de uso. | Medir o tempo da requisição para `/api/admin/resumo`. |
+| RNF-ADM02 | Segurança | Apenas usuários com perfil ADMIN podem acessar o painel administrativo; outros perfis devem receber acesso negado. | Testar acesso com CLIENTE e FUNCIONÁRIO e verificar resposta de autorização. |
+| RNF-ADM03 | Confiabilidade | Em caso de erro na consulta do resumo, o sistema deve informar a falha sem interromper o funcionamento da aplicação. | Simular indisponibilidade da API e verificar a mensagem de erro no painel. |
+| RNF-ADM04 | Qualidade | O módulo administrativo deve possuir testes automatizados para os componentes principais do painel. | Executar `npm run test:run` e verificar os testes do AdminDashboard. |
+| RNF-ADM05 | Manutenibilidade | Os rótulos de status utilizados pelo painel devem ser reutilizados a partir de um utilitário compartilhado (`statusPedido.js`), evitando duplicação de código. | Verificar que AdminDashboard, Cozinha e Meus Pedidos utilizam `ROTULO_STATUS` do utilitário compartilhado. |
 
 | ID  | Categoria | Requisito não funcional | Como verificar |
 | --- | --------- | ----------------------- | -------------- |
@@ -398,13 +405,13 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Visão geral do grupo
 
-| Integrante | Ferramentas | Principais usos |
-|---|---|---|
-| Lilyan | Claude e Gemini | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos |
-| Karolina | <!-- Karolina preenche --> | |
-| Beatriz | <!-- Beatriz preenche --> | |
-| Júlia | Copilot e ChatGPT | Código e testes, investigação de erros, revisão do que era feito, questionamento sobre conceitos e ferramentas |
-| Yasmin | <!-- Yasmin preenche --> | |
+| Integrante | Ferramentas                | Principais usos                                                                                                            |
+| ---------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Lilyan     | Claude e Gemini            | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos                                 |
+| Karolina   | <!-- Karolina preenche --> |                                                                                                                            |
+| Beatriz    | Claude e Copilot           | Códigos e testes, compreensão de novos conceitos e ferramentas, investigação de erros, entendimento de Git, revisão de PRs |
+| Júlia      | Copilot e ChatGPT          | Código e testes, investigação de erros, revisão do que era feito, questionamento sobre conceitos e ferramentas             |
+| Yasmin     | ChatGPT   |                   Código e testes, investigação e resolução de erros, revisão de PRs, documentação, configuração de deploy (Render/Vercel/Jenkins), organização das entregas e compreensão de conceitos e ferramentas.                                                                                                         |
 
 ### Lilyan
 
@@ -427,32 +434,36 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Beatriz
 
-<!-- Beatriz: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+**Como usei:** usei dois assistentes, o Copilot e o Claude, em papéis diferentes. O Copilot ficou mais próximo do código, porque enxergava os arquivos do projeto. Então eu usei para entender melhor os comentários de revisão das PRs, investigar testes que falhavam, aplicar ajustes pontuais no catálogo e entender o código das minhas colegas. O Claude usei mais para complementar a explicação de cada etapa, principalmente em configuração de ambiente, pipeline e Git. Como foi a minha primeira vez com branches, PRs e merges, muitas das minhas perguntas foram sobre esse fluxo.
+
+**Exemplos reais**
+
+| Pedido à IA (resumido)                                                                                 | O que a IA respondeu                                                                                                                                         | O que eu fiz                                                                                                                                                                                                              | Resultado    |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| Pedi ajuda para corrigir algumas implementações solicitadas na PR #68.                                 | Retornou possíveis correções para as implementações. Também ajudou a resolver o conflito no AuthorizationService, mantendo os métodos de catálogo e cozinha. | Revisei as sugestões e mantive as alterações dentro do escopo combinado. Rodei os testes relacionados e eles passaram.                                                                                                    | **Aceito**   |
+| Corrigir os testes iniciais para o `CategoriaService` que eu havia feito.                              | Sugeriu correções para salvar categoria válida, rejeitar nome nulo, vazio, em branco ou duplicado e listar categorias.                                       | Avaliei os cenários, pedi para que me explicasse melhor os erros e suas respectivas correções no código que eu iniciei. Fiz as mudanças que estavam de acordo com o escopo e rodei os testes para validar.                | **Ajustado** |
+| Como guardar o trabalho do filtro por categoria, ainda incompleto, para trocar de branch sem commitar. | Explicou o `git stash` para guardar as alterações e `git stash pop` para recuperá-las depois, e sugeriu manter um backup do trabalho.                        | Guardei o trabalho (`backup-wip-filtro`) e voltei a ele depois de terminar os controllers.                                                                                                                                | **Aceito**   |
+| Como juntar os ajustes pedidos nas PRs #64, #67 e #68 sem abrir várias PRs novas.                      | Explicou o fluxo: fazer os ajustes na branch da #68, mergear só ela e fechar as outras como já incluídas.                                                    | Combinei com a colega, fiz os ajustes na branch da #68 e, depois do merge, fechei a #67 como incluída.                                                                                                                    | **Aceito**   |
+| Montar o stage de testes do pipeline (JaCoCo + relatório JUnit), explicando cada ponto.                | Indicou como configurar o JaCoCo no `pom.xml` e o stage "Testes Backend" no Jenkinsfile, explicando cada trecho.                                             | Segui as etapas, executei o pipeline no meu Jenkins local, verifiquei o relatório e a cobertura (87,46%) e abri a PR #14 com prints como evidência. Também ajustei os relatórios dos testes Backend e Frontend no Jenkins | **Aceito**   |
+
+**O que fiz sem IA:** rodei localmente os comandos e os testes e conferi os resultados; revisei cada sugestão, decidi quais eram adequadas ao escopo do projeto e reescrevi o código gerado com apoio da IA, quando necessário; testei as telas do meu módulo.
 
 ### Júlia
+
 **Como usei:** utilizei majoritariamente o Copilot, que podia acessar os arquivos locais sem esgotar após poucas requisições e facilitava a análise. No início, o histórico das conversas não era mantido quando eu fechava a IDE. Dessa forma, sempre que iniciava um novo chat, definia que deveria primeiro análisar os arquivos considerando a minha pergunta e me entregar um plano de ação antes de qualquer execução, que só poderia ocorrer se fosse explicitamente solicitada. Também utilizei para compreender melhor o código das minhas colegas e algumas das minhas tarefas, reforçar comandos git e tirar dúvidas sobre as ferramentas utilizadas e sobre Engenharia de Software.
 
 **Exemplos reais**
 
-| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
-|---|---|---|---|
-| Analisar os métodos iniciais e verificar quais outros poderiam ser introduzidos no carrinho e nos pedidos. | Sugeriu, por exemplo, um método para a validação dos itens e outro para a verificação da presença ou não de item específico no carrinho. | Avaliei o que tinha até o momento e se fazia sentido com nosso planejamento inicial. | **Aceito** |
-| Fazer testes para o frontend a fim de verificar elementos que considerei necessários naquele momento. | Criou os métodos específicos que solicitei e mais alguns. | Como não sabia como os testes para frontend eram feitos, pedi para que me explicasse a ideia geral e como foi feito em cada teste. Analisei se faziam sentido e se seriam adequados ao planejamento. | **Aceito** |
-| Solicitei que me auxiliasse a implementar as adaptações recomendadas após a avaliação da [PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59). | Como o frontend do cardápio ainda não estava implementado, uma das sugestões foi que eu fizesse uma parcela dessa implementação. | Analisei se minha parte realmente precisaria disso e, entendendo que sim, mas sabendo que outra integrante estava encarregada deste módulo, optei por não fazer e apenas adaptar o mock utilizado para seguir o padrão da API. | **Ajustado** |
+| Pedido à IA (resumido)                                                                                                                                                     | O que a IA respondeu                                                                                                                     | O que eu fiz                                                                                                                                                                                                                   | Resultado    |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| Analisar os métodos iniciais e verificar quais outros poderiam ser introduzidos no carrinho e nos pedidos.                                                                 | Sugeriu, por exemplo, um método para a validação dos itens e outro para a verificação da presença ou não de item específico no carrinho. | Avaliei o que tinha até o momento e se fazia sentido com nosso planejamento inicial.                                                                                                                                           | **Aceito**   |
+| Fazer testes para o frontend a fim de verificar elementos que considerei necessários naquele momento.                                                                      | Criou os métodos específicos que solicitei e mais alguns.                                                                                | Como não sabia como os testes para frontend eram feitos, pedi para que me explicasse a ideia geral e como foi feito em cada teste. Analisei se faziam sentido e se seriam adequados ao planejamento.                           | **Aceito**   |
+| Solicitei que me auxiliasse a implementar as adaptações recomendadas após a avaliação da [PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59). | Como o frontend do cardápio ainda não estava implementado, uma das sugestões foi que eu fizesse uma parcela dessa implementação.         | Analisei se minha parte realmente precisaria disso e, entendendo que sim, mas sabendo que outra integrante estava encarregada deste módulo, optei por não fazer e apenas adaptar o mock utilizado para seguir o padrão da API. | **Ajustado** |
 
 **O que fiz sem IA:** executei localmente os comandos e testes e conferi os resultados. Também naveguei pelas telas para procurar problemas que os testes não cobriam. Revisei e reescrevi, quando necessário, o código gerado com apoio da IA.
 
 ### Yasmin
 
-**Como usei:** utilizei o ChatGPT durante todo o desenvolvimento como apoio para análise de problemas, investigação de erros de infraestrutura, revisão de código, documentação e organização das entregas. A IA foi utilizada para sugerir hipóteses, explicar mensagens de erro, revisar Pull Requests e auxiliar na redação da documentação. Todas as alterações foram implementadas, executadas e validadas por mim localmente antes de serem incorporadas ao projeto.
+<!-- Yasmin: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
 
-**Exemplos reais**
-
-| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
-|---|---|---|---|
-| Corrigir o deploy do backend no Render (#17) | Sugeriu ajustes no Dockerfile para adequá-lo ao ambiente do Render. | Revisei as sugestões, adaptei o Dockerfile à estrutura do projeto, validei o build localmente e confirmei o funcionamento no Render antes de publicar. | **Ajustado** |
-| Configurar o deploy automático pelo Jenkins para Render e Vercel (#22) | Auxiliou na organização da pipeline e na integração entre Jenkins, Render e Vercel. | Configurei os Deploy Hooks, ajustei as variáveis de ambiente, testei toda a pipeline e participei da estabilização do processo para que apenas a branch `main` realizasse os deploys automáticos. | **Aceito** |
-| Investigar erro de build na Vercel relacionado ao `ROTULO_STATUS` | A primeira hipótese apontava para um problema de importação do arquivo. | Analisei os logs completos da Vercel, identifiquei que o problema era a ausência da exportação esperada no arquivo `statusPedido.js`, corrigi a implementação e validei um novo deploy com sucesso. | **Aceito** |
-| Implementar diretamente o alerta de estoque baixo no painel administrativo antes da integração completa da API | A IA sugeriu antecipar a implementação utilizando dados simulados para concluir a funcionalidade. | Questionei a abordagem e optei por aguardar a integração com o backend já implementado, evitando criar uma solução temporária que precisaria ser refeita posteriormente. | **Descartado** |
-
-**O que fiz sem IA:** corrigi o Dockerfile utilizado pelo Render para permitir o deploy do backend; configurei o deploy automático entre Jenkins, Render e Vercel utilizando Deploy Hooks e variáveis de ambiente; configurei as variáveis necessárias para a integração com o Supabase nos ambientes de publicação; participei da estabilização da pipeline para que apenas a branch `main` realizasse os deploys automáticos; identifiquei que o `npm install` estava sendo executado na pasta incorreta no início do projeto; corrigi a estrutura do `vercel.json`, que havia sido criado dentro da pasta `src`; investiguei os logs da Vercel para localizar a causa do erro de exportação do `ROTULO_STATUS`; revisei Pull Requests, validei localmente todas as alterações antes do merge e revisei toda a documentação gerada pela IA antes de incorporá-la ao projeto.
+---
