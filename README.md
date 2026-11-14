@@ -75,14 +75,6 @@ gerenciador-lanchonete/
 - Node.js 22
 - Docker
 
-### Instalação do back-end
-
-<!-- Responsável pelo back-end: preencher e validar. -->
-
-### Instalação do front-end
-
-<!-- Responsável pelo front-end: preencher e validar. -->
-
 ---
 
 ## Como executar
@@ -221,10 +213,10 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | ---------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Karolina   | Código duplicado: `podeGerenciarUsuarios`, `podeAlterarRole` e `podeDesativarUsuario` (e depois `podeGerenciarCatalogo`) tinham o mesmo corpo no `AuthorizationService`                                  | Extrair método: `private boolean ehAdminAtivo(UserProfile)`, e as 4 permissões de ADMIN passaram a delegar para ele                                  | Se a regra de administrador mudar, muda em um lugar só                                      | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
 | Karolina   | Setup repetido: `new AuthorizationService()` em todos os testes do `AuthorizationServiceTest`; e nome enganoso `validarEmail` no `UserService` (validava **e** normalizava, com a regex solta no método) | Refatorar teste: campo `service` criado no `@BeforeEach`; renomear para `normalizarEValidarEmail` e extrair a regex para a constante `FORMATO_EMAIL` | Menos repetição, testes focados no que verificam, e o nome passa a dizer o que o método faz | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
-| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Júlia | Código duplicado: método `validarQuantidade` em `ItemCarrinho` e `ItemPedido` e método `validarProdutoId` em `CarrinhoCompras` e `ItemPedido`. | Criação da classe `ValidacoesCompras` para centralizar os métodos mencionados e usá-los nas classes. | A mesma regra fica em somente um lugar e não corre o risco de divergir. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
-| Júlia | Código duplicado na preparação de dados de teste: vários testes criavam `Produto` repetindo a configuração de `nome`, `descrição`, `preço`, `categoria` e `ID`. | Criação da classe `ProdutoTestFactory` para centralizar essa preparação e manter os dados necessários visíveis em cada cenário de teste. | Apenas um lugar para montar produtos a serem utilizados nos testes de compras, evitando divergências. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
+| Beatriz    | `ProdutoService.validarDados` faz tudo junto: o método valida, no mesmo bloco, se o nome foi informado, se o preço é válido e se a categoria foi informada.                                              | Extrair `validarNome(nome)`, `validarPreco(preco)` e `validarCategoria(categoriaId)`, mantendo `validarDados` como método coordenador e preservando a ordem atual: nome, preço e categoria. | Cada regra fica com nome próprio e pode ser entendida e mantida separadamente.              | [#93](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/93) |
+| Beatriz    | Setup repetido no `ProdutoServiceTest`: `new Categoria("Lanches")` e `new Produto("X-Burguer", "Delicioso", ..., categoria)` copiados em quase todos os testes.                                          | `@beforeeach` criando a categoria e um método auxiliar `produtoComPreco(BigDecimal preco)`.                                                                                                 | Os testes ficam mostrando só o que muda em cada cenário.                                    | [#93](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/93) |
+| Júlia      | Código duplicado: método `validarQuantidade` em `ItemCarrinho` e `ItemPedido` e método `validarProdutoId` em `CarrinhoCompras` e `ItemPedido`. | Criação da classe `ValidacoesCompras` para centralizar os métodos mencionados e usá-los nas classes. | A mesma regra fica em somente um lugar e não corre o risco de divergir. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
+| Júlia      | Código duplicado na preparação de dados de teste: vários testes criavam `Produto` repetindo a configuração de `nome`, `descrição`, `preço`, `categoria` e `ID`. | Criação da classe `ProdutoTestFactory` para centralizar essa preparação e manter os dados necessários visíveis em cada cenário de teste. | Apenas um lugar para montar produtos a serem utilizados nos testes de compras, evitando divergências. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
 | Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Yasmin     | Código duplicado: os rótulos de status dos pedidos eram mantidos em mais de um componente (AdminDashboard, Cozinha e OrdersPage).                                                                        | Extrair constante compartilhada ROTULO_STATUS para utils/statusPedido.js e reutilizar o mesmo mapeamento nos componentes.                            | Evita duplicação de código, mantém os rótulos consistentes entre as telas e facilita futuras alterações em um único lugar.                                 | #48                                                                              |
@@ -239,10 +231,6 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 - [Metodologia de desenvolvimento](docs/METODOLOGIA.md)
 
 ---
-
-## Uso de IA
-
-<!-- Registrar alguns exemplos de como utilizamos ferramentas de IA no projeto. -->
 
 ## Rodando o frontend
 
