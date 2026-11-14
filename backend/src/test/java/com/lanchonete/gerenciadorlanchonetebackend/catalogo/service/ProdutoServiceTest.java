@@ -3,12 +3,14 @@ package com.lanchonete.gerenciadorlanchonetebackend.catalogo.service;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.CategoriaCardapioResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.dto.ProdutoCardapioResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.EstoqueInsuficienteException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.exception.ProdutoDuplicadoException;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Categoria;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.CategoriaRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,10 +37,17 @@ public class ProdutoServiceTest {
     @InjectMocks
     private ProdutoService produtoService;
 
+    private Categoria categoria;
+
+    @BeforeEach
+    void setUp() {
+        categoria = new Categoria("Lanches");
+        categoria.setId(1L);
+    }
+
     @Test
     void excecaoParaPrecoNegativo() {
-        Categoria categoria = new Categoria("Lanches");
-        Produto produto = new Produto("X-Burguer", "Delicioso", BigDecimal.valueOf(-10), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(-10));
 
         assertThrows(IllegalArgumentException.class, () -> produtoService.salvar(produto));
         verify(produtoRepository, never()).save(any());
@@ -53,9 +62,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveSalvarProdutoValido() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(produtoRepository.save(produto)).thenReturn(produto);
 
@@ -67,8 +74,6 @@ public class ProdutoServiceTest {
 
     @Test
     void excecaoParaProdutoComNomeDuplicado(){
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
         Produto produto = new Produto(" x-burguer ", "Delicioso", BigDecimal.valueOf(15), categoria);
 
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -81,8 +86,6 @@ public class ProdutoServiceTest {
 
     @Test
     void deveApararNomeDoProdutoAoSalvar() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
         Produto produto = new Produto(" X-Burger ", "Delicioso", BigDecimal.valueOf(15), categoria);
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
         when(produtoRepository.save(produto)).thenReturn(produto);
@@ -96,9 +99,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveEditarProdutoSemTratarSeuProprioNomeComoDuplicado() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -114,9 +115,7 @@ public class ProdutoServiceTest {
 
     @Test
     void deveApararNomeDoProdutoAoEditar() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -131,9 +130,7 @@ public class ProdutoServiceTest {
 
     @Test
     void naoDeveEditarProdutoComNomeDuplicadoIgnorandoMaiusculasMinusculas() {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(1L);
-        Produto produto = new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoria);
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
         produto.setId(2L);
         when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
@@ -155,7 +152,7 @@ public class ProdutoServiceTest {
         assertThrows(
                 RecursoNaoEncontradoException.class,
                 () -> produtoService.salvar(
-                        new Produto("X-Burger", "Delicioso", BigDecimal.valueOf(15), categoriaComId(1L))
+                        produtoComPreco(BigDecimal.valueOf(15))
                 )
         );
 
@@ -171,8 +168,10 @@ public class ProdutoServiceTest {
 
         Produto xBurguer = new Produto("X-Burger", "Pão, carne e queijo", BigDecimal.valueOf(25), lanches);
         xBurguer.setId(10L);
+        xBurguer.setQuantidadeEstoque(4);
         Produto suco = new Produto("Suco", "Suco natural", BigDecimal.valueOf(8), bebidas);
         suco.setId(11L);
+        suco.setQuantidadeEstoque(0);
         when(produtoRepository.findByDisponivelTrue()).thenReturn(List.of(xBurguer, suco));
 
         CardapioResponse cardapio = produtoService.obterCardapio();
@@ -185,7 +184,9 @@ public class ProdutoServiceTest {
                         10L,
                         "X-Burger",
                         "Pão, carne e queijo",
-                        BigDecimal.valueOf(25)
+                        BigDecimal.valueOf(25),
+                        4,
+                        false
                 )),
                 cardapio.categorias().get(0).produtos()
         );
@@ -196,7 +197,9 @@ public class ProdutoServiceTest {
                         11L,
                         "Suco",
                         "Suco natural",
-                        BigDecimal.valueOf(8)
+                        BigDecimal.valueOf(8),
+                        0,
+                        true
                 )),
                 cardapio.categorias().get(1).produtos()
         );
@@ -213,9 +216,72 @@ public class ProdutoServiceTest {
         assertEquals("Cardápio vazio: não há produtos disponíveis.", cardapio.mensagem());
     }
 
-    private Categoria categoriaComId(Long id) {
-        Categoria categoria = new Categoria("Lanches");
-        categoria.setId(id);
-        return categoria;
+    @Test
+    void baixarEstoqueInsuficienteNaoSalvaProduto() {
+        Produto produto = new Produto(
+                "Hamburguer",
+                "Produto de teste",
+                new BigDecimal("12.50"),
+                new Categoria("Lanches")
+        );
+        produto.setId(1L);
+        produto.setQuantidadeEstoque(1);
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstoqueInsuficienteException exception = assertThrows(
+                EstoqueInsuficienteException.class,
+                () -> produtoService.baixarEstoque(1L, 2)
+        );
+
+        assertEquals("Estoque insuficiente: disponível 1, solicitado 2",
+                exception.getMessage());
+        assertEquals(1, produto.getQuantidadeEstoque());
+        verify(produtoRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void atualizarEstoqueRejeitaQuantidadeNegativa() {
+        assertThrows(IllegalArgumentException.class, () -> produtoService.atualizarEstoque(1L, -1));
+        verifyNoInteractions(produtoRepository);
+    }
+
+    @Test
+    void deveBaixarEstoqueDoProduto() {
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
+        produto.setId(2L);
+        produto.setQuantidadeEstoque(5);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(produtoRepository.saveAndFlush(produto)).thenReturn(produto);
+
+        Produto atualizado = produtoService.baixarEstoque(2L, 2);
+
+        assertEquals(3, atualizado.getQuantidadeEstoque());
+        verify(produtoRepository).saveAndFlush(produto);
+    }
+
+    @Test
+    void deveReporEstoqueDoProduto() {
+        Produto produto = produtoComPreco(BigDecimal.valueOf(15));
+        produto.setId(2L);
+        produto.setQuantidadeEstoque(5);
+        when(produtoRepository.findById(2L)).thenReturn(Optional.of(produto));
+        when(produtoRepository.saveAndFlush(produto)).thenReturn(produto);
+
+        Produto atualizado = produtoService.reporEstoque(2L, 2);
+
+        assertEquals(7, atualizado.getQuantidadeEstoque());
+        verify(produtoRepository).saveAndFlush(produto);
+    }
+
+    @Test
+    void deveRetornar404AoBaixarEstoqueDeProdutoInexistente() {
+        when(produtoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> produtoService.baixarEstoque(99L, 1));
+        verify(produtoRepository, never()).saveAndFlush(any());
+    }
+
+    private Produto produtoComPreco(BigDecimal preco) {
+        return new Produto("X-Burger", "Delicioso", preco, categoria);
     }
 }

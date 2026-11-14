@@ -1,7 +1,9 @@
 package com.lanchonete.gerenciadorlanchonetebackend.admin.service;
 
 import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.PedidoRecenteResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.ProdutoEstoqueBaixoResponse;
 import com.lanchonete.gerenciadorlanchonetebackend.admin.dto.ResumoResponse;
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.model.Produto;
 import com.lanchonete.gerenciadorlanchonetebackend.catalogo.repository.ProdutoRepository;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
@@ -15,6 +17,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +31,9 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     private static final BigDecimal ZERO = BigDecimal.ZERO.setScale(2);
+
+    /** Até quantas unidades o produto entra no alerta de estoque baixo do painel (#56). */
+    static final int LIMITE_ESTOQUE_BAIXO = 5;
 
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
@@ -62,7 +68,8 @@ public class AdminService {
                 contarPorStatus(pedidosDeHoje),
                 produtoRepository.countByDisponivelTrue(),
                 userProfileRepository.count(),
-                listarPedidosRecentes()
+                listarPedidosRecentes(),
+                listarProdutosComEstoqueBaixo()
         );
     }
 
@@ -118,6 +125,19 @@ public class AdminService {
                         pedido.getStatus(),
                         pedido.getTotal(),
                         pedido.getCriadoEm()))
+                .toList();
+    }
+
+    /**
+     * Só produtos disponíveis no cardápio: um produto desativado não precisa de reposição.
+     * Os mais críticos primeiro (esgotados no topo), depois em ordem de nome.
+     */
+    private List<ProdutoEstoqueBaixoResponse> listarProdutosComEstoqueBaixo() {
+        return produtoRepository.findByDisponivelTrue().stream()
+                .filter(produto -> produto.getQuantidadeEstoque() <= LIMITE_ESTOQUE_BAIXO)
+                .sorted(Comparator.comparingInt(Produto::getQuantidadeEstoque).thenComparing(Produto::getNome))
+                .map(produto -> new ProdutoEstoqueBaixoResponse(
+                        produto.getId(), produto.getNome(), produto.getQuantidadeEstoque()))
                 .toList();
     }
 }

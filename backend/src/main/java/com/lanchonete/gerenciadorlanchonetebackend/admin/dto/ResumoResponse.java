@@ -11,6 +11,7 @@ import java.util.Map;
  *
  * "Hoje" é o dia no fuso de Brasília. pedidosHoje conta todos os pedidos do dia,
  * inclusive os cancelados; faturamentoHoje e ticketMedio desconsideram os cancelados.
+ * produtosComEstoqueBaixo traz os produtos disponíveis com até 5 unidades (#56).
  */
 public record ResumoResponse(
         long pedidosHoje,
@@ -19,6 +20,7 @@ public record ResumoResponse(
         Map<StatusPedido, Long> pedidosPorStatus,
         long produtosAtivos,
         long usuariosCadastrados,
-        List<PedidoRecenteResponse> pedidosRecentes
+        List<PedidoRecenteResponse> pedidosRecentes,
+        List<ProdutoEstoqueBaixoResponse> produtosComEstoqueBaixo
 ) {
 }

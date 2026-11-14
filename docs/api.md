@@ -100,16 +100,20 @@ O perfil criado em `POST /api/usuarios` é sempre `CLIENTE`, mesmo que o corpo t
 | `GET` | `/api/usuarios` | ADMIN | — | `200` `UsuarioResponse[]` |
 | `PATCH` | `/api/usuarios/{id}/role` | ADMIN | `{ "role": "FUNCIONARIO" }` | `200` `UsuarioResponse` |
 | `PATCH` | `/api/usuarios/{id}/desativar` | ADMIN | — | `200` `UsuarioResponse` (`ativo: false`) |
+| `PATCH` | `/api/usuarios/{id}/reativar` | ADMIN | — | `200` `UsuarioResponse` (`ativo: true`, mesmo perfil de antes) |
 
 - `GET /api/usuarios` traz ativos e desativados, em ordem de nome.
 - Para cadastrar um funcionário, ele se cadastra normalmente e o ADMIN muda a role dele para `FUNCIONARIO`.
 - O ADMIN **não pode** alterar a própria role nem desativar a si mesmo → `403`.
 - Usuário desativado continua no banco, mas perde o acesso às rotas protegidas (`403`).
+- **Não existe exclusão de usuário.** Desativar é a forma de tirar o acesso: o perfil e os pedidos antigos continuam no banco, e `PATCH /reativar` devolve o acesso com o mesmo perfil. A conta (e a senha) no Supabase não é alterada.
 - Erros: `400` role ausente ou inválida · `403` quem chama não é ADMIN ativo · `404` usuário não encontrado.
 
-#### Passo a passo: criar um funcionário pelo `curl`
+#### Criar um funcionário
 
-Enquanto a tela `/admin/usuarios` não existe, a promoção é feita pela API (PowerShell):
+Pela tela **`/admin/usuarios`** (menu Usuários, só ADMIN): a pessoa se cadastra em `/cadastro` e o admin troca o perfil dela para **Funcionário** no seletor da tabela.
+
+Pela API, com `curl` (PowerShell):
 
 1. A pessoa se cadastra normalmente na tela `/cadastro` (ela nasce `CLIENTE`).
 2. Pegue o token de um **ADMIN** (ver [Testando com `curl`](#testando-com-curl)) e guarde numa variável:
@@ -218,6 +222,10 @@ Transições permitidas: `CRIADO → EM_PREPARO | CANCELADO`, `EM_PREPARO → PR
   "usuariosCadastrados": 18,
   "pedidosRecentes": [
     { "id": 41, "cliente": "Maria", "status": "PRONTO", "total": 25.50, "criadoEm": "2026-11-12T19:30:00" }
+  ],
+  "produtosComEstoqueBaixo": [
+    { "id": 7, "nome": "Refrigerante", "quantidadeEstoque": 0 },
+    { "id": 3, "nome": "Suco natural", "quantidadeEstoque": 3 }
   ]
 }
 ```
@@ -228,4 +236,4 @@ Transições permitidas: `CRIADO → EM_PREPARO | CANCELADO`, `EM_PREPARO → PR
 - `produtosAtivos`: produtos disponíveis no cardápio. `usuariosCadastrados`: todos os perfis, ativos e desativados.
 - `pedidosRecentes`: os 5 pedidos mais recentes de **qualquer dia**, do mais novo para o mais antigo, com o nome do cliente.
 - Erros: `401` sem token ou sem perfil · `403` quem chama não é ADMIN ativo.
-- A lista `produtosComEstoqueBaixo` (#56) entra quando o campo de estoque do produto estiver na `main`.
+- `produtosComEstoqueBaixo` (#56): produtos **disponíveis** com **até 5 unidades** em estoque, dos esgotados para os demais e depois por nome. Lista vazia quando nenhum produto está nessa situação.
