@@ -39,6 +39,7 @@ function AdminDashboard() {
     const faturamento = resumo?.faturamentoHoje ?? 0;
     const produtosAtivos = resumo?.produtosAtivos ?? 0;
     const usuarios = resumo?.usuariosCadastrados ?? 0;
+    const produtosComEstoqueBaixo = resumo?.produtosComEstoqueBaixo ?? 0;
 
     const pedidosRecentes = resumo?.pedidosRecentes ?? [];
 
@@ -67,6 +68,13 @@ function AdminDashboard() {
                     valor={usuarios}
                 />
             </section>
+
+            {produtosComEstoqueBaixo > 0 && (
+                <div className="alerta-estoque-baixo">
+                    ⚠️ Atenção: existem {produtosComEstoqueBaixo} produtos com estoque baixo.
+                </div>
+            )}
+
 
             <TabelaPedidosRecentes pedidos={pedidosRecentes} />
 
