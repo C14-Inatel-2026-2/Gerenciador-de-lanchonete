@@ -444,6 +444,15 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Yasmin
 
-<!-- Yasmin: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+**Como usei:** utilizei o ChatGPT durante todo o desenvolvimento como apoio para análise de problemas, investigação de erros de infraestrutura, revisão de código, documentação e organização das entregas. A IA foi utilizada para sugerir hipóteses, explicar mensagens de erro, revisar Pull Requests e auxiliar na redação da documentação. Todas as alterações foram implementadas, executadas e validadas por mim localmente antes de serem incorporadas ao projeto.
 
----
+**Exemplos reais**
+
+| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
+|---|---|---|---|
+| Corrigir o deploy do backend no Render (#17) | Sugeriu ajustes no Dockerfile para adequá-lo ao ambiente do Render. | Revisei as sugestões, adaptei o Dockerfile à estrutura do projeto, validei o build localmente e confirmei o funcionamento no Render antes de publicar. | **Ajustado** |
+| Configurar o deploy automático pelo Jenkins para Render e Vercel (#22) | Auxiliou na organização da pipeline e na integração entre Jenkins, Render e Vercel. | Configurei os Deploy Hooks, ajustei as variáveis de ambiente, testei toda a pipeline e participei da estabilização do processo para que apenas a branch `main` realizasse os deploys automáticos. | **Aceito** |
+| Investigar erro de build na Vercel relacionado ao `ROTULO_STATUS` | A primeira hipótese apontava para um problema de importação do arquivo. | Analisei os logs completos da Vercel, identifiquei que o problema era a ausência da exportação esperada no arquivo `statusPedido.js`, corrigi a implementação e validei um novo deploy com sucesso. | **Aceito** |
+| Implementar diretamente o alerta de estoque baixo no painel administrativo antes da integração completa da API | A IA sugeriu antecipar a implementação utilizando dados simulados para concluir a funcionalidade. | Questionei a abordagem e optei por aguardar a integração com o backend já implementado, evitando criar uma solução temporária que precisaria ser refeita posteriormente. | **Descartado** |
+
+**O que fiz sem IA:** corrigi o Dockerfile utilizado pelo Render para permitir o deploy do backend; configurei o deploy automático entre Jenkins, Render e Vercel utilizando Deploy Hooks e variáveis de ambiente; configurei as variáveis necessárias para a integração com o Supabase nos ambientes de publicação; participei da estabilização da pipeline para que apenas a branch `main` realizasse os deploys automáticos; identifiquei que o `npm install` estava sendo executado na pasta incorreta no início do projeto; corrigi a estrutura do `vercel.json`, que havia sido criado dentro da pasta `src`; investiguei os logs da Vercel para localizar a causa do erro de exportação do `ROTULO_STATUS`; revisei Pull Requests, validei localmente todas as alterações antes do merge e revisei toda a documentação gerada pela IA antes de incorporá-la ao projeto.
