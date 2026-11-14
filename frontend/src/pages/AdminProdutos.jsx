@@ -15,8 +15,11 @@ export default function AdminProdutos() {
   const [categorias, setCategorias] = useState([]);
   const [formulario, setFormulario] = useState(FORMULARIO_VAZIO);
   const [produtoEmEdicao, setProdutoEmEdicao] = useState(null);
+  const [nomeCategoria, setNomeCategoria] = useState("");
+  const [categoriaEmEdicao, setCategoriaEmEdicao] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [salvandoCategoria, setSalvandoCategoria] = useState(false);
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
 
@@ -83,6 +86,78 @@ export default function AdminProdutos() {
     setFormulario(FORMULARIO_VAZIO);
     setErro("");
     setMensagem("");
+  }
+
+  function iniciarEdicaoCategoria(categoria) {
+    setCategoriaEmEdicao(categoria.id);
+    setNomeCategoria(categoria.nome);
+    setMensagem("");
+    setErro("");
+  }
+
+  function cancelarEdicaoCategoria() {
+    setCategoriaEmEdicao(null);
+    setNomeCategoria("");
+    setErro("");
+    setMensagem("");
+  }
+
+  async function salvarCategoria(evento) {
+    evento.preventDefault();
+    setErro("");
+    setMensagem("");
+
+    const nome = nomeCategoria.trim();
+    if (!nome) {
+      setErro("Nome da categoria é obrigatório.");
+      return;
+    }
+
+    setSalvandoCategoria(true);
+    try {
+      if (categoriaEmEdicao === null) {
+        await api("/api/categorias", {
+          method: "POST",
+          body: JSON.stringify({ nome }),
+        });
+        setMensagem("Categoria cadastrada com sucesso.");
+      } else {
+        await api(`/api/categorias/${categoriaEmEdicao}`, {
+          method: "PUT",
+          body: JSON.stringify({ nome }),
+        });
+        setMensagem("Categoria atualizada com sucesso.");
+      }
+
+      setCategoriaEmEdicao(null);
+      setNomeCategoria("");
+      await carregarDados();
+    } catch (erroRequisicao) {
+      setErro(erroRequisicao.message);
+    } finally {
+      setSalvandoCategoria(false);
+    }
+  }
+
+  async function desativarCategoria(categoria) {
+    setErro("");
+    setMensagem("");
+    try {
+      await api(`/api/categorias/${categoria.id}/desativar`, { method: "PATCH" });
+      setCategorias((atuais) => atuais.filter((item) => item.id !== categoria.id));
+      if (categoriaEmEdicao === categoria.id) {
+        setCategoriaEmEdicao(null);
+        setNomeCategoria("");
+      }
+      setFormulario((atual) =>
+        String(atual.categoriaId) === String(categoria.id)
+          ? { ...atual, categoriaId: "" }
+          : atual
+      );
+      setMensagem(`Categoria "${categoria.nome}" desativada.`);
+    } catch (erroRequisicao) {
+      setErro(erroRequisicao.message);
+    }
   }
 
   async function salvarProduto(evento) {
@@ -186,6 +261,66 @@ export default function AdminProdutos() {
   return (
     <section className="admin-produtos" aria-labelledby="titulo-admin-produtos">
       <h1 id="titulo-admin-produtos">Gerenciar produtos</h1>
+
+      <div className="admin-produtos__formulario">
+        <h2>{categoriaEmEdicao === null ? "Cadastrar categoria" : "Editar categoria"}</h2>
+        <form onSubmit={salvarCategoria} className="admin-produtos__campos">
+          <div className="admin-produtos__campo">
+            <label htmlFor="categoria-nome">Nome da categoria</label>
+            <input
+              id="categoria-nome"
+              value={nomeCategoria}
+              onChange={(evento) => setNomeCategoria(evento.target.value)}
+              required
+            />
+          </div>
+          <div className="admin-produtos__acoes">
+            <button type="submit" disabled={salvandoCategoria}>
+              {salvandoCategoria
+                ? "Salvando..."
+                : categoriaEmEdicao === null
+                  ? "Cadastrar categoria"
+                  : "Salvar categoria"}
+            </button>
+            {categoriaEmEdicao !== null && (
+              <button
+                type="button"
+                onClick={cancelarEdicaoCategoria}
+                disabled={salvandoCategoria}
+              >
+                Cancelar edição da categoria
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <h2 className="admin-produtos__lista-titulo">Categorias ativas</h2>
+      {categorias.length === 0 ? (
+        <p role="status">Nenhuma categoria ativa cadastrada.</p>
+      ) : (
+        <ul className="admin-produtos__lista">
+          {categorias.map((categoria) => (
+            <li className="admin-produtos__item" key={categoria.id}>
+              <h3>{categoria.nome}</h3>
+              <div className="admin-produtos__item-acoes">
+                <button
+                  type="button"
+                  onClick={() => iniciarEdicaoCategoria(categoria)}
+                >
+                  Editar categoria
+                </button>
+                <button
+                  type="button"
+                  onClick={() => desativarCategoria(categoria)}
+                >
+                  Desativar categoria
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <div className="admin-produtos__formulario">
         <h2>{produtoEmEdicao === null ? "Cadastrar produto" : "Editar produto"}</h2>

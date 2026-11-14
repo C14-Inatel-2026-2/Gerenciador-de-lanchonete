@@ -170,9 +170,10 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 **Catálogo e produtos (US06 e US08):**
 
 1. Acesse **Gerenciar produtos** para consultar os produtos disponíveis.
-2. Para cadastrar um produto, informe nome, descrição, preço, categoria e quantidade em estoque e selecione **Cadastrar produto**. É necessário haver uma categoria cadastrada.
-3. Para alterar os dados, selecione **Editar**, ajuste os campos e escolha **Salvar alterações**. Para retirar um produto do cardápio sem excluí-lo, selecione **Desativar**.
-4. Para ajustar o estoque de um produto existente, informe uma quantidade inteira maior ou igual a zero em **Ajustar estoque** e selecione **Salvar estoque**. Estoque zero faz o produto aparecer como esgotado no cardápio.
+2. Na seção **Categorias ativas**, cadastre uma categoria informando o nome e selecionando **Cadastrar categoria**. Para renomear uma categoria, selecione **Editar categoria** e depois **Salvar categoria**. Para removê-la das opções ativas, selecione **Desativar categoria**; categorias desativadas não são excluídas do banco.
+3. Para cadastrar um produto, informe nome, descrição, preço, categoria e quantidade em estoque e selecione **Cadastrar produto**. É necessário haver uma categoria ativa cadastrada.
+4. Para alterar os dados de um produto, selecione **Editar**, ajuste os campos e escolha **Salvar alterações**. Para retirar um produto do cardápio sem excluí-lo, selecione **Desativar**.
+5. Para ajustar o estoque de um produto existente, informe uma quantidade inteira maior ou igual a zero em **Ajustar estoque** e selecione **Salvar estoque**. Estoque zero faz o produto aparecer como esgotado no cardápio.
 
 ---
 
@@ -181,7 +182,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 <!-- Cada responsável: resumir as funcionalidades do módulo e relacioná-las às histórias de usuário. -->
 
 - **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
-- **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos, além de cadastrar e editar categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
+- **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos e categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
 - **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
 - **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
 - **Painel administrativo (US05):** o administrador visualiza um painel com o resumo do funcionamento da lanchonete, incluindo a quantidade de pedidos do dia, o faturamento diário (desconsiderando pedidos cancelados), a quantidade de produtos ativos e de usuários cadastrados. O painel também apresenta a lista de pedidos recentes com seus respectivos status e destaca quando existem produtos com estoque baixo. O acesso ao painel é restrito ao perfil ADMIN.
