@@ -56,8 +56,6 @@ Durante o desenvolvimento, ocorreram casos em que os arquivos presentes no PR co
 
 - [PR #68](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/68) e [PR #69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69): um **conflito semântico**. O Git juntou as duas sem acusar erro, mas a #68 trouxe o `podeGerenciarCatalogo` com o mesmo corpo que a #69 tinha acabado de centralizar no método `ehAdminAtivo`. O código compilava e os testes passavam, mas a duplicação voltou. A revisão percebeu, e um commit extra (`refactor(autenticacao): podeGerenciarCatalogo usa ehAdminAtivo`) fez o método também usar o `ehAdminAtivo`. A lição que tiramos é que merge sem conflito não garante código coerente.
 
-- [PR #80](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/80): <!-- Lilyan: preencher -->
-
 ## Lições aprendidas
 
 ### Lições do grupo
@@ -87,9 +85,9 @@ Durante o desenvolvimento, ocorreram casos em que os arquivos presentes no PR co
 
 ### Lilyan
 
-- **Lições aprendidas:**
-
-- **O que faria diferente?**
+ **Lições aprendidas:** Organizar a equipe é tão importante quanto escrever o código. Propus um quadro no Trello, que não teve adesão, e depois criei o quadro no GitHub Projects, mais próximo do repositório que todas já usavam. Também aprendi que deixar correções "para depois" vira uma bola de neve, visto que o contexto se perde e os problemas se acumulam. Por isso, passei a corrigir na hora até os detalhes menores. Revisar os PRs das colegas me fez entender os outros módulos e perceber problemas que os testes não pegam, como o conflito semântico entre a #68 e a #69. 
+ 
+- **O que faria diferente?** Combinaria desde a primeira entrega o uso de issues com `Closes #N` e papéis definidos (quem prioriza e quem acompanha o andamento), em vez de deixar para a reta final. Também incluiria reuniões para demonstrar tudo que foi feito dentro de uma sprint, de modo que todas estejam no mesmo entendimento. 
 
 ### Yasmin
 
