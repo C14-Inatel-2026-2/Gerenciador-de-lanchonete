@@ -148,13 +148,20 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Cliente
 
-<!-- Karolina: documentar cadastro/login; Júlia: documentar carrinho e finalização do pedido. -->
+<!-- Karolina: documentar cadastro/login -->
 
 **Cardápio (US02 e US08):**
 
 1. Acesse **Cardápio** para consultar os produtos disponíveis, agrupados por categoria, com descrição e preço.
 2. Use **Filtrar por categoria** para restringir a lista; selecione **Todas as categorias** para remover o filtro.
 3. Produtos sem estoque aparecem como **Esgotado** e não podem ser adicionados ao carrinho. Nos demais, selecione **Adicionar ao carrinho**.
+
+**Carrinho e finalização do pedido (US03):**
+
+1. Acesse **Carrinho** para consultar o estado atual do seu carrinho de compras, com os itens do pedido, quantidade, preço unitário e preço total. Caso esteja vazio, apresenta a mensagem "Seu carrinho está vazio.
+Adicione algum produto da nossa seleção para começar."
+2. Se o carrinho não estiver vazio, o botão **Finalizar pedido** é habilitado e deve ser utilizado para concluir o pedido.
+3. Após finalizar o pedido com sucesso, o carrinho exibe o número do pedido e é esvaziado. Para acompanhar o histórico, o status, a data e o valor dos pedidos, acesse Meus pedidos pelo menu superior. Cada pedido pode ser expandido para ver os itens e o progresso do status. Caso ainda não tenha feito pedidos, a tela informa isso.
 
 ### Cozinha (funcionário)
 
@@ -181,8 +188,11 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 <!-- Cada responsável: resumir as funcionalidades do módulo e relacioná-las às histórias de usuário. -->
 
 - **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
+
 - **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos, além de cadastrar e editar categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
-- **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
+
+- **Carrinho e pedidos (US03):** o cliente adiciona produtos do cardápio ao carrinho, altera ou remove quantidades, acompanha o total e mantém o carrinho salvo no navegador. A quantidade respeita o estoque informado pelo catálogo (US08). Ao finalizar, o sistema cria o pedido para o cliente autenticado com status inicial `CRIADO`, valida preços e estoque no backend e, se houver erro, preserva o carrinho. Após o sucesso, exibe o número do pedido e limpa o carrinho. Em **Meus pedidos**, o cliente consulta seu histórico e os status retornados pela API, atualizados pelo fluxo da cozinha (US04).
+
 - **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
 - **Painel administrativo (US05):** o administrador visualiza um painel com o resumo do funcionamento da lanchonete, incluindo a quantidade de pedidos do dia, o faturamento diário (desconsiderando pedidos cancelados), a quantidade de produtos ativos e de usuários cadastrados. O painel também apresenta a lista de pedidos recentes com seus respectivos status e destaca quando existem produtos com estoque baixo. O acesso ao painel é restrito ao perfil ADMIN.
 
@@ -196,7 +206,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | -------- | ------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------| --------------------------- |
 | US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
 | US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
-| US03     |               |                                                                                                                                                        |                             |
+| US03     | Cliente       | Adicionar produtos ao carrinho, alterar quantidades, acompanhar o subtotal e o total, finalizar pedidos e consultar o histórico e o status dos pedidos. | RF-CAR01–RF-CAR08           |
 | US04     |               |                                                                                                                                                        |                             |
 | US05     | Administrador | Visualizar um painel administrativo com resumo do dia. Acesso restrito a administradores.                                                              | RF-ADM01–RF-ADM07           |
 | US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
