@@ -101,7 +101,8 @@ Não versione os arquivos `.env` nem compartilhe senhas ou segredos. A chave `se
 
 ### Front-end
 
-<!-- Responsável pelo front-end: documentar e validar os comandos de execução. -->
+1. Na pasta `frontend`, instale as dependências com `npm install` (somente na primeira vez).
+2. Inicie a interface com `npm run dev` e abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`).
 
 ### ⚙️ CI/CD local (Jenkins)
 
@@ -148,7 +149,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Cliente
 
-<!-- Karolina: documentar cadastro/login; Júlia: documentar carrinho e finalização do pedido. -->
+<!-- Karolina: documentar cadastro/login -->
 
 **Cardápio (US02 e US08):**
 
@@ -156,9 +157,19 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 2. Use **Filtrar por categoria** para restringir a lista; selecione **Todas as categorias** para remover o filtro.
 3. Produtos sem estoque aparecem como **Esgotado** e não podem ser adicionados ao carrinho. Nos demais, selecione **Adicionar ao carrinho**.
 
+**Carrinho e finalização do pedido (US03):**
+
+1. Acesse **Carrinho** para consultar o estado atual do seu carrinho de compras, com os itens do pedido, quantidade, preço unitário e preço total. Caso esteja vazio, apresenta a mensagem "Seu carrinho está vazio.
+Adicione algum produto da nossa seleção para começar."
+2. Se o carrinho não estiver vazio, o botão **Finalizar pedido** é habilitado e deve ser utilizado para concluir o pedido.
+3. Após finalizar o pedido com sucesso, o carrinho exibe o número do pedido e é esvaziado. Para acompanhar o histórico, o status, a data e o valor dos pedidos, acesse Meus pedidos pelo menu superior. Cada pedido pode ser expandido para ver os itens e o progresso do status. Caso ainda não tenha feito pedidos, a tela informa isso.
+
 ### Cozinha (funcionário)
 
-<!-- Lilyan: documentar consulta da fila, atualização de status e cancelamento. -->
+1. Entre com uma conta de **funcionário** (ou admin) e acesse **Cozinha**.
+2. A fila mostra os pedidos **Recebidos**, **Em preparo** e **Prontos**, do mais antigo para o mais novo, com itens, total e horário. A tela se atualiza sozinha a cada 10 segundos.
+3. Use os botões de cada pedido: **Iniciar preparo** → **Marcar como pronto** → **Entregar**. Pedidos entregues saem da fila.
+4. Para cancelar, use **Cancelar** (disponível só enquanto o pedido está Recebido ou Em preparo). Os itens voltam para o estoque.
 
 ### Administrador
 
@@ -183,8 +194,8 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 - **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
 - **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos e categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
-- **Carrinho e pedidos (US03):** <!-- Júlia: preencher. -->
-- **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
+- **Carrinho e pedidos (US03):** o cliente adiciona produtos do cardápio ao carrinho, altera ou remove quantidades, acompanha o total e mantém o carrinho salvo no navegador. A quantidade respeita o estoque informado pelo catálogo (US08). Ao finalizar, o sistema cria o pedido para o cliente autenticado com status inicial `CRIADO`, valida preços e estoque no backend e, se houver erro, preserva o carrinho. Após o sucesso, exibe o número do pedido e limpa o carrinho. Em **Meus pedidos**, o cliente consulta seu histórico e os status retornados pela API, atualizados pelo fluxo da cozinha (US04).
+- **Fila da cozinha e status do pedido (US04):** o funcionário (ou admin) vê a fila da cozinha com os pedidos Recebidos, Em preparo e Prontos, do mais antigo para o mais novo, atualizada a cada 10 segundos. Cada pedido mostra só os botões das transições válidas (Iniciar preparo, Marcar como pronto, Entregar, Cancelar). A regra da máquina de estados fica no backend, sendo que uma transição inválida é recusada com 409 e o status não muda. Cancelar só é permitido enquanto o pedido está Recebido ou Em preparo. Ao cancelar, as quantidades dos itens voltam para o estoque.
 - **Painel administrativo (US05):** o administrador visualiza um painel com o resumo do funcionamento da lanchonete, incluindo a quantidade de pedidos do dia, o faturamento diário (desconsiderando pedidos cancelados), a quantidade de produtos ativos e de usuários cadastrados. O painel também apresenta a lista de pedidos recentes com seus respectivos status e destaca quando existem produtos com estoque baixo. O acesso ao painel é restrito ao perfil ADMIN.
 
 ---
@@ -197,8 +208,8 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | -------- | ------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------| --------------------------- |
 | US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
 | US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
-| US03     |               |                                                                                                                                                        |                             |
-| US04     |               |                                                                                                                                                        |                             |
+| US03     | Cliente       | Adicionar produtos ao carrinho, alterar quantidades, acompanhar o subtotal e o total, finalizar pedidos e consultar o histórico e o status dos pedidos. | RF-CAR01–RF-CAR08           |
+| US04     | Funcionário   | Ver a fila da cozinha (pedidos Recebidos, Em preparo e Prontos, do mais antigo para o mais novo) e avançar ou cancelar o pedido seguindo a máquina de estados; transições inválidas são recusadas e o cancelamento devolve o estoque. | RF-CIC01–RF-CIC06           |
 | US05     | Administrador | Visualizar um painel administrativo com resumo do dia. Acesso restrito a administradores.                                                              | RF-ADM01–RF-ADM07           |
 | US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
 | US07     | Administrador | Listar usuários, alterar o perfil (promover a funcionário), desativar e reativar contas, sem alterar a própria role.                                   | RF-AUT06, RF-AUT08–RF-AUT12 |
@@ -214,12 +225,12 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 | ---------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Karolina   | Código duplicado: `podeGerenciarUsuarios`, `podeAlterarRole` e `podeDesativarUsuario` (e depois `podeGerenciarCatalogo`) tinham o mesmo corpo no `AuthorizationService`                                  | Extrair método: `private boolean ehAdminAtivo(UserProfile)`, e as 4 permissões de ADMIN passaram a delegar para ele                                  | Se a regra de administrador mudar, muda em um lugar só                                      | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
 | Karolina   | Setup repetido: `new AuthorizationService()` em todos os testes do `AuthorizationServiceTest`; e nome enganoso `validarEmail` no `UserService` (validava **e** normalizava, com a regex solta no método) | Refatorar teste: campo `service` criado no `@BeforeEach`; renomear para `normalizarEValidarEmail` e extrair a regex para a constante `FORMATO_EMAIL` | Menos repetição, testes focados no que verificam, e o nome passa a dizer o que o método faz | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
+| Lilyan     | Código duplicado: a regra de transição de status era validada no `PedidoLifecycleService.atualizarStatus` e de novo em `Pedido.alterarStatus`; e `Pedido.setStatus` era público, sem uso, e permitia pular a máquina de estados | Remover a validação duplicada do service (a regra fica só em `Pedido.alterarStatus`) e remover o `setStatus` sem uso | A regra de transição fica em um lugar só, e não sobra um caminho para mudar o status sem validação | [#21](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/21) |
+| Lilyan     | Código morto: `avancarParaPreparo`, `marcarComoPronto`, `entregar` e `cancelarPedido` no `PedidoLifecycleService` não eram usados (a API usa só `atualizarStatusPorId`) | Remover os 4 métodos sem uso; os testes passaram a exercitar o fluxo real por `atualizarStatus` | Menos código para manter e para confundir: há um único caminho para mudar o status | [#84](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/84) |
 | Beatriz    | `ProdutoService.validarDados` faz tudo junto: o método valida, no mesmo bloco, se o nome foi informado, se o preço é válido e se a categoria foi informada.                                              | Extrair `validarNome(nome)`, `validarPreco(preco)` e `validarCategoria(categoriaId)`, mantendo `validarDados` como método coordenador e preservando a ordem atual: nome, preço e categoria. | Cada regra fica com nome próprio e pode ser entendida e mantida separadamente.              | [#93](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/93) |
 | Beatriz    | Setup repetido no `ProdutoServiceTest`: `new Categoria("Lanches")` e `new Produto("X-Burguer", "Delicioso", ..., categoria)` copiados em quase todos os testes.                                          | `@beforeeach` criando a categoria e um método auxiliar `produtoComPreco(BigDecimal preco)`.                                                                                                 | Os testes ficam mostrando só o que muda em cada cenário.                                    | [#93](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/93) |
 | Júlia      | Código duplicado: método `validarQuantidade` em `ItemCarrinho` e `ItemPedido` e método `validarProdutoId` em `CarrinhoCompras` e `ItemPedido`. | Criação da classe `ValidacoesCompras` para centralizar os métodos mencionados e usá-los nas classes. | A mesma regra fica em somente um lugar e não corre o risco de divergir. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
 | Júlia      | Código duplicado na preparação de dados de teste: vários testes criavam `Produto` repetindo a configuração de `nome`, `descrição`, `preço`, `categoria` e `ID`. | Criação da classe `ProdutoTestFactory` para centralizar essa preparação e manter os dados necessários visíveis em cada cenário de teste. | Apenas um lugar para montar produtos a serem utilizados nos testes de compras, evitando divergências. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
-| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Yasmin     | Código duplicado: os rótulos de status dos pedidos eram mantidos em mais de um componente (AdminDashboard, Cozinha e OrdersPage).                                                                        | Extrair constante compartilhada ROTULO_STATUS para utils/statusPedido.js e reutilizar o mesmo mapeamento nos componentes.                            | Evita duplicação de código, mantém os rótulos consistentes entre as telas e facilita futuras alterações em um único lugar.                                 | #48                                                                              |
 | Yasmin     | Componente AdminDashboard concentrava responsabilidades de exibição das métricas e da tabela de pedidos em um único arquivo.                                                                                                                                                                                                         | Extrair os componentes CardMetrica e TabelaPedidosRecentes, deixando o AdminDashboard responsável apenas pela composição da tela.     |  Melhora a organização do código, aumenta a reutilização dos componentes e facilita testes e manutenção.                                                                                           | #48                                                                              |
 
@@ -231,14 +242,7 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 - [Metodologia de desenvolvimento](docs/METODOLOGIA.md)
 
----
-
-## Rodando o frontend
-
-1. Na pasta `frontend`, instale as dependências com `npm install` (somente na primeira vez).
-2. Inicie a interface com `npm run dev` e abra o endereço indicado pelo Vite (normalmente `http://localhost:5173`).
-
----
+- [Dinâmica de desenvolvimento](docs/DINAMICA.md)
 
 ## Requisitos Funcionais
 
