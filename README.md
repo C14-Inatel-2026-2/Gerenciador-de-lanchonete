@@ -401,11 +401,10 @@ Adicione algum produto da nossa seleção para começar."
 | Integrante | Ferramentas                | Principais usos                                                                                                            |
 | ---------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Lilyan     | Claude e Gemini            | código e testes, revisão de PRs, investigação de erros, documentação, estudo dos conceitos                                 |
-| Karolina   | <!-- Karolina preenche --> |                                                                                                                            |
+| Karolina | Claude Code | Código e testes do módulo de autenticação, testes de ponta a ponta com o Supabase, revisão de PRs, documentação |
 | Beatriz    | Claude e Copilot           | Códigos e testes, compreensão de novos conceitos e ferramentas, investigação de erros, entendimento de Git, revisão de PRs |
 | Júlia      | Copilot e ChatGPT          | Código e testes, investigação de erros, revisão do que era feito, questionamento sobre conceitos e ferramentas             |
 | Yasmin     | ChatGPT   |                   Código e testes, investigação e resolução de erros, revisão de PRs, documentação, configuração de deploy (Render/Vercel/Jenkins), organização das entregas e compreensão de conceitos e ferramentas.                                                                                                         |
-
 
 ### Lilyan
 
@@ -424,7 +423,18 @@ Adicione algum produto da nossa seleção para começar."
 
 ### Karolina
 
-<!-- Karolina: ferramentas, como usou, 1 ou 2 exemplos (pedido → resposta → aceito/ajustado/descartado) e o que fez sem IA -->
+**Como usei:** utilizei o Claude Code dentro do VS Code, que trabalha direto no repositório: lê o código, edita os arquivos e roda os testes no meu terminal. Combinei que nada seria commitado ou enviado para o GitHub sem a minha autorização, e conferi cada mudança antes de subir. Quando havia mais de um caminho (regra de negócio, escopo ou ordem das tarefas), pedia para a IA me mostrar as opções e eu decidia. Também usei para revisar as PRs das colegas e para entender a diferença entre manter o `UsuarioAtualProvider` e usar o Spring Security completo antes de implementar a #55.
+
+**Exemplos reais**
+
+| Pedido à IA (resumido) | O que a IA respondeu | O que eu fiz | Resultado |
+|---|---|---|---|
+| Fazer o backend do painel administrativo (#48) | Apontou que o Render roda em UTC, então os pedidos seriam gravados com 3 horas a mais e o "dia" do painel viraria às 21h. Deu três opções para resolver | Escolhi fixar o fuso de Brasília na aplicação inteira, o que também corrigiu o horário da fila da cozinha | **Aceito** |
+| Criar as telas de login e cadastro (#42) | Gerou as telas com as cores do template do Vite | Pedi para seguir a identidade visual que a Júlia já tinha criado no carrinho ([PR #59](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/59)) | **Ajustado** |
+| Criar funções para reativar e deletar usuários (#43) | Fez o reativar e, antes do deletar, mostrou que ele contrariava a US07 (o usuário deve continuar no banco e nos pedidos antigos) e não apagaria a conta no Supabase | Decidi ficar só com desativar e reativar e documentei no `docs/api.md` que não existe exclusão | **Descartado** |
+| Revisar as PRs da Lilyan (#72 e #74) | Rodou os testes e apontou um link quebrado no documento, uma linha fora da tabela e um `DELETE` que faltava no script de pedidos de teste, além de um detalhe opcional | Publiquei a revisão com os pontos importantes e deixei o detalhe opcional de fora | **Ajustado** |
+
+**O que fiz sem IA:** configurei o projeto no Supabase; decidi as regras e o escopo de cada issue; testei as telas no navegador; revisei e aprovei cada commit, PR e comentário antes de publicar; e combinei com o grupo a ordem dos merges e as mudanças nos testes das colegas por causa do Spring Security. Num teste contra o banco do grupo, a IA deixou servidores rodando e ocupou as conexões do Supabase; depois disso, passei a exigir que todo servidor de teste fosse desligado ao final.
 
 ### Beatriz
 
