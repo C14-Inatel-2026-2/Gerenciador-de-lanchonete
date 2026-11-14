@@ -75,14 +75,6 @@ gerenciador-lanchonete/
 - Node.js 22
 - Docker
 
-### Instalação do back-end
-
-<!-- Responsável pelo back-end: preencher e validar. -->
-
-### Instalação do front-end
-
-<!-- Responsável pelo front-end: preencher e validar. -->
-
 ---
 
 ## Como executar
@@ -202,8 +194,7 @@ Adicione algum produto da nossa seleção para começar."
 - **Carrinho e pedidos (US03):** o cliente adiciona produtos do cardápio ao carrinho, altera ou remove quantidades, acompanha o total e mantém o carrinho salvo no navegador. A quantidade respeita o estoque informado pelo catálogo (US08). Ao finalizar, o sistema cria o pedido para o cliente autenticado com status inicial `CRIADO`, valida preços e estoque no backend e, se houver erro, preserva o carrinho. Após o sucesso, exibe o número do pedido e limpa o carrinho. Em **Meus pedidos**, o cliente consulta seu histórico e os status retornados pela API, atualizados pelo fluxo da cozinha (US04).
 
 - **Fila da cozinha e status do pedido (US04):** <!-- Lilyan: preencher. -->
-
-- **Painel administrativo (US05):** <!-- Yasmin: preencher. -->
+- **Painel administrativo (US05):** o administrador visualiza um painel com o resumo do funcionamento da lanchonete, incluindo a quantidade de pedidos do dia, o faturamento diário (desconsiderando pedidos cancelados), a quantidade de produtos ativos e de usuários cadastrados. O painel também apresenta a lista de pedidos recentes com seus respectivos status e destaca quando existem produtos com estoque baixo. O acesso ao painel é restrito ao perfil ADMIN.
 
 ---
 
@@ -212,12 +203,12 @@ Adicione algum produto da nossa seleção para começar."
 <!-- Cada responsável pelo módulo: preencher a rastreabilidade entre suas histórias, funcionalidades e requisitos. -->
 
 | História | Perfil        | Funcionalidade                                                                                                                                         | Requisitos relacionados     |
-| -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------- |
+| -------- | ------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------| --------------------------- |
 | US01     | Cliente       | Criar conta (nome, e-mail e senha no Supabase Auth), entrar e sair; o perfil nasce sempre CLIENTE e conta desativada não acessa as áreas protegidas.   | RF-AUT01–RF-AUT07           |
 | US02     | Cliente       | Consultar o cardápio por categoria, filtrar produtos e identificar os disponíveis e seus preços.                                                       | RF-CAT01–RF-CAT05           |
 | US03     | Cliente       | Adicionar produtos ao carrinho, alterar quantidades, acompanhar o subtotal e o total, finalizar pedidos e consultar o histórico e o status dos pedidos. | RF-CAR01–RF-CAR08           |
 | US04     |               |                                                                                                                                                        |                             |
-| US05     |               |                                                                                                                                                        |                             |
+| US05     | Administrador | Visualizar um painel administrativo com resumo do dia. Acesso restrito a administradores.                                                              | RF-ADM01–RF-ADM07           |
 | US06     | Administrador | Cadastrar, consultar, editar e desativar produtos; cadastrar e editar categorias.                                                                      | RF-CAT06–RF-CAT09           |
 | US07     | Administrador | Listar usuários, alterar o perfil (promover a funcionário), desativar e reativar contas, sem alterar a própria role.                                   | RF-AUT06, RF-AUT08–RF-AUT12 |
 | US08     | Administrador | Ajustar o estoque; o sistema informa produtos esgotados, impede sua adição ao carrinho, baixa estoque nos pedidos e repõe nos cancelamentos previstos. | RF-CAT10                    |
@@ -229,17 +220,17 @@ Adicione algum produto da nossa seleção para começar."
 <!-- Cada integrante: preencher duas linhas com refactorings realizados. -->
 
 | Integrante | Code smell                                                                                                                                                                                               | Refactoring aplicado                                                                                                                                 | Por quê                                                                                     | PR                                                                            |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| ---------- |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Karolina   | Código duplicado: `podeGerenciarUsuarios`, `podeAlterarRole` e `podeDesativarUsuario` (e depois `podeGerenciarCatalogo`) tinham o mesmo corpo no `AuthorizationService`                                  | Extrair método: `private boolean ehAdminAtivo(UserProfile)`, e as 4 permissões de ADMIN passaram a delegar para ele                                  | Se a regra de administrador mudar, muda em um lugar só                                      | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
 | Karolina   | Setup repetido: `new AuthorizationService()` em todos os testes do `AuthorizationServiceTest`; e nome enganoso `validarEmail` no `UserService` (validava **e** normalizava, com a regex solta no método) | Refatorar teste: campo `service` criado no `@BeforeEach`; renomear para `normalizarEValidarEmail` e extrair a regex para a constante `FORMATO_EMAIL` | Menos repetição, testes focados no que verificam, e o nome passa a dizer o que o método faz | [#69](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/69) |
-| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Beatriz    |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Júlia      |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Beatriz    | `ProdutoService.validarDados` faz tudo junto: o método valida, no mesmo bloco, se o nome foi informado, se o preço é válido e se a categoria foi informada.                                              | Extrair `validarNome(nome)`, `validarPreco(preco)` e `validarCategoria(categoriaId)`, mantendo `validarDados` como método coordenador e preservando a ordem atual: nome, preço e categoria. | Cada regra fica com nome próprio e pode ser entendida e mantida separadamente.              | [#93](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/93) |
+| Beatriz    | Setup repetido no `ProdutoServiceTest`: `new Categoria("Lanches")` e `new Produto("X-Burguer", "Delicioso", ..., categoria)` copiados em quase todos os testes.                                          | `@beforeeach` criando a categoria e um método auxiliar `produtoComPreco(BigDecimal preco)`.                                                                                                 | Os testes ficam mostrando só o que muda em cada cenário.                                    | [#93](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/93) |
+| Júlia      | Código duplicado: método `validarQuantidade` em `ItemCarrinho` e `ItemPedido` e método `validarProdutoId` em `CarrinhoCompras` e `ItemPedido`. | Criação da classe `ValidacoesCompras` para centralizar os métodos mencionados e usá-los nas classes. | A mesma regra fica em somente um lugar e não corre o risco de divergir. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
+| Júlia      | Código duplicado na preparação de dados de teste: vários testes criavam `Produto` repetindo a configuração de `nome`, `descrição`, `preço`, `categoria` e `ID`. | Criação da classe `ProdutoTestFactory` para centralizar essa preparação e manter os dados necessários visíveis em cada cenário de teste. | Apenas um lugar para montar produtos a serem utilizados nos testes de compras, evitando divergências. | [#70](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/pull/70) |
 | Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
 | Lilyan     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
-| Yasmin     |                                                                                                                                                                                                          |                                                                                                                                                      |                                                                                             |                                                                               |
+| Yasmin     | Código duplicado: os rótulos de status dos pedidos eram mantidos em mais de um componente (AdminDashboard, Cozinha e OrdersPage).                                                                        | Extrair constante compartilhada ROTULO_STATUS para utils/statusPedido.js e reutilizar o mesmo mapeamento nos componentes.                            | Evita duplicação de código, mantém os rótulos consistentes entre as telas e facilita futuras alterações em um único lugar.                                 | #48                                                                              |
+| Yasmin     | Componente AdminDashboard concentrava responsabilidades de exibição das métricas e da tabela de pedidos em um único arquivo.                                                                                                                                                                                                         | Extrair os componentes CardMetrica e TabelaPedidosRecentes, deixando o AdminDashboard responsável apenas pela composição da tela.     |  Melhora a organização do código, aumenta a reutilização dos componentes e facilita testes e manutenção.                                                                                           | #48                                                                              |
 
 ---
 
@@ -249,11 +240,9 @@ Adicione algum produto da nossa seleção para começar."
 
 - [Metodologia de desenvolvimento](docs/METODOLOGIA.md)
 
+- [Dinâmica de desenvolvimento](docs/DINAMICA.md)
+
 ---
-
-## Uso de IA
-
-<!-- Registrar alguns exemplos de como utilizamos ferramentas de IA no projeto. -->
 
 ## Rodando o frontend
 
@@ -324,7 +313,15 @@ Adicione algum produto da nossa seleção para começar."
 
 ### Painel administrativo (US05)
 
-<!-- Yasmin: adicione suas linhas abaixo -->
+| ID | Requisito funcional | História |
+|----|---------------------|----------|
+| RF-ADM01 | O sistema deve permitir que apenas usuários com perfil ADMIN acessem o painel administrativo. | US05 |
+| RF-ADM02 | O painel deve exibir a quantidade de pedidos realizados no dia. | US05 |
+| RF-ADM03 | O painel deve exibir o faturamento do dia desconsiderando pedidos cancelados. | US05 |
+| RF-ADM04 | O painel deve exibir a quantidade de produtos ativos cadastrados. | US05 |
+| RF-ADM05 | O painel deve exibir a quantidade de usuários cadastrados. | US05 |
+| RF-ADM06 | O painel deve listar os pedidos mais recentes com seus respectivos status. | US05 |
+| RF-ADM07 | O painel deve destacar quando existirem produtos com estoque baixo. | US05 |
 
 | ID  | Requisito funcional | História |
 | --- | ------------------- | -------- |
@@ -389,7 +386,13 @@ Adicione algum produto da nossa seleção para começar."
 
 ### Painel administrativo
 
-<!-- Yasmin: adicione suas linhas abaixo -->
+| ID | Categoria | Requisito não funcional | Como verificar |
+|----|-----------|-------------------------|----------------|
+| RNF-ADM01 | Desempenho | O painel administrativo deve carregar o resumo do dia em até 1 segundo em condições normais de uso. | Medir o tempo da requisição para `/api/admin/resumo`. |
+| RNF-ADM02 | Segurança | Apenas usuários com perfil ADMIN podem acessar o painel administrativo; outros perfis devem receber acesso negado. | Testar acesso com CLIENTE e FUNCIONÁRIO e verificar resposta de autorização. |
+| RNF-ADM03 | Confiabilidade | Em caso de erro na consulta do resumo, o sistema deve informar a falha sem interromper o funcionamento da aplicação. | Simular indisponibilidade da API e verificar a mensagem de erro no painel. |
+| RNF-ADM04 | Qualidade | O módulo administrativo deve possuir testes automatizados para os componentes principais do painel. | Executar `npm run test:run` e verificar os testes do AdminDashboard. |
+| RNF-ADM05 | Manutenibilidade | Os rótulos de status utilizados pelo painel devem ser reutilizados a partir de um utilitário compartilhado (`statusPedido.js`), evitando duplicação de código. | Verificar que AdminDashboard, Cozinha e Meus Pedidos utilizam `ROTULO_STATUS` do utilitário compartilhado. |
 
 | ID  | Categoria | Requisito não funcional | Como verificar |
 | --- | --------- | ----------------------- | -------------- |
@@ -408,7 +411,8 @@ Adicione algum produto da nossa seleção para começar."
 | Karolina   | <!-- Karolina preenche --> |                                                                                                                            |
 | Beatriz    | Claude e Copilot           | Códigos e testes, compreensão de novos conceitos e ferramentas, investigação de erros, entendimento de Git, revisão de PRs |
 | Júlia      | Copilot e ChatGPT          | Código e testes, investigação de erros, revisão do que era feito, questionamento sobre conceitos e ferramentas             |
-| Yasmin     | <!-- Yasmin preenche -->   |                                                                                                                            |
+| Yasmin     | ChatGPT   |                   Código e testes, investigação e resolução de erros, revisão de PRs, documentação, configuração de deploy (Render/Vercel/Jenkins), organização das entregas e compreensão de conceitos e ferramentas.                                                                                                         |
+
 
 ### Lilyan
 
