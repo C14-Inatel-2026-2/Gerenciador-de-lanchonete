@@ -149,7 +149,12 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 ### Cliente
 
-<!-- Karolina: documentar cadastro/login -->
+**Cadastro e login (US01):**
+
+1. Na tela **Entrar**, selecione **Cadastre-se**. Em **Criar conta**, informe nome, e-mail e senha (mínimo de 6 caracteres) e selecione **Criar conta**. Toda conta nova nasce com o perfil **Cliente** e já entra direto no **Cardápio**.
+2. Se o e-mail já tiver conta, a tela mostra "E-mail já cadastrado". Nome vazio ou e-mail inválido também mostram o erro e nada é salvo.
+3. Nas próximas vezes, entre com e-mail e senha em **Entrar**. Cada perfil abre na sua página inicial: cliente no **Cardápio**, funcionário na **Cozinha**. E-mail ou senha errados mostram "E-mail ou senha incorretos."; uma conta desativada pelo administrador tem o acesso negado.
+4. O menu superior mostra **Olá, nome** e o botão **Sair**, que encerra a sessão neste navegador.
 
 **Cardápio (US02 e US08):**
 
@@ -175,8 +180,11 @@ Adicione algum produto da nossa seleção para começar."
 
 <!-- Dividir por módulo: Karolina documenta usuários e promoção a funcionário; Beatriz, catálogo e estoque; Yasmin, painel e métricas. -->
 
+**Usuários (US07):**
+
 1. **Criar o primeiro administrador:** antes do primeiro cadastro, configure `ADMIN_EMAILS` no ambiente do back-end com o e-mail que será usado (separado por vírgulas, quando houver mais de um). Cadastre-se no sistema com esse mesmo e-mail; o perfil correspondente deve receber a role `ADMIN`. Consulte [Segurança da API com Supabase Auth (JWT) e administrador inicial #55](https://github.com/C14-Inatel-2026-2/Gerenciador-de-lanchonete/issues/55).
-2. **Promover alguém a funcionário:** entre com uma conta `ADMIN`, acesse o gerenciamento de usuários, selecione a pessoa e altere sua role para `FUNCIONARIO`.
+2. **Promover alguém a funcionário:** entre com uma conta `ADMIN` e acesse **Usuários** no menu. Na linha da pessoa, troque o **Perfil** para **Funcionário** e confirme. O mesmo vale para voltar a **Cliente** ou promover a **Administrador**. O próprio admin não pode alterar o seu perfil.
+3. **Desativar e reativar:** na mesma tela, **Desativar** tira o acesso da conta sem apagá-la (os pedidos antigos continuam no histórico) e **Reativar** devolve o acesso com o mesmo perfil. Não existe exclusão de usuário.
 
 **Catálogo e produtos (US06 e US08):**
 
@@ -192,7 +200,7 @@ Adicione algum produto da nossa seleção para começar."
 
 <!-- Cada responsável: resumir as funcionalidades do módulo e relacioná-las às histórias de usuário. -->
 
-- **Autenticação e usuários (US01, US07):** <!-- Karolina: preencher. -->
+- **Autenticação e usuários (US01, US07):** o cliente cria a própria conta com nome, e-mail e senha e entra com e-mail e senha pelo Supabase Auth; toda conta nova nasce como CLIENTE, mesmo que o pedido tente outro perfil, e o primeiro administrador vem da variável `ADMIN_EMAILS`. Cada perfil vê só o menu e as páginas que lhe cabem. A API valida o token do Supabase em toda requisição: sem token ou com token inválido responde 401, e com perfil sem permissão responde 403. O administrador lista os usuários, altera o perfil (por exemplo, promove um cliente a funcionário), desativa e reativa contas; a conta desativada perde o acesso, mas continua no banco com seus pedidos. O admin não pode alterar o próprio perfil nem se desativar.
 - **Catálogo e produtos (US02, US06, US08):** o cliente consulta o cardápio agrupado por categoria, filtra por categoria e vê produtos disponíveis e seus preços. O administrador cadastra, consulta, edita e desativa produtos e categorias. O estoque pode ser ajustado pelo administrador; produtos sem estoque aparecem como esgotados e não podem ser adicionados ao carrinho. Ao finalizar pedidos, o estoque é baixado e, nos cancelamentos previstos pelo fluxo de pedidos, é reposto.
 - **Carrinho e pedidos (US03):** o cliente adiciona produtos do cardápio ao carrinho, altera ou remove quantidades, acompanha o total e mantém o carrinho salvo no navegador. A quantidade respeita o estoque informado pelo catálogo (US08). Ao finalizar, o sistema cria o pedido para o cliente autenticado com status inicial `CRIADO`, valida preços e estoque no backend e, se houver erro, preserva o carrinho. Após o sucesso, exibe o número do pedido e limpa o carrinho. Em **Meus pedidos**, o cliente consulta seu histórico e os status retornados pela API, atualizados pelo fluxo da cozinha (US04).
 - **Fila da cozinha e status do pedido (US04):** o funcionário (ou admin) vê a fila da cozinha com os pedidos Recebidos, Em preparo e Prontos, do mais antigo para o mais novo, atualizada a cada 10 segundos. Cada pedido mostra só os botões das transições válidas (Iniciar preparo, Marcar como pronto, Entregar, Cancelar). A regra da máquina de estados fica no backend, sendo que uma transição inválida é recusada com 409 e o status não muda. Cancelar só é permitido enquanto o pedido está Recebido ou Em preparo. Ao cancelar, as quantidades dos itens voltam para o estoque.

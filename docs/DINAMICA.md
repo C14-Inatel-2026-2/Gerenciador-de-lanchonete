@@ -79,9 +79,9 @@ Durante o desenvolvimento, ocorreram casos em que os arquivos presentes no PR co
 
 ### Karolina
 
-- **Lições aprendidas:**
+- **Lições aprendidas:** Nunca tinha feito um login de verdade, com senha protegida, token e permissões para cada perfil, então aprendi muito com o Supabase e o Spring Security. Também percebi que a minha parte afetava o trabalho de todas: quando a API passou a exigir login, os testes das colegas precisaram mudar, e tivemos que combinar juntas a ordem dos merges. Revisar as PRs das meninas me ajudou a entender o sistema inteiro, e não só o meu módulo. E aprendi a usar a IA com regras claras, decidindo eu mesma o que entrava no projeto e conferindo tudo antes de subir.
 
-- **O que faria diferente?**
+- **O que faria diferente?** Começaria direto com o Supabase, em vez de fazer primeiro um login provisório que depois tive que substituir, o que deu retrabalho. Também teria pesquisado mais cedo como o banco compartilhado funcionava, porque descobri o limite de conexões só quando ele travou durante os testes.
 
 ### Lilyan
 
