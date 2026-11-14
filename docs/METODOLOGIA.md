@@ -78,7 +78,7 @@ Parte da definição de pronto é **garantida por ferramenta**, e parte foi **co
 
 ## 7. Métricas
 
-Os dados abaixo foram tirados do histórico do Git da `main`.
+Os dados abaixo foram tirados do histórico do Git da `main` (merges de PR), com o projeto encerrado.
 
 ### PRs mergeadas por ciclo
 
@@ -88,23 +88,41 @@ Os dados abaixo foram tirados do histórico do Git da `main`.
 | C2 | 5 | #6, #7, #8, #10, #11 |
 | C3 | 6 | #9, #12, #13, #14, #15, #17 |
 | C4 | **1** | #26 |
-| C5 | **15** | #18, #21, #22, #29, #30, #32, #33, #57, #58, #60, #61, #62, #63, #66, #68 |
+| C5 | **51** | #18, #21, #22, #29, #30, #32, #33, #57 a #63, #66, #68 a #90, #92 a #104 |
 
-*Atualizar no fim do projeto*
+**Total:** 68 PRs mergeadas. Só no ciclo final, **35 PRs (#69 a #104) entraram entre 11/11 e 14/11**.
 
 ### Lead time (do primeiro commit da PR até o merge)
 
-- **Mediana geral:** 1,2 dia (32 PRs).
-- **PRs #1 a #17:** mediana de 0,35 dia. **PRs a partir da #18:** mediana de 3,25 dias.
+- **Mediana geral:** 0,7 dia (68 PRs).
+- **PRs #1 a #17:** mediana de 0,4 dia.
+- **PRs #18 a #68:** mediana de 3,5 dias.
+- **PRs #69 a #104 (reta final):** mediana de 0,5 dia.
 
 ### PRs com testes
 
-- Das **18 PRs que mudaram código**, **14 trouxeram testes automatizados**.
+- Das **38 PRs que mudaram código da aplicação** (`backend/src/main` ou `frontend/src`), **33 trouxeram testes automatizados**.
+- As 5 sem testes: #3, #4 e #5 (estrutura inicial), #15 (configuração do Docker) e #76 (refactoring, que por definição não deve mudar os testes).
+
+### Revisões por integrante
+
+PRs de outras integrantes que cada uma revisou (busca `reviewed-by:` no GitHub, sem contar as próprias PRs):
+
+| Integrante | PRs revisadas |
+|---|---|
+| Lilyan | 43 |
+| Karolina | 13 |
+| Beatriz | 6 |
+| Júlia | 6 |
+| Yasmin | 4 |
 
 ### O que as métricas mostram
 
-- **O ciclo C4 quase não teve entregas na `main`** (1 PR), e o trabalho se acumulou no ciclo final. 
-- **O lead time aumentou de ~8 horas para ~3 dias** a partir da #18. Isso coincide com a regra de 1 aprovação e com revisões que pediam mudanças. As PRs passaram a demorar mais porque a revisão ficou mais trabalhosa.
+- **O ciclo C4 quase não teve entregas na `main`** (1 PR), e o trabalho se acumulou no ciclo final, que concentrou 51 das 68 PRs.
+- **O lead time aumentou de ~8 horas para ~3,5 dias** a partir da #18. Isso coincide com a regra de 1 aprovação e com revisões que pediam mudanças. As PRs passaram a demorar mais porque a revisão ficou mais trabalhosa.
+- **Na reta final, o lead time voltou a cair (~12 horas)**, mas por concentração de trabalho nos últimos dias, e não por um fluxo melhor: 35 PRs em 4 dias, com muitos conflitos no README entre PRs abertas ao mesmo tempo.
+- **A revisão ficou concentrada:** 72 revisões no total (algumas PRs tiveram mais de uma revisora). A regra de 1 aprovação foi cumprida, mas a carga de revisão não foi dividida de forma equilibrada.
+- **Quase toda PR que mudou código trouxe testes** (33 de 38), o que mostra que a regra de testar junto com a funcionalidade foi seguida.
 - **O quadro não serviu como fonte de métricas.** O Trello não teve adesão. No GitHub Projects, os cards de rascunho não se moviam sozinhos e o quadro ficou desatualizado. Por isso, as métricas vêm do histórico do Git e das PRs, e não do quadro.
 
 ## 8. O que faríamos diferente
