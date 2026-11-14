@@ -222,6 +222,10 @@ Transições permitidas: `CRIADO → EM_PREPARO | CANCELADO`, `EM_PREPARO → PR
   "usuariosCadastrados": 18,
   "pedidosRecentes": [
     { "id": 41, "cliente": "Maria", "status": "PRONTO", "total": 25.50, "criadoEm": "2026-11-12T19:30:00" }
+  ],
+  "produtosComEstoqueBaixo": [
+    { "id": 7, "nome": "Refrigerante", "quantidadeEstoque": 0 },
+    { "id": 3, "nome": "Suco natural", "quantidadeEstoque": 3 }
   ]
 }
 ```
@@ -232,4 +236,4 @@ Transições permitidas: `CRIADO → EM_PREPARO | CANCELADO`, `EM_PREPARO → PR
 - `produtosAtivos`: produtos disponíveis no cardápio. `usuariosCadastrados`: todos os perfis, ativos e desativados.
 - `pedidosRecentes`: os 5 pedidos mais recentes de **qualquer dia**, do mais novo para o mais antigo, com o nome do cliente.
 - Erros: `401` sem token ou sem perfil · `403` quem chama não é ADMIN ativo.
-- A lista `produtosComEstoqueBaixo` (#56) entra quando o campo de estoque do produto estiver na `main`.
+- `produtosComEstoqueBaixo` (#56): produtos **disponíveis** com **até 5 unidades** em estoque, dos esgotados para os demais e depois por nome. Lista vazia quando nenhum produto está nessa situação.

@@ -108,13 +108,25 @@ public class ProdutoService {
     }
 
     private void validarDados(String nome, BigDecimal preco, Long categoriaId) {
+        validarNome(nome);
+        validarPreco(preco);
+        validarCategoria(categoriaId);
+    }
+
+    private void validarNome(String nome) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do produto é obrigatório");
         }
-        if(preco == null || preco.compareTo(BigDecimal.ZERO) <= 0) {
+    }
+
+    private void validarPreco(BigDecimal preco) {
+        if (preco == null || preco.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Preço do produto deve ser maior que zero");
         }
-        if(categoriaId == null) {
+    }
+
+    private void validarCategoria(Long categoriaId) {
+        if (categoriaId == null) {
             throw new IllegalArgumentException("Produto deve ter uma categoria");
         }
     }

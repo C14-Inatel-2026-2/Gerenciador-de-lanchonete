@@ -1,5 +1,6 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.service;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.service.ProdutoService;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
@@ -29,6 +30,9 @@ class PedidoLifecycleServiceTest {
     @Mock
     private PedidoRepository pedidoRepository;
 
+    @Mock
+    private ProdutoService produtoService;
+
     @InjectMocks
     private PedidoLifecycleService lifecycleService;
 
@@ -45,7 +49,7 @@ class PedidoLifecycleServiceTest {
     void deveAvancarParaPreparoESalvarNoBanco() {
         when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Pedido atualizado = lifecycleService.avancarParaPreparo(pedidoBase);
+        Pedido atualizado = lifecycleService.atualizarStatus(pedidoBase, StatusPedido.EM_PREPARO);
 
         assertEquals(StatusPedido.EM_PREPARO, atualizado.getStatus());
         verify(pedidoRepository, times(1)).save(pedidoBase);
@@ -55,7 +59,7 @@ class PedidoLifecycleServiceTest {
     void deveCancelarPedidoCriadoESalvarNoBanco() {
         when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Pedido cancelado = lifecycleService.cancelarPedido(pedidoBase);
+        Pedido cancelado = lifecycleService.atualizarStatus(pedidoBase, StatusPedido.CANCELADO);
 
         assertEquals(StatusPedido.CANCELADO, cancelado.getStatus());
         verify(pedidoRepository, times(1)).save(pedidoBase);
@@ -79,7 +83,7 @@ class PedidoLifecycleServiceTest {
         levarPedidoAte(statusAtual);
 
         assertThrows(TransicaoStatusInvalidaException.class,
-            () -> lifecycleService.cancelarPedido(pedidoBase));
+            () -> lifecycleService.atualizarStatus(pedidoBase, StatusPedido.CANCELADO));
 
         assertEquals(statusAtual, pedidoBase.getStatus());
         verify(pedidoRepository, never()).save(any());
@@ -88,7 +92,7 @@ class PedidoLifecycleServiceTest {
     @Test
     void naoDeveAceitarPedidoNulo() {
         assertThrows(IllegalArgumentException.class,
-            () -> lifecycleService.avancarParaPreparo(null));
+            () -> lifecycleService.atualizarStatus(null, StatusPedido.EM_PREPARO));
         verifyNoInteractions(pedidoRepository);
     }
 
@@ -104,7 +108,7 @@ class PedidoLifecycleServiceTest {
         levarPedidoAte(StatusPedido.EM_PREPARO);
         when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Pedido atualizado = lifecycleService.marcarComoPronto(pedidoBase);
+        Pedido atualizado = lifecycleService.atualizarStatus(pedidoBase, StatusPedido.PRONTO);
 
         assertEquals(StatusPedido.PRONTO, atualizado.getStatus());
         verify(pedidoRepository, times(1)).save(pedidoBase);
@@ -115,7 +119,7 @@ class PedidoLifecycleServiceTest {
         levarPedidoAte(StatusPedido.PRONTO);
         when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Pedido atualizado = lifecycleService.entregar(pedidoBase);
+        Pedido atualizado = lifecycleService.atualizarStatus(pedidoBase, StatusPedido.ENTREGUE);
 
         assertEquals(StatusPedido.ENTREGUE, atualizado.getStatus());
         verify(pedidoRepository, times(1)).save(pedidoBase);
@@ -126,13 +130,13 @@ class PedidoLifecycleServiceTest {
         levarPedidoAte(StatusPedido.EM_PREPARO);
         when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Pedido cancelado = lifecycleService.cancelarPedido(pedidoBase);
+        Pedido cancelado = lifecycleService.atualizarStatus(pedidoBase, StatusPedido.CANCELADO);
 
         assertEquals(StatusPedido.CANCELADO, cancelado.getStatus());
         verify(pedidoRepository, times(1)).save(pedidoBase);
     }
 
-        @Test
+    @Test
     void listarFilaBuscaSoStatusDaCozinhaDoMaisAntigoParaOMaisNovo() {
         when(pedidoRepository.findByStatusInOrderByCriadoEmAsc(
                 List.of(StatusPedido.CRIADO, StatusPedido.EM_PREPARO, StatusPedido.PRONTO)))
@@ -165,6 +169,54 @@ class PedidoLifecycleServiceTest {
         verify(pedidoRepository, never()).save(any());
     }
 
+    // ---- devolução de estoque ao cancelar (#56)
+
+    @Test
+    void cancelarDevolveAoEstoqueAQuantidadeDeCadaItem() {
+        Pedido pedido = new Pedido(100L, List.of(
+            new ItemPedido(1L, "Hamburguer", BigDecimal.valueOf(25), 2),
+            new ItemPedido(2L, "Suco", BigDecimal.valueOf(8), 3)));
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        lifecycleService.atualizarStatus(pedido, StatusPedido.CANCELADO);
+
+        verify(produtoService).reporEstoque(1L, 2);
+        verify(produtoService).reporEstoque(2L, 3);
+        verify(pedidoRepository).save(pedido);
+    }
+
+    @Test
+    void entregarNaoDevolveEstoque() {
+        levarPedidoAte(StatusPedido.PRONTO);
+        when(pedidoRepository.save(any(Pedido.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        lifecycleService.atualizarStatus(pedidoBase, StatusPedido.ENTREGUE);
+
+        verifyNoInteractions(produtoService);
+    }
+
+    @Test
+    void cancelamentoRecusadoNaoDevolveEstoque() {
+        levarPedidoAte(StatusPedido.PRONTO);
+
+        assertThrows(TransicaoStatusInvalidaException.class,
+            () -> lifecycleService.atualizarStatus(pedidoBase, StatusPedido.CANCELADO));
+
+        verifyNoInteractions(produtoService);
+        verify(pedidoRepository, never()).save(any());
+    }
+
+    @Test
+    void seADevolucaoFalharOPedidoNaoESalvo() {
+        doThrow(new RecursoNaoEncontradoException("Produto não encontrado"))
+            .when(produtoService).reporEstoque(1L, 1);
+
+        assertThrows(RecursoNaoEncontradoException.class,
+            () -> lifecycleService.atualizarStatus(pedidoBase, StatusPedido.CANCELADO));
+
+        verify(pedidoRepository, never()).save(any());
+    }
+
     // Leva o pedido até o status desejado usando só transições válidas,
     // já que alterarStatus não permite pular etapas.
     private void levarPedidoAte(StatusPedido alvo) {
@@ -178,4 +230,3 @@ class PedidoLifecycleServiceTest {
         caminho.forEach(pedidoBase::alterarStatus);
     }
 }
-

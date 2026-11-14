@@ -23,18 +23,21 @@ describe("CarrinhoContext", () => {
             nome: "X-Burger",
             descricao: "Hambúrguer artesanal.",
             preco: 24.9,
+            quantidadeEstoque: 5,
         };
         const batatas = {
             id: 2,
             nome: "Batatas",
             descricao: "Porção de batatas.",
             preco: 12.5,
+            quantidadeEstoque: 5,
         };
         const produto = {
             id: 99,
             nome: "Produto de teste",
             descricao: "Descrição do produto",
             preco: 10,
+            quantidadeEstoque: 3,
         };
 
         expect(result.current.cart).toEqual([]);
@@ -79,6 +82,7 @@ describe("CarrinhoContext", () => {
             nome: "X-Burger",
             descricao: "Hambúrguer artesanal.",
             preco: 24.9,
+            quantidadeEstoque: 5,
         };
 
         act(() => {
@@ -87,6 +91,39 @@ describe("CarrinhoContext", () => {
         });
 
         expect(result.current.cart.some((item) => item.id === 1)).toBe(false);
+    });
+
+    it("recalcula o total depois de remover um item", () => {
+        const { result } = renderHook(() => useCarrinho(), {
+            wrapper: CarrinhoProvider,
+        });
+        const xBurger = {
+            id: 1,
+            nome: "X-Burger",
+            descricao: "Hambúrguer artesanal.",
+            preco: 24.9,
+            quantidadeEstoque: 5,
+        };
+        const batatas = {
+            id: 2,
+            nome: "Batatas",
+            descricao: "Porção de batatas.",
+            preco: 12.5,
+            quantidadeEstoque: 5,
+        };
+
+        act(() => {
+            result.current.adicionarItem(xBurger);
+            result.current.adicionarItem(batatas);
+        });
+
+        expect(result.current.total).toBe(37.4);
+
+        act(() => result.current.atualizarQuantidade(xBurger.id, 0));
+
+        expect(result.current.cart).toHaveLength(1);
+        expect(result.current.cart[0].id).toBe(batatas.id);
+        expect(result.current.total).toBe(12.5);
     });
 
     it("limpa os itens e zera o total", async () => {
@@ -104,5 +141,47 @@ describe("CarrinhoContext", () => {
                 total: 0,
             });
         });
+    });
+
+    it("não permite ultrapassar o estoque ao adicionar ou alterar a quantidade", () => {
+        const { result } = renderHook(() => useCarrinho(), {
+            wrapper: CarrinhoProvider,
+        });
+        const produto = {
+            id: 1,
+            nome: "X-Burger",
+            descricao: "Hambúrguer artesanal.",
+            preco: 24.9,
+            quantidadeEstoque: 2,
+        };
+
+        act(() => {
+            result.current.adicionarItem(produto);
+            result.current.adicionarItem(produto);
+            result.current.adicionarItem(produto);
+            result.current.atualizarQuantidade(produto.id, 5);
+        });
+
+        expect(result.current.cart[0].quantidade).toBe(2);
+    });
+
+    it("descarta do armazenamento um carrinho acima do estoque informado", () => {
+        localStorage.setItem(CHAVE_CARRINHO, JSON.stringify({
+            itens: [{
+                id: 1,
+                nome: "X-Burger",
+                descricao: "Hambúrguer artesanal.",
+                preco: 24.9,
+                quantidadeEstoque: 2,
+                quantidade: 3,
+            }],
+            total: 74.7,
+        }));
+
+        const { result } = renderHook(() => useCarrinho(), {
+            wrapper: CarrinhoProvider,
+        });
+
+        expect(result.current.cart).toEqual([]);
     });
 });

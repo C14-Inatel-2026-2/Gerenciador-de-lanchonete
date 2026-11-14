@@ -1,12 +1,15 @@
 package com.lanchonete.gerenciadorlanchonetebackend.compras.service;
 
+import com.lanchonete.gerenciadorlanchonetebackend.catalogo.service.ProdutoService;
+import com.lanchonete.gerenciadorlanchonetebackend.compras.model.ItemPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.Pedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.model.StatusPedido;
 import com.lanchonete.gerenciadorlanchonetebackend.compras.repository.PedidoRepository;
-import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException; 
+import com.lanchonete.gerenciadorlanchonetebackend.exception.RecursoNaoEncontradoException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List; 
+import java.util.List;
 
 @Service
 public class PedidoLifecycleService {
@@ -17,9 +20,11 @@ public class PedidoLifecycleService {
         List.of(StatusPedido.CRIADO, StatusPedido.EM_PREPARO, StatusPedido.PRONTO);
 
     private final PedidoRepository pedidoRepository;
+    private final ProdutoService produtoService;
 
-    public PedidoLifecycleService(PedidoRepository pedidoRepository) {
+    public PedidoLifecycleService(PedidoRepository pedidoRepository, ProdutoService produtoService) {
         this.pedidoRepository = pedidoRepository;
+        this.produtoService = produtoService;
     }
 
     // fila da cozinha, do pedido mais antigo para o mais novo.
@@ -27,24 +32,11 @@ public class PedidoLifecycleService {
         return pedidoRepository.findByStatusInOrderByCriadoEmAsc(STATUS_DA_FILA);
     }
 
-    public Pedido avancarParaPreparo(Pedido pedido) {
-        return atualizarStatus(pedido, StatusPedido.EM_PREPARO);
-    }
-
-    public Pedido marcarComoPronto(Pedido pedido) {
-        return atualizarStatus(pedido, StatusPedido.PRONTO);
-    }
-
-    public Pedido entregar(Pedido pedido) {
-        return atualizarStatus(pedido, StatusPedido.ENTREGUE);
-    }
-
-    public Pedido cancelarPedido(Pedido pedido) {
-        return atualizarStatus(pedido, StatusPedido.CANCELADO);
-    }
-
     // usado pela API. Busca o pedido pelo id (404 se não existir)
     // e reaproveita o mesmo fluxo de validação e persistência do método abaixo.
+    // O @Transactional fica aqui também porque a chamada a atualizarStatus é interna
+    // (mesma classe) e não passa pelo proxy do Spring.
+    @Transactional
     public Pedido atualizarStatusPorId(Long pedidoId, StatusPedido novoStatus) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
             .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado"));
@@ -53,11 +45,23 @@ public class PedidoLifecycleService {
 
     // Único ponto que altera status e persiste. A validação da transição
     // fica no próprio Pedido (alterarStatus), para não duplicar a regra.
+    // Ao cancelar, devolve ao estoque a quantidade de cada item (#56), na mesma
+    // transação da mudança de status: se a devolução falhar, o status não muda.
+    @Transactional
     public Pedido atualizarStatus(Pedido pedido, StatusPedido novoStatus) {
         if (pedido == null) {
             throw new IllegalArgumentException("O pedido não pode ser nulo.");
         }
         pedido.alterarStatus(novoStatus);
+        if (novoStatus == StatusPedido.CANCELADO) {
+            devolverEstoque(pedido);
+        }
         return pedidoRepository.save(pedido);
+    }
+
+    private void devolverEstoque(Pedido pedido) {
+        for (ItemPedido item : pedido.getItens()) {
+            produtoService.reporEstoque(item.getProdutoId(), item.getQuantidade());
+        }
     }
 }
