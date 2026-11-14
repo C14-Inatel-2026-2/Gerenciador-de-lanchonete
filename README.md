@@ -230,6 +230,8 @@ Copie os arquivos de exemplo correspondentes para `.env` nos diretórios indicad
 
 - [Metodologia de desenvolvimento](docs/METODOLOGIA.md)
 
+- [Dinâmica de desenvolvimento](docs/DINAMICA.md)
+
 ---
 
 ## Rodando o frontend
