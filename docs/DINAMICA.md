@@ -91,6 +91,6 @@ Durante o desenvolvimento, ocorreram casos em que os arquivos presentes no PR co
 
 ### Yasmin
 
-- **Lições aprendidas:**
+- **Lições aprendidas:** Durante o projeto, aprendi muito sobre o uso do Git e do GitHub em um ambiente colaborativo, especialmente na criação e integração de branches, resolução de conflitos de merge e revisão de Pull Requests. Também tive contato pela primeira vez com ferramentas como Jenkins, Render e Vercel, entendendo na prática como funciona uma pipeline de integração e deploy contínuos. Além disso, desenvolver o painel administrativo me mostrou a importância de integrar frontend e backend desde o início e de manter o código organizado e bem testado para facilitar a evolução do projeto.
 
-- **O que faria diferente?**
+- **O que faria diferente?** Manteria minha branch sempre atualizada com a `main` antes de iniciar novas implementações e abrir Pull Requests, reduzindo conflitos durante a integração; Também procuraria validar mais cedo a integração entre frontend e backend, evitando depender dos dados mockados por muito tempo e identificando incompatibilidades antes da fase final do desenvolvimento; Teria me planejado melhor para as entregas e ao estudo das ferramentas que eu não dominava, foi um projeto bem extenso e não estava preparada para algo desse porte, porém aprendi muito no decorrer. 
