@@ -3,7 +3,7 @@
 ## Divisão de tarefas
 
 | Integrante | Módulo desenvolvido                                             |
-|------------|-----------------------------------------------------------------|
+| ---------- | --------------------------------------------------------------- |
 | Beatriz    | Catálogo e produtos, com controle de estoque (US02, US06, US08) |
 | Júlia      | Carrinho e pedidos (US03)                                       |
 | Karolina   | Autenticação e usuários (US01, US07)                            |
@@ -67,9 +67,9 @@ Durante o desenvolvimento, ocorreram casos em que os arquivos presentes no PR co
 
 ### Beatriz
 
-- **Lições aprendidas:**
+- **Lições aprendidas:** Aprendi muito, principalmente sobre o GitHub. Já tinha usado ele para versionamento, mas de forma muito básica. Foi a primeira vez que utilizei de fato essa diversidade de comandos (que aprendi durante a criação do projeto), a estrutura de branches, PRs com aprovação de outros colaboradores do projeto, até chegar ao merge. Também conheci o GitHub Projects ligado às issues. Fora do GitHub, pude aplicar na prática os testes que aprendemos em aula, em especial a utilização e a estruturação de mocks, e conhecer um pouco de novas ferramentas que usamos no projeto.
 
-- **O que faria diferente?**
+- **O que faria diferente?** Eu teria me planejado melhor em relação aos prazos e ao estudo das ferramentas e dos conceitos que eu não conhecia. Por ser um projeto bastante extenso, com um planejamento mais adequado seria possível estudar melhor, na prática, os conceitos que aprendemos em sala de aula, conhecer melhor as ferramentas e, talvez, até ampliar o escopo do projeto.
 
 ### Júlia
 
